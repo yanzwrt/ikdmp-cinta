@@ -1,16 +1,16 @@
  
-  # Gembok Bill
+  # Ikdmp-Cinta
   **Integrated ISP Management System**
   
   [![Node.js](https://img.shields.io/badge/Node.js-18.x-green?style=for-the-badge&logo=node.js)](https://nodejs.org/)
   [![License](https://img.shields.io/badge/license-ISC-blue?style=for-the-badge)](LICENSE)
-  [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=for-the-badge)](https://github.com/alijayanet/gembok-bill/pulls)
-  [![GitHub Stars](https://img.shields.io/github/stars/alijayanet/gembok-bill?style=for-the-badge)](https://github.com/alijayanet/gembok-bill/stargazers)
+  [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=for-the-badge)](https://github.com/yanzwrt/ikdmp-cinta/pulls)
+  [![GitHub Stars](https://img.shields.io/github/stars/alijayanet/gembok-bill?style=for-the-badge)](https://github.com/yanzwrt/ikdmp-cinta/stargazers)
 
 
-## 🌐 About Gembok Bill
+## 🌐 About Ikdmp-Cinta
 
-**Gembok Bill** is an integrated ISP management system designed to manage billing, customer service, and network operations through WhatsApp integration. This system provides end-to-end solutions for Internet Service Provider management with advanced features.
+**Ikdmp Cinta** is an integrated ISP management system designed to manage billing, customer service, and network operations through WhatsApp integration. This system provides end-to-end solutions for Internet Service Provider management with advanced features.
 
 ### 🚀 Main Features
 
@@ -81,10 +81,10 @@ SETLID admin123
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/alijayanet/gembok-bill.git
+git clone https://github.com/yanzwrt/ikdmp-cinta.git
 ```
 ```bash
-cd gembok-bill
+cd ikdmp-cinta
 ```
 
 ### 2. Install Dependencies
@@ -193,7 +193,7 @@ We welcome contributions from the community! Here's how to contribute:
 
 If you need assistance:
 
-- Create an **issue** at [GitHub Issues](https://github.com/alijayanet/gembok-bill/issues)
+- Create an **issue** at [GitHub Issues](https://github.com/yanzwrt/ikdmp-cinta/issues)
 - Contact the development team via email
 - Join the Discord community (if available)
 
@@ -203,7 +203,7 @@ This project is licensed under the ISC license - see the [LICENSE](LICENSE) file
 
 ## 👥 Development Team
 
-- **ALIJAYA Team** - [@alijayanet](https://github.com/alijayanet)
+- **RAKHA PUTRA ANDRIAN Team** - [@yanzwrt](https://github.com/yanzwrt)
 
 ## 🙏 Acknowledgments
 
@@ -215,7 +215,7 @@ This project is licensed under the ISC license - see the [LICENSE](LICENSE) file
   
   💻 Developed with ❤️ for the ISP community
   
-  [Report Bug](https://github.com/alijayanet/gembok-bill/issues) · [Request Feature](https://github.com/alijayanet/gembok-bill/issues) · [Documentation](DEPLOYMENT_GUIDE.md)
+  [Report Bug](https://github.com/yanzwrt/ikdmp-cinta/issues) · [Request Feature](https://github.com/yanzwrt/ikdmp-cinta/issues) · [Documentation](DEPLOYMENT_GUIDE.md)
   
 
 
