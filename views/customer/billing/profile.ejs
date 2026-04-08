@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Saya - <%= appSettings.companyHeader %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#0B1437">
+    <link rel="apple-touch-icon" href="/img/icons/icon-192.png">
+    <link rel="stylesheet" href="/css/pwa.css">
+    <link rel="stylesheet" href="/css/customer-responsive.css">
+    <script defer src="/js/pwa-install.js"></script>
+    <style>
+        :root { color-scheme: light; }
+        html, body { background: linear-gradient(135deg, #f8f9fa 0%, #edf3ff 100%) !important; color: #1f2937 !important; }
+        body.customer-profile-page {
+            background: linear-gradient(135deg, #f8f9fa 0%, #edf3ff 100%) !important;
+            color: #1f2937 !important;
+        }
+        body.customer-profile-page .container,
+        body.customer-profile-page .row,
+        body.customer-profile-page .col-12,
+        body.customer-profile-page .col-lg-8,
+        body.customer-profile-page .col-lg-4 {
+            background: transparent !important;
+            color: #1f2937 !important;
+        }
+        .navbar-brand img { max-height: 40px; }
+        .card {
+            border: none;
+            border-radius: 18px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+            background: #ffffff !important;
+            color: #1f2937 !important;
+        }
+        .card-header {
+            background: #f8fbff !important;
+            color: #1f2937 !important;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.18) !important;
+        }
+        .card-header h5,
+        .card-body,
+        .card-body label,
+        .card-body p,
+        .card-body div,
+        .card-body span {
+            color: #1f2937 !important;
+        }
+        .form-control {
+            border-radius: 12px;
+            background: #ffffff !important;
+            color: #111827 !important;
+            border: 1px solid rgba(148, 163, 184, 0.35) !important;
+        }
+        .form-control::placeholder {
+            color: #94a3b8 !important;
+        }
+        .btn { border-radius: 12px; }
+        .profile-photo-wrap {
+            width: 120px;
+            height: 120px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 2.5rem;
+            font-weight: 700;
+            box-shadow: 0 12px 28px rgba(37,99,235,0.22);
+        }
+        .profile-photo-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-photo-actions .btn,
+        .profile-photo-actions .form-control {
+            border-radius: 12px;
+        }
+        .upload-hint {
+            font-size: 0.85rem;
+            color: #6b7280 !important;
+        }
+        footer,
+        footer.bg-light {
+            background: transparent !important;
+        }
+        footer p {
+            color: #6b7280 !important;
+        }
+    </style>
+ </head>
+ <body class="customer-profile-page">
+    <!-- Navbar atas dihilangkan untuk tampilan mobile minimalis -->
+
+    <div class="container mt-4">
+        <%- include('../../partials/customer-mobile-profile-header') %>
+        <%
+            const displayName = (typeof profileData !== 'undefined' && profileData?.name) ? profileData.name : (customer?.name || '-');
+            const displayUsername = (typeof profileData !== 'undefined' && profileData?.username) ? profileData.username : (customer?.username || customer?.pppoe_username || '-');
+            const displayPhone = (typeof profileData !== 'undefined' && profileData?.phone) ? profileData.phone : (customer?.phone || (typeof sessionPhone !== 'undefined' ? sessionPhone : '-'));
+            const displayPackage = (typeof profileData !== 'undefined' && profileData?.packageName) ? profileData.packageName : (customer?.package_name || '-');
+        %>
+        <div class="row g-3">
+            <div class="col-12 col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-person-circle"></i> Profil Saya</h5>
+                    </div>
+                    <div class="card-body">
+                        <%
+                            const profilePhotoUrl = customer?.profile_photo ? `/img/customer-profiles/${customer.profile_photo}` : '';
+                            const profileInitial = (displayName || 'P').trim().charAt(0).toUpperCase();
+                        %>
+                        <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start gap-3 mb-4">
+                            <div class="profile-photo-wrap" id="customerProfilePhotoPreview">
+                                <% if (profilePhotoUrl) { %>
+                                    <img src="<%= profilePhotoUrl %>" alt="Foto Profil <%= displayName %>">
+                                <% } else { %>
+                                    <span><%= profileInitial %></span>
+                                <% } %>
+                            </div>
+                            <div class="flex-grow-1 profile-photo-actions w-100">
+                                <label for="profile_photo" class="form-label fw-semibold mb-2">Foto Profil</label>
+                                <div class="d-flex flex-column flex-sm-row gap-2">
+                                    <input type="file" class="form-control" id="profile_photo" accept="image/png,image/jpeg,image/jpg">
+                                    <button type="button" class="btn btn-primary" id="uploadProfilePhotoBtn">
+                                        <i class="bi bi-cloud-arrow-up"></i> Upload
+                                    </button>
+                                </div>
+                                <div class="upload-hint mt-2">Opsional. Foto ini juga tampil di halaman pelanggan versi admin.</div>
+                                <div id="profilePhotoAlert" class="alert d-none mt-3 mb-0" role="alert"></div>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nama</label>
+                                <input class="form-control" value="<%= displayName %>" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Username</label>
+                                <input class="form-control" value="<%= displayUsername %>" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Telepon</label>
+                                <input class="form-control" value="<%= displayPhone %>" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Paket</label>
+                                <input class="form-control" value="<%= displayPackage %>" readonly>
+                            </div>
+                        </div>
+                        
+                        <!-- Logout Button -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-grid">
+                                    <a href="/customer/logout" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin keluar?')">
+                                        <i class="bi bi-box-arrow-right"></i> Logout
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-info-circle"></i> Bantuan</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2">Hubungi admin untuk perubahan data profil.</p>
+                        <a href="https://wa.me/62<%= (appSettings.contact_whatsapp || '082130077713').replace(/^0/, '') %>" class="btn btn-success w-100" target="_blank">
+                            <i class="bi bi-whatsapp"></i> WhatsApp Admin
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light mt-5 py-4">
+        <div class="container text-center">
+            <p class="mb-0 text-muted"><%= appSettings.footerInfo %></p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/customer-mobile.js"></script>
+
+    <!-- Bottom nav (mobile) 5 menu -->
+    <nav class="bottom-nav d-md-none">
+        <a class="nav-item" href="/customer/billing/dashboard">
+            <i class="bi bi-columns-gap"></i>
+            <span>Billing</span>
+        </a>
+        <a class="nav-item has-badge" href="/customer/trouble/report">
+            <i class="bi bi-life-preserver"></i>
+            <span>Laporan</span>
+            <span class="customer-trouble-badge d-none">0</span>
+        </a>
+        <a class="nav-item home-button" href="/customer/dashboard">
+            <i class="bi bi-house-heart-fill"></i>
+            <span>Home</span>
+        </a>
+        <a class="nav-item" href="/customer/billing/invoices">
+            <i class="bi bi-receipt"></i>
+            <span>Invoice</span>
+        </a>
+        <a class="nav-item active" href="/customer/billing/profile">
+            <i class="bi bi-person-vcard"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+    <style>
+        .bottom-nav .nav-item.has-badge { position: relative; }
+        .bottom-nav .customer-trouble-badge {
+            position: absolute;
+            top: 6px;
+            right: 10px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            border-radius: 999px;
+            background: #ef4444;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.35);
+        }
+    </style>
+    <script>
+        (function() {
+            function showProfileAlert(type, message) {
+                const alertEl = document.getElementById('profilePhotoAlert');
+                if (!alertEl) return;
+                alertEl.className = `alert alert-${type} mt-3 mb-0`;
+                alertEl.textContent = message;
+                alertEl.classList.remove('d-none');
+            }
+
+            function renderProfilePreview(src, fallbackLetter) {
+                const wrap = document.getElementById('customerProfilePhotoPreview');
+                if (!wrap) return;
+                if (src) {
+                    wrap.innerHTML = `<img src="${src}" alt="Foto Profil">`;
+                } else {
+                    wrap.innerHTML = `<span>${fallbackLetter}</span>`;
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const uploadBtn = document.getElementById('uploadProfilePhotoBtn');
+                const input = document.getElementById('profile_photo');
+                const fallbackLetter = '<%= profileInitial %>';
+
+                if (input) {
+                    input.addEventListener('change', function() {
+                        const file = input.files && input.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            renderProfilePreview(ev.target.result, fallbackLetter);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
+
+                if (uploadBtn) {
+                    uploadBtn.addEventListener('click', async function() {
+                        const file = input && input.files ? input.files[0] : null;
+                        if (!file) {
+                            showProfileAlert('warning', 'Pilih foto profil terlebih dahulu.');
+                            return;
+                        }
+
+                        uploadBtn.disabled = true;
+                        uploadBtn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Uploading...';
+
+                        try {
+                            const formData = new FormData();
+                            formData.append('profile_photo', file);
+
+                            const response = await fetch('/customer/billing/profile/photo', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            const result = await response.json();
+
+                            if (result.success) {
+                                renderProfilePreview(result.path, fallbackLetter);
+                                showProfileAlert('success', result.message || 'Foto profil berhasil diperbarui.');
+                                if (input) input.value = '';
+                            } else {
+                                showProfileAlert('danger', result.message || 'Upload foto profil gagal.');
+                            }
+                        } catch (error) {
+                            console.error('Upload profile photo error:', error);
+                            showProfileAlert('danger', 'Terjadi kesalahan saat upload foto profil.');
+                        } finally {
+                            uploadBtn.disabled = false;
+                            uploadBtn.innerHTML = '<i class="bi bi-cloud-arrow-up"></i> Upload';
+                        }
+                    });
+                }
+            });
+
+        })();
+    </script>
+    <%- include('../../partials/customer-trouble-notification-script') %>
+ </body>
+ </html>
+

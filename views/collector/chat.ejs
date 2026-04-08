@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="manifest" href="/manifest-collector.webmanifest">
+    <meta name="theme-color" content="#16a34a">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background:#f5fff8; padding-top:88px; padding-bottom:108px; }
+        .chat-shell { margin:12px; background:#fff; border-radius:24px; overflow:hidden; box-shadow:0 20px 40px rgba(21,128,61,.14); }
+        .chat-header { padding:18px; background:linear-gradient(135deg,#16a34a,#22c55e,#10b981); color:#fff; }
+        .chat-messages { min-height:52vh; max-height:60vh; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; }
+        .bubble { max-width:82%; border-radius:20px; padding:12px 14px; box-shadow:0 10px 20px rgba(15,23,42,.06); }
+        .bubble--you { align-self:flex-end; background:linear-gradient(135deg,#16a34a,#10b981); color:#fff; }
+        .bubble--admin { align-self:flex-start; background:#fff; color:#0f172a; border:1px solid rgba(148,163,184,.22); }
+        .chat-compose { padding:14px 16px 18px; border-top:1px solid rgba(148,163,184,.16); }
+    </style>
+</head>
+<body>
+    <%- include('../partials/collector-bottom-nav', { currentPage: 'profile' }) %>
+    <div class="chat-shell">
+        <div class="chat-header">
+            <div class="fw-bold fs-5">Chat Admin</div>
+            <div class="small opacity-75">Komunikasi collector dengan admin.</div>
+        </div>
+        <div id="chatMessages" class="chat-messages"><div class="text-center text-muted py-5">Memuat percakapan...</div></div>
+        <div class="chat-compose">
+            <form id="chatForm" class="d-flex gap-2">
+                <input type="text" id="chatInput" class="form-control form-control-lg rounded-pill" placeholder="Ketik pesan..." required>
+                <button type="submit" class="btn btn-success rounded-pill px-4">Kirim</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        function escapeHtml(value){return String(value||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+        function formatWib(value){const date=new Date(value); if(Number.isNaN(date.getTime())) return '-'; return new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(date)+' WIB';}
+        function renderMessages(messages){const wrap=document.getElementById('chatMessages'); if(!messages?.length){wrap.innerHTML='<div class="text-center text-muted py-5">Belum ada percakapan.</div>'; return;} wrap.innerHTML=messages.map((item)=>`<div class="bubble ${item.sender_role==='admin'?'bubble--admin':'bubble--you'}"><div class="fw-semibold small mb-1">${item.sender_role==='admin'?'Admin':'Anda'}</div><div>${escapeHtml(item.message)}</div><div class="small mt-2 ${item.sender_role==='admin'?'text-muted':'text-white-50'}">${formatWib(item.created_at)}</div></div>`).join(''); wrap.scrollTop=wrap.scrollHeight;}
+        async function loadMessages(){const r=await fetch('/collector/chat/messages',{cache:'no-store'}); const j=await r.json(); if(!j.success) throw new Error(j.message||'Gagal'); renderMessages(j.messages||[]);}
+        document.getElementById('chatForm').addEventListener('submit', async (e)=>{e.preventDefault(); const input=document.getElementById('chatInput'); const message=input.value.trim(); if(!message)return; const r=await fetch('/collector/chat/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message})}); const j=await r.json(); if(!j.success){alert(j.message||'Gagal'); return;} input.value=''; await loadMessages();});
+        loadMessages().catch((error)=>{document.getElementById('chatMessages').innerHTML=`<div class="text-center text-danger py-5">${escapeHtml(error.message)}</div>`;});
+        setInterval(()=>loadMessages().catch(()=>{}),12000);
+    </script>
+</body>
+</html>

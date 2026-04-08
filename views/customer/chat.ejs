@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#6d4bff">
+    <link rel="stylesheet" href="/css/pwa.css">
+    <link rel="stylesheet" href="/css/customer-responsive.css">
+    <script defer src="/js/pwa-install.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body { background: linear-gradient(180deg, #f4eeff 0%, #fbf9ff 100%); padding-top: 92px; padding-bottom: 104px; }
+        .chat-shell { margin: 12px; background:#fff; border-radius:24px; overflow:hidden; box-shadow:0 20px 40px rgba(91,33,182,.12); }
+        .chat-header { padding:18px 18px 14px; background:linear-gradient(135deg,#6d4bff 0%,#7c3aed 45%,#8b5cf6 100%); color:#fff; }
+        .chat-messages { min-height:50vh; max-height:58vh; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(247,244,255,.98)); }
+        .chat-bubble { max-width:82%; border-radius:20px; padding:12px 14px; box-shadow:0 10px 20px rgba(15,23,42,.06); }
+        .chat-bubble--admin { align-self:flex-start; background:#fff; color:#0f172a; border:1px solid rgba(148,163,184,.24); }
+        .chat-bubble--you { align-self:flex-end; background:linear-gradient(135deg,#6d4bff,#8b5cf6); color:#fff; }
+        .chat-compose { padding:14px 16px 18px; background:#fff; border-top:1px solid rgba(148,163,184,.16); }
+    </style>
+</head>
+<body>
+    <%- include('../partials/customer-mobile-profile-header') %>
+    <div class="chat-shell">
+        <div class="chat-header">
+            <div class="fw-bold fs-5">Chat Dukungan</div>
+            <div class="small opacity-75">Terhubung ke admin dan teknisi langsung dari aplikasi.</div>
+        </div>
+        <div id="chatMessages" class="chat-messages"><div class="text-center text-muted py-5">Memuat percakapan...</div></div>
+        <div class="chat-compose">
+            <form id="chatForm" class="d-flex gap-2">
+                <input type="text" id="chatInput" class="form-control form-control-lg rounded-pill" placeholder="Ketik pesan..." required>
+                <button type="submit" class="btn btn-primary rounded-pill px-4">Kirim</button>
+            </form>
+        </div>
+    </div>
+    <nav class="bottom-nav d-md-none">
+        <a class="nav-item" href="/customer/billing/dashboard" title="Billing">
+            <i class="bi bi-columns-gap"></i>
+            <span>Billing</span>
+        </a>
+        <a class="nav-item has-badge" href="/customer/trouble/report" title="Laporan" id="customerTroubleNav">
+            <i class="bi bi-life-preserver"></i>
+            <span>Laporan</span>
+            <span class="customer-trouble-badge d-none" id="customerTroubleBadge">0</span>
+        </a>
+        <a class="nav-item home-button" href="/customer/dashboard" title="Home">
+            <i class="bi bi-house-heart-fill"></i>
+            <span>Home</span>
+        </a>
+        <a class="nav-item" href="/customer/billing/invoices" title="Invoice">
+            <i class="bi bi-receipt"></i>
+            <span>Invoice</span>
+        </a>
+        <a class="nav-item" href="/customer/billing/profile" title="Profil">
+            <i class="bi bi-person-vcard"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+    <script>
+        function escapeHtml(value){return String(value||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+        function formatWib(value){const date=new Date(value); if(Number.isNaN(date.getTime())) return '-'; return new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(date)+' WIB';}
+        function senderLabel(item){if(item.sender_role==='admin') return 'Admin'; if(item.sender_role==='technician') return 'Teknisi'; return 'Anda';}
+        function incomingClass(item){return item.sender_role==='customer' ? 'chat-bubble--you' : 'chat-bubble--admin';}
+        function renderMessages(messages){const wrap=document.getElementById('chatMessages'); if(!messages?.length){wrap.innerHTML='<div class="text-center text-muted py-5">Belum ada percakapan.</div>'; return;} wrap.innerHTML=messages.map((item)=>`<div class="chat-bubble ${incomingClass(item)}"><div class="fw-semibold small mb-1">${senderLabel(item)}</div><div>${escapeHtml(item.message)}</div><div class="small mt-2 ${item.sender_role==='customer'?'text-white-50':'text-muted'}">${formatWib(item.created_at)}</div></div>`).join(''); wrap.scrollTop=wrap.scrollHeight;}
+        async function loadMessages(){const r=await fetch('/customer/chat/messages',{cache:'no-store'}); const j=await r.json(); if(!j.success) throw new Error(j.message||'Gagal'); renderMessages(j.messages||[]);}
+        document.getElementById('chatForm').addEventListener('submit', async (e)=>{e.preventDefault(); const input=document.getElementById('chatInput'); const message=input.value.trim(); if(!message) return; const r=await fetch('/customer/chat/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message})}); const j=await r.json(); if(!j.success){alert(j.message||'Gagal'); return;} input.value=''; await loadMessages();});
+        loadMessages().catch((error)=>{document.getElementById('chatMessages').innerHTML=`<div class="text-center text-danger py-5">${escapeHtml(error.message)}</div>`;});
+        setInterval(()=>loadMessages().catch(()=>{}),12000);
+    </script>
+    <%- include('../partials/customer-trouble-notification-script') %>
+</body>
+</html>

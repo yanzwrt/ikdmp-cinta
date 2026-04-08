@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifikasi - <%= appSettings.companyHeader %></title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#0B1437">
+    <link rel="apple-touch-icon" href="/img/icons/icon-192.png">
+    <link rel="stylesheet" href="/css/pwa.css">
+    <link rel="stylesheet" href="/css/customer-responsive.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #eef4ff 0%, #f8fbff 100%);
+            color: #0f172a;
+            min-height: 100vh;
+        }
+
+        .notification-page {
+            padding: 1rem 0 6rem;
+        }
+
+        .notification-shell {
+            background: rgba(255, 255, 255, 0.94);
+            border-radius: 28px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+            padding: 1.25rem;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+        }
+
+        .notification-page__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .notification-page__title {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .notification-page__subtitle {
+            margin: 4px 0 0;
+            color: #64748b;
+            font-size: 0.88rem;
+        }
+
+        .customer-notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .customer-notification-item {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            text-decoration: none;
+            background: #fff;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 20px;
+            padding: 14px;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        .customer-notification-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 18px 32px rgba(15, 23, 42, 0.08);
+            border-color: rgba(99, 102, 241, 0.28);
+        }
+
+        .customer-notification-item.is-unread {
+            border-color: rgba(79, 70, 229, 0.3);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(236, 72, 153, 0.04));
+        }
+
+        .customer-notification-item__icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+            box-shadow: 0 12px 24px rgba(99, 102, 241, 0.24);
+        }
+
+        .customer-notification-item__content {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .customer-notification-item__top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .customer-notification-item__top h6 {
+            margin: 0;
+            font-size: 0.96rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .customer-notification-item__content p {
+            margin: 0 0 8px;
+            color: #475569;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .customer-notification-item__content small {
+            color: #64748b;
+            font-size: 0.78rem;
+        }
+
+        .customer-notification-item__badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: #ef4444;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .customer-notification-empty {
+            text-align: center;
+            padding: 3rem 1.25rem;
+            color: #64748b;
+            background: #fff;
+            border-radius: 22px;
+            border: 1px dashed rgba(148, 163, 184, 0.35);
+        }
+
+        .customer-notification-empty i {
+            font-size: 2rem;
+            color: #6366f1;
+            margin-bottom: 0.75rem;
+            display: inline-block;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container notification-page">
+        <%- include('../partials/customer-mobile-profile-header') %>
+        <div class="notification-shell">
+            <div class="notification-page__header">
+                <div>
+                    <h1 class="notification-page__title">Pusat Notifikasi</h1>
+                    <p class="notification-page__subtitle">Tagihan, balasan laporan, perubahan status, dan info layanan terbaru.</p>
+                </div>
+            </div>
+
+            <div id="customerNotificationList" class="customer-notification-list"></div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav d-md-none">
+        <a class="nav-item" href="/customer/billing/dashboard">
+            <i class="bi bi-columns-gap"></i>
+            <span>Billing</span>
+        </a>
+        <a class="nav-item has-badge" href="/customer/trouble/report">
+            <i class="bi bi-life-preserver"></i>
+            <span>Laporan</span>
+            <span class="customer-trouble-badge d-none">0</span>
+        </a>
+        <a class="nav-item home-button" href="/customer/dashboard">
+            <i class="bi bi-house-heart-fill"></i>
+            <span>Home</span>
+        </a>
+        <a class="nav-item" href="/customer/billing/invoices">
+            <i class="bi bi-receipt"></i>
+            <span>Invoice</span>
+        </a>
+        <a class="nav-item" href="/customer/billing/profile">
+            <i class="bi bi-person-vcard"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/customer-mobile.js"></script>
+    <%- include('../partials/customer-trouble-notification-script') %>
+</body>
+</html>
