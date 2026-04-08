@@ -107,7 +107,7 @@ class BillingManager {
                     } else {
                         // Sinkronisasi cable routes jika ada data ODP atau cable
                         if (odp_id !== undefined || cable_type !== undefined) {
-                            console.log(`ðŸ”§ Updating cable route for customer ${oldCustomer.username}, odp_id: ${odp_id}, cable_type: ${cable_type}`);
+                            console.log(`♻️Updating cable route for customer ${oldCustomer.username}, odp_id: ${odp_id}, cable_type: ${cable_type}`);
                             try {
                                 const db = this.db;
                                 const customerId = id;
@@ -147,7 +147,7 @@ class BillingManager {
                                     });
                                 } else if (odp_id) {
                                     // Buat cable route baru jika belum ada
-                                    console.log(`ðŸ“ Creating new cable route for customer ${oldCustomer.username}...`);
+                                    console.log(`🛠Creating new cable route for customer ${oldCustomer.username}...`);
                                     const cableRouteSql = `
                                         INSERT INTO cable_routes (customer_id, odp_id, cable_type, cable_length, port_number, status, notes)
                                         VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -163,14 +163,14 @@ class BillingManager {
                                         cable_notes || `Auto-created for customer ${oldCustomer.name}`
                                     ], function (err) {
                                         if (err) {
-                                            console.error(`âŒ Error creating cable route for customer ${oldCustomer.username}:`, err.message);
+                                            console.error(`❌Error creating cable route for customer ${oldCustomer.username}:`, err.message);
                                         } else {
-                                            console.log(`âœ… Successfully created cable route for customer ${oldCustomer.username}`);
+                                            console.log(`✅Successfully created cable route for customer ${oldCustomer.username}`);
                                         }
                                     });
                                 }
                             } catch (cableError) {
-                                console.error(`âŒ Error handling cable route for customer ${oldCustomer.username}:`, cableError.message);
+                                console.error(`❌Error handling cable route for customer ${oldCustomer.username}:`, cableError.message);
                                 // Jangan reject, karena customer sudah berhasil diupdate di billing
                             }
                         }
