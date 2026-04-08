@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/admin-mobile.css" rel="stylesheet">
+    <link href="/css/responsive-admin.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #f5f7fb;
+            --bg-card: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #eef2f6;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            --surface-border: rgba(148, 163, 184, 0.22);
+            --hero-glow: radial-gradient(circle at top left, rgba(96, 165, 250, 0.22), transparent 38%);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #081120;
+            --bg-card: #101c30;
+            --text-color: #e6eefc;
+            --text-muted: #93a4bf;
+            --border-color: rgba(148, 163, 184, 0.18);
+            --card-shadow: 0 20px 42px rgba(2, 8, 23, 0.36);
+        }
+
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(45, 212, 191, 0.12), transparent 22%),
+                linear-gradient(180deg, #f7faff 0%, #eef4ff 44%, #f8fbff 100%);
+            color: var(--text-color);
+        }
+
+        body[data-theme="dark"] {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(20, 184, 166, 0.12), transparent 24%),
+                linear-gradient(180deg, #081120 0%, #0b1324 44%, #0a1428 100%);
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .billing-toolbar,
+        .billing-panel {
+            position: relative;
+            border: 1px solid var(--surface-border);
+            border-radius: 24px;
+            background:
+                linear-gradient(145deg, rgba(255,255,255,0.88), rgba(244,247,255,0.82)),
+                var(--hero-glow);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 18px 44px rgba(37, 99, 235, 0.08);
+            padding: 16px 20px;
+            margin-bottom: 1.5rem;
+        }
+
+        [data-theme="dark"] .billing-toolbar,
+        [data-theme="dark"] .billing-panel {
+            background:
+                linear-gradient(145deg, rgba(15,23,42,0.88), rgba(17,24,39,0.9)),
+                radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 40%);
+            border-color: rgba(148, 163, 184, 0.22);
+            box-shadow: 0 20px 42px rgba(2, 8, 23, 0.32);
+        }
+
+        .icon-only-btn {
+            width: 42px;
+            min-width: 42px;
+            height: 42px;
+            padding-inline: 0 !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px !important;
+        }
+
+        .card,
+        .modal-content {
+            background-color: var(--bg-card) !important;
+            color: var(--text-color);
+            border: 1px solid var(--border-color) !important;
+            box-shadow: var(--card-shadow);
+            border-radius: 20px;
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table {
+            color: var(--text-color);
+        }
+
+        .table thead th {
+            white-space: nowrap;
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        .payment-status-badge {
+            font-size: 0.72rem;
+            padding: 0.38rem 0.62rem;
+            border-radius: 999px;
+        }
+
+        .monitor-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .monitor-stat-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 22px;
+            padding: 1.25rem 1.35rem;
+            color: #fff;
+            box-shadow: 0 16px 34px rgba(37, 99, 235, 0.14);
+            min-height: 118px;
+        }
+
+        .monitor-stat-card::after {
+            content: "";
+            position: absolute;
+            right: -18px;
+            bottom: -24px;
+            width: 128px;
+            height: 128px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.14);
+        }
+
+        .monitor-stat-card .label {
+            position: relative;
+            z-index: 1;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.95;
+        }
+
+        .monitor-stat-card .value {
+            position: relative;
+            z-index: 1;
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-top: 0.4rem;
+        }
+
+        .monitor-stat-card .subtext {
+            position: relative;
+            z-index: 1;
+            font-size: 0.84rem;
+            opacity: 0.9;
+            margin-top: 0.35rem;
+        }
+
+        .monitor-stat-card.pending-card { background: linear-gradient(135deg, #f59e0b, #f97316); }
+        .monitor-stat-card.gateway-card { background: linear-gradient(135deg, #2563eb, #4f46e5); }
+        .monitor-stat-card.failed-card { background: linear-gradient(135deg, #ef4444, #ec4899); }
+        .monitor-stat-card.paid-card { background: linear-gradient(135deg, #10b981, #06b6d4); }
+
+        .monitor-tabs {
+            margin-bottom: 1.5rem;
+            padding: 0.2rem 0.1rem 0;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 20px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.88), rgba(244,247,255,0.82));
+            backdrop-filter: blur(16px);
+            box-shadow: 0 14px 34px rgba(37, 99, 235, 0.08);
+        }
+
+        .monitor-tabs .nav {
+            border-bottom: 0;
+            gap: 1rem !important;
+            padding: 0 1rem;
+        }
+
+        .monitor-tabs .nav-link {
+            border: 0;
+            border-bottom: 3px solid transparent;
+            border-radius: 0;
+            background: transparent !important;
+            color: var(--text-muted);
+            font-weight: 700;
+            padding: 0.85rem 0.1rem 0.7rem;
+            box-shadow: none !important;
+        }
+
+        .monitor-tabs .nav-link.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+
+        .monitor-tabs .nav-link:hover {
+            color: #2563eb;
+        }
+
+        .tab-content > .tab-pane {
+            display: none !important;
+        }
+
+        .tab-content > .tab-pane.active,
+        .tab-content > .tab-pane.show.active {
+            display: block !important;
+        }
+
+        @media (max-width: 991.98px) {
+            .monitor-stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 0.65rem 1rem;
+            align-items: start;
+        }
+
+        .detail-grid .label {
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        @media (max-width: 575.98px) {
+            .monitor-stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+                gap: 0.35rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+            <%- include('../../partials/billing-responsive-sidebar', { page: 'payment-monitor' }) %>
+
+                <main class="main-content px-md-4">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+                        <h3 class="h3 mb-0">Payment Monitor</h3>
+                        <button class="btn btn-white shadow-sm border-0 icon-only-btn" id="themeToggle" onclick="toggleTheme()" aria-label="Ganti tema">
+                            <i class="bi bi-sun-fill text-warning" id="themeIcon"></i>
+                        </button>
+                    </div>
+
+                    <div class="billing-toolbar d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div>
+                            <h1 class="h3 mb-1"><i class="bx bx-monitor me-2"></i>Payment Monitor</h1>
+                            <div class="text-muted">Kelola transaksi gateway yang pending, gagal, atau diselesaikan manual admin.</div>
+                        </div>
+                        <div class="btn-toolbar mb-0">
+                            <button type="button" class="btn btn-outline-secondary rounded-pill px-3" onclick="refreshData()">
+                                <i class="bx bx-refresh me-1"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="monitor-stats-grid">
+                        <div class="monitor-stat-card pending-card">
+                            <div class="label">Pending Aktif</div>
+                            <div class="value" id="pendingActiveCount">0</div>
+                            <div class="subtext">Gateway masih menunggu pembayaran</div>
+                        </div>
+                        <div class="monitor-stat-card gateway-card">
+                            <div class="label">Gateway Aktif</div>
+                            <div class="value" id="gatewayActiveCount">0</div>
+                            <div class="subtext">Jumlah gateway yang siap dipakai</div>
+                        </div>
+                        <div class="monitor-stat-card failed-card">
+                            <div class="label">Failed / Cancelled</div>
+                            <div class="value" id="failedPaymentCount">0</div>
+                            <div class="subtext">Transaksi gagal atau dibatalkan</div>
+                        </div>
+                        <div class="monitor-stat-card paid-card">
+                            <div class="label">Paid Bulan Ini</div>
+                            <div class="value" id="paidTransactionCount">0</div>
+                            <div class="subtext">Jumlah transaksi lunas bulan berjalan</div>
+                        </div>
+                    </div>
+
+                    <div class="monitor-tabs">
+                        <ul class="nav nav-tabs" id="paymentMonitorTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="payment-tab-pending" data-bs-toggle="tab" data-bs-target="#tab-pending" type="button" role="tab" aria-controls="tab-pending" aria-selected="true">Pending Aktif</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="payment-tab-gateway" data-bs-toggle="tab" data-bs-target="#tab-gateway" type="button" role="tab" aria-controls="tab-gateway" aria-selected="false">Gateway Status</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="payment-tab-failed" data-bs-toggle="tab" data-bs-target="#tab-failed" type="button" role="tab" aria-controls="tab-failed" aria-selected="false">Failed Web</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="payment-tab-recent" data-bs-toggle="tab" data-bs-target="#tab-recent" type="button" role="tab" aria-controls="tab-recent" aria-selected="false">Transaksi Paid</button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="tab-pending" role="tabpanel" aria-labelledby="payment-tab-pending">
+                            <div class="billing-panel">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Pending Gateway Aktif</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Invoice</th>
+                                                        <th>Customer</th>
+                                                        <th>Amount</th>
+                                                        <th>Gateway</th>
+                                                        <th>Status</th>
+                                                        <th>Created</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="activePendingPaymentsTable">
+                                                    <!-- Active pending payments will be loaded here -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-gateway" role="tabpanel" aria-labelledby="payment-tab-gateway">
+                            <div class="billing-panel">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Payment Gateway Status</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="gatewayStatus" class="row">
+                                            <!-- Gateway status will be loaded here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-failed" role="tabpanel" aria-labelledby="payment-tab-failed">
+                            <div class="billing-panel">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Failed Web Payments</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Invoice</th>
+                                                        <th>Customer</th>
+                                                        <th>Amount</th>
+                                                        <th>Gateway</th>
+                                                        <th>Status</th>
+                                                        <th>Created</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="failedPaymentsTable">
+                                                    <!-- Failed payments will be loaded here -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-recent" role="tabpanel" aria-labelledby="payment-tab-recent">
+                            <div class="billing-panel">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Recent Payment Transactions</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Invoice</th>
+                                                        <th>Customer</th>
+                                                        <th>Amount</th>
+                                                        <th>Method</th>
+                                                        <th>Status</th>
+                                                        <th>Date</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="transactionsTable">
+                                                    <!-- Transactions will be loaded here -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+    </div>
+
+    <!-- Manual Payment Modal -->
+    <div class="modal fade" id="manualPaymentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Process Manual Payment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="manualPaymentForm">
+                        <div class="mb-3">
+                            <label for="manualInvoiceId" class="form-label">Invoice ID</label>
+                            <input type="text" class="form-control" id="manualInvoiceId" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="manualPaymentMethod" class="form-label">Payment Method</label>
+                            <select class="form-select" id="manualPaymentMethod" required>
+                                <option value="">Select payment method</option>
+                                <option value="cash">Cash</option>
+                                <option value="bank_transfer">Bank Transfer</option>
+                                <option value="e_wallet">E-Wallet</option>
+                                <option value="qris">QRIS</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="manualReference" class="form-label">Reference Number</label>
+                            <input type="text" class="form-control" id="manualReference"
+                                placeholder="Payment reference number">
+                        </div>
+                        <div class="mb-3">
+                            <label for="manualNotes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="manualNotes" rows="3"
+                                placeholder="Additional notes"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="processManualPayment()">Process
+                        Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="transactionDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bx bx-detail me-2"></i>Detail Transaksi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="detail-grid">
+                        <div class="label">Invoice</div><div id="detailInvoice">-</div>
+                        <div class="label">Pelanggan</div><div id="detailCustomer">-</div>
+                        <div class="label">Jumlah</div><div id="detailAmount">-</div>
+                        <div class="label">Metode</div><div id="detailMethod">-</div>
+                        <div class="label">Status</div><div id="detailStatus">-</div>
+                        <div class="label">Ref / Order</div><div id="detailReference">-</div>
+                        <div class="label">Waktu</div><div id="detailDate">-</div>
+                        <div class="label">Catatan</div><div id="detailNotes">-</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let recentTransactions = [];
+
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButton(newTheme);
+        }
+
+        function updateThemeButton(theme) {
+            const icon = document.getElementById('themeIcon');
+            const btn = document.getElementById('themeToggle');
+            if (!icon || !btn) return;
+            if (theme === 'dark') {
+                icon.className = 'bi bi-moon-stars-fill text-white';
+                btn.classList.remove('btn-white');
+                btn.classList.add('btn-dark');
+            } else {
+                icon.className = 'bi bi-sun-fill text-warning';
+                btn.classList.remove('btn-dark');
+                btn.classList.add('btn-white');
+            }
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            updateThemeButton(savedTheme);
+            loadActivePendingPayments();
+            loadGatewayStatus();
+            loadFailedPayments();
+            loadTransactions();
+        });
+
+        async function loadActivePendingPayments() {
+            try {
+                const response = await fetch('/payment/active-pending-payments');
+                const data = await response.json();
+
+                if (data.success) {
+                    const tableHtml = (data.payments || []).map(payment => `
+                        <tr>
+                            <td>${payment.invoice_number || payment.invoice_id}</td>
+                            <td>${payment.customer_name || 'N/A'}</td>
+                            <td>Rp ${parseFloat(payment.amount || 0).toLocaleString('id-ID')}</td>
+                            <td>${payment.gateway || 'N/A'}</td>
+                            <td><span class="badge bg-warning text-dark">pending</span></td>
+                            <td>${payment.created_at ? new Date(payment.created_at).toLocaleString('id-ID') : '-'}</td>
+                            <td>
+                                <a class="btn btn-sm btn-outline-primary" href="/admin/billing/invoices/${payment.invoice_id}">
+                                    Detail Invoice
+                                </a>
+                                <button class="btn btn-sm btn-success ms-1" onclick="resolvePendingPayment('${payment.id}', '${payment.order_id || ''}')">
+                                    Selesaikan
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger ms-1" onclick="cancelPendingPayment('${payment.id}', '${payment.order_id || ''}')">
+                                    Batalkan
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                    document.getElementById('pendingActiveCount').textContent = (data.payments || []).length;
+                    document.getElementById('activePendingPaymentsTable').innerHTML = tableHtml || '<tr><td colspan="7" class="text-center">Tidak ada pending gateway aktif</td></tr>';
+                } else {
+                    document.getElementById('pendingActiveCount').textContent = '0';
+                    document.getElementById('activePendingPaymentsTable').innerHTML = '<tr><td colspan="7" class="text-center">Tidak ada pending gateway aktif</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading active pending payments:', error);
+                document.getElementById('pendingActiveCount').textContent = '0';
+                document.getElementById('activePendingPaymentsTable').innerHTML = '<tr><td colspan="7" class="text-center text-danger">Gagal memuat data pending aktif</td></tr>';
+            }
+        }
+
+        // Load payment gateway status
+        async function loadGatewayStatus() {
+            try {
+                const response = await fetch('/payment/gateway-status');
+                const data = await response.json();
+
+                if (data.success) {
+                    const gateways = Array.isArray(data.gateways) ? data.gateways : Object.entries(data.data || {}).map(([name, info]) => ({
+                        name,
+                        initialized: !!info.enabled,
+                        active: !!info.active
+                    }));
+                    const statusHtml = gateways.map(gateway => `
+                        <div class="col-md-4 mb-3">
+                            <div class="card ${gateway.initialized ? 'border-success' : 'border-danger'}">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">${gateway.name}</h6>
+                                    <div class="mb-2">
+                                        <span class="badge ${gateway.initialized ? 'bg-success' : 'bg-danger'}">
+                                            ${gateway.initialized ? 'Active' : 'Inactive'}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">
+                                        ${gateway.initialized ? 'Gateway is ready' : 'Gateway not configured'}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    document.getElementById('gatewayActiveCount').textContent = gateways.filter(gateway => gateway.initialized).length;
+                    document.getElementById('gatewayStatus').innerHTML = statusHtml;
+                }
+            } catch (error) {
+                console.error('Error loading gateway status:', error);
+                document.getElementById('gatewayActiveCount').textContent = '0';
+            }
+        }
+
+        // Load failed web payments
+        async function loadFailedPayments() {
+            try {
+                const response = await fetch('/payment/failed-payments');
+                const data = await response.json();
+
+                if (data.success) {
+                    const tableHtml = data.payments.map(payment => `
+                        <tr>
+                            <td>${payment.invoice_id}</td>
+                            <td>${payment.customer_name || 'N/A'}</td>
+                            <td>Rp ${parseFloat(payment.amount).toLocaleString('id-ID')}</td>
+                            <td>${payment.gateway || 'N/A'}</td>
+                            <td><span class="badge bg-warning">${payment.status}</span></td>
+                            <td>${new Date(payment.created_at).toLocaleDateString('id-ID')}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="showManualPaymentModal('${payment.invoice_id}')">
+                                    Process Manually
+                                </button>
+                                ${String(payment.status).toLowerCase() === 'pending' ? `
+                                    <button class="btn btn-sm btn-success ms-1" onclick="resolvePendingPayment('${payment.id}', '${payment.order_id || ''}')">
+                                        Selesaikan
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger ms-1" onclick="cancelPendingPayment('${payment.id}', '${payment.order_id || ''}')">
+                                        Batalkan
+                                    </button>
+                                ` : ''}
+                            </td>
+                        </tr>
+                    `).join('');
+
+                    document.getElementById('failedPaymentCount').textContent = (data.payments || []).length;
+                    document.getElementById('failedPaymentsTable').innerHTML = tableHtml || '<tr><td colspan="7" class="text-center">No failed payments found</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading failed payments:', error);
+                document.getElementById('failedPaymentCount').textContent = '0';
+            }
+        }
+
+        // Load recent transactions
+        async function loadTransactions() {
+            try {
+                const response = await fetch('/payment/recent-transactions');
+                const data = await response.json();
+
+                if (data.success) {
+                    recentTransactions = data.transactions || [];
+                    const tableHtml = recentTransactions.map(transaction => `
+                        <tr>
+                            <td>${transaction.invoice_number || transaction.invoice_id}</td>
+                            <td>${transaction.customer_name || 'N/A'}</td>
+                            <td>Rp ${parseFloat(transaction.amount).toLocaleString('id-ID')}</td>
+                            <td>${formatPaymentMethod(transaction.payment_method)}</td>
+                            <td><span class="badge payment-status-badge bg-success">paid</span></td>
+                            <td>${new Date(transaction.payment_date).toLocaleString('id-ID')}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info" onclick="viewTransactionDetails(${transaction.id})">
+                                    Detail
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                    document.getElementById('paidTransactionCount').textContent = data.summary?.currentMonthPaidCount ?? 0;
+                    document.getElementById('transactionsTable').innerHTML = tableHtml || '<tr><td colspan="7" class="text-center">No transactions found</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading transactions:', error);
+                document.getElementById('paidTransactionCount').textContent = '0';
+            }
+        }
+
+        // Show manual payment modal
+        function showManualPaymentModal(invoiceId) {
+            document.getElementById('manualInvoiceId').value = invoiceId;
+            document.getElementById('manualReference').value = `MANUAL_${Date.now()}`;
+            document.getElementById('manualNotes').value = '';
+
+            const modal = new bootstrap.Modal(document.getElementById('manualPaymentModal'));
+            modal.show();
+        }
+
+        // Process manual payment
+        async function processManualPayment() {
+            const invoiceId = document.getElementById('manualInvoiceId').value;
+            const paymentMethod = document.getElementById('manualPaymentMethod').value;
+            const reference = document.getElementById('manualReference').value;
+            const notes = document.getElementById('manualNotes').value;
+
+            try {
+                const response = await fetch('/payment/manual-process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        invoice_id: invoiceId,
+                        payment_method: paymentMethod,
+                        reference_number: reference,
+                        notes: notes
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Show success message
+                    showAlert('Payment processed successfully!', 'success');
+
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('manualPaymentModal'));
+                    modal.hide();
+
+                    // Refresh data
+                    loadFailedPayments();
+                    loadTransactions();
+                } else {
+                    showAlert(data.message || 'Failed to process payment', 'danger');
+                }
+            } catch (error) {
+                console.error('Error processing manual payment:', error);
+                showAlert('Error processing payment', 'danger');
+            }
+        }
+
+        // View transaction details
+        function viewTransactionDetails(transactionId) {
+            const transaction = recentTransactions.find(item => Number(item.id) === Number(transactionId));
+            if (!transaction) {
+                showAlert('Detail transaksi tidak ditemukan', 'danger');
+                return;
+            }
+
+            document.getElementById('detailInvoice').textContent = transaction.invoice_number || transaction.invoice_id || '-';
+            document.getElementById('detailCustomer').textContent = transaction.customer_name || '-';
+            document.getElementById('detailAmount').textContent = `Rp ${parseFloat(transaction.amount || 0).toLocaleString('id-ID')}`;
+            document.getElementById('detailMethod').textContent = formatPaymentMethod(transaction.payment_method);
+            document.getElementById('detailStatus').textContent = 'Paid';
+            document.getElementById('detailReference').textContent = transaction.reference_number || '-';
+            document.getElementById('detailDate').textContent = transaction.payment_date ? new Date(transaction.payment_date).toLocaleString('id-ID') : '-';
+            document.getElementById('detailNotes').textContent = transaction.notes || '-';
+
+            const modal = new bootstrap.Modal(document.getElementById('transactionDetailModal'));
+            modal.show();
+        }
+
+        function formatPaymentMethod(method) {
+            const normalized = String(method || '').trim().toLowerCase();
+            const labels = {
+                manual_admin: 'Manual Admin',
+                cash: 'Cash',
+                bank_transfer: 'Transfer Bank',
+                e_wallet: 'E-Wallet',
+                qris: 'QRIS',
+                tripay: 'Tripay',
+                xendit: 'Xendit',
+                midtrans: 'Midtrans'
+            };
+            return labels[normalized] || (method || '-');
+        }
+
+        async function resolvePendingPayment(transactionId, orderId) {
+            if (!confirm(`Selesaikan pending ${orderId || transactionId} sebagai pembayaran manual admin?`)) return;
+            try {
+                const response = await fetch(`/admin/billing/payment-transactions/${transactionId}/resolve-pending`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message || 'Gagal menyelesaikan pending');
+                showAlert(data.message || 'Pending berhasil diselesaikan', 'success');
+                refreshData();
+            } catch (error) {
+                console.error('Error resolving pending payment:', error);
+                showAlert(error.message || 'Gagal menyelesaikan pending', 'danger');
+            }
+        }
+
+        async function cancelPendingPayment(transactionId, orderId) {
+            if (!confirm(`Batalkan pending ${orderId || transactionId}?`)) return;
+            try {
+                const response = await fetch(`/admin/billing/payment-transactions/${transactionId}/cancel-pending`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message || 'Gagal membatalkan pending');
+                showAlert(data.message || 'Pending berhasil dibatalkan', 'success');
+                refreshData();
+            } catch (error) {
+                console.error('Error cancelling pending payment:', error);
+                showAlert(error.message || 'Gagal membatalkan pending', 'danger');
+            }
+        }
+
+        // Refresh all data
+        function refreshData() {
+            loadActivePendingPayments();
+            loadGatewayStatus();
+            loadFailedPayments();
+            loadTransactions();
+        }
+
+        // Show alert message
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            const container = document.querySelector('.container-fluid');
+            container.insertBefore(alertDiv, container.firstChild);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(refreshData, 30000);
+    </script>
+
+    <%- include('../../partials/admin-mobile-navbar', { currentPage: 'payment-monitor' }) %>
+</body>
+
+</html>

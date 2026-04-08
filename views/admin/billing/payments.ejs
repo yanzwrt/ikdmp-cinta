@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Admin Mobile Optimizations -->
+    <link href="/css/admin-mobile.css" rel="stylesheet">
+    <link href="/css/responsive-admin.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #f5f7fb;
+            --bg-card: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #eef2f6;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            --surface-border: rgba(148, 163, 184, 0.22);
+            --hero-glow: radial-gradient(circle at top left, rgba(96, 165, 250, 0.22), transparent 38%);
+        }
+
+        /* Dark Mode Variables */
+        [data-theme="dark"] {
+            --bg-body: #081120;
+            --bg-card: #101c30;
+            --text-color: #e6eefc;
+            --text-muted: #93a4bf;
+            --border-color: rgba(148, 163, 184, 0.18);
+            --card-shadow: 0 20px 42px rgba(2, 8, 23, 0.36);
+        }
+
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(45, 212, 191, 0.12), transparent 22%),
+                linear-gradient(180deg, #f7faff 0%, #eef4ff 44%, #f8fbff 100%);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        [data-theme="dark"] body {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(20, 184, 166, 0.12), transparent 24%),
+                linear-gradient(180deg, #081120 0%, #0b1324 44%, #0a1428 100%);
+        }
+
+        .card {
+            background-color: var(--bg-card) !important;
+            color: var(--text-color);
+            border: 1px solid var(--border-color) !important;
+            box-shadow: var(--card-shadow);
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .billing-toolbar,
+        .billing-tabs-wrap,
+        .billing-panel {
+            position: relative;
+            border: 1px solid var(--surface-border);
+            border-radius: 24px;
+            background:
+                linear-gradient(145deg, rgba(255,255,255,0.88), rgba(244,247,255,0.82)),
+                var(--hero-glow);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 18px 44px rgba(37, 99, 235, 0.08);
+        }
+
+        .billing-toolbar,
+        .billing-panel {
+            padding: 16px 20px;
+        }
+
+        .billing-tabs-wrap {
+            padding: 10px 14px 0;
+        }
+
+        [data-theme="dark"] .billing-toolbar,
+        [data-theme="dark"] .billing-tabs-wrap,
+        [data-theme="dark"] .billing-panel {
+            background:
+                linear-gradient(145deg, rgba(15,23,42,0.88), rgba(17,24,39,0.9)),
+                radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 40%);
+            border-color: rgba(148, 163, 184, 0.22);
+            box-shadow: 0 20px 42px rgba(2, 8, 23, 0.32);
+        }
+
+        .icon-only-btn {
+            width: 42px;
+            min-width: 42px;
+            height: 42px;
+            padding-inline: 0 !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px !important;
+        }
+
+        .billing-tabs.nav-tabs {
+            border-bottom: 0;
+            gap: 0.5rem;
+        }
+
+        .billing-tabs .nav-link {
+            border: 0;
+            border-radius: 999px;
+            padding: 0.65rem 1rem;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .billing-tabs .nav-link.active {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: #fff !important;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18);
+        }
+
+        .billing-tabs.nav-tabs .nav-item {
+            flex: 0 0 auto;
+            display: block;
+        }
+
+        .billing-tabs.nav-tabs .nav-link {
+            position: relative;
+            padding: 0.9rem 1rem 1rem;
+            width: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.4rem;
+            text-align: left;
+            transform: translateY(2px);
+        }
+
+        .billing-tabs.nav-tabs .nav-link.active,
+        .billing-tabs.nav-tabs .show > .nav-link {
+            background: linear-gradient(135deg, #2563eb, #4f46e5) !important;
+            color: #fff !important;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18);
+            transform: translateY(0);
+        }
+
+        .billing-tabs.nav-tabs .nav-link.active::after,
+        .billing-tabs.nav-tabs .show > .nav-link::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 6px;
+            transform: translateX(-50%);
+            width: 34px;
+            height: 4px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.92);
+        }
+
+        [data-theme="dark"] .billing-tabs.nav-tabs .nav-link {
+            color: #cbd5e1 !important;
+        }
+
+        [data-theme="dark"] .billing-tabs.nav-tabs .nav-link.active,
+        [data-theme="dark"] .billing-tabs.nav-tabs .show > .nav-link {
+            background: linear-gradient(135deg, #2563eb, #4f46e5) !important;
+            color: #ffffff !important;
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        /* Table adjustments */
+        [data-theme="dark"] .table {
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+        
+        [data-theme="dark"] .table-hover tbody tr:hover {
+            color: var(--text-color);
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        /* Dark mode: table header should be dark and text readable */
+        [data-theme="dark"] .table thead,
+        [data-theme="dark"] .table thead tr,
+        [data-theme="dark"] .table thead th {
+            background-color: #1f2d4f !important;
+            color: #ffffff !important;
+            border-color: #304266 !important;
+        }
+        [data-theme="dark"] .form-control, 
+        [data-theme="dark"] .form-select {
+            background-color: #2d2d2d;
+            border-color: #404040;
+            color: #e0e0e0;
+        }
+
+        [data-theme="dark"] .nav-tabs .nav-link.active {
+            background-color: var(--bg-body);
+            border-color: var(--border-color) var(--border-color) var(--bg-body);
+            color: var(--text-color);
+        }
+        
+        [data-theme="dark"] .nav-tabs .nav-link {
+             color: var(--text-muted);
+        }
+        
+        [data-theme="dark"] .nav-tabs .nav-link:hover {
+             border-color: var(--border-color);
+             color: var(--text-color);
+        }
+    </style>
+
+    <script>
+        // Theme Toggle Functionality
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            updateThemeButton(newTheme);
+        }
+
+        function updateThemeButton(theme) {
+            const icon = document.getElementById('themeIcon');
+            const btn = document.getElementById('themeToggle');
+            
+            if (!icon || !btn) return;
+
+            if (theme === 'dark') {
+                icon.className = 'bi bi-moon-stars-fill text-white';
+                btn.classList.remove('btn-white');
+                btn.classList.add('btn-dark');
+                // Apply dark mode styles dynamically
+                document.documentElement.style.setProperty('--bg-body', '#1a1a1a');
+                document.documentElement.style.setProperty('--bg-card', '#2d2d2d');
+                document.documentElement.style.setProperty('--text-color', '#ffffff');
+                document.documentElement.style.setProperty('--text-muted', '#a0a0a0');
+            } else {
+                icon.className = 'bi bi-sun-fill text-warning';
+                btn.classList.remove('btn-dark');
+                btn.classList.add('btn-white');
+                // Apply light mode styles dynamically
+                document.documentElement.style.setProperty('--bg-body', '#f5f7fb');
+                document.documentElement.style.setProperty('--bg-card', '#ffffff');
+                document.documentElement.style.setProperty('--text-color', '#212529');
+                document.documentElement.style.setProperty('--text-muted', '#6c757d');
+            }
+        }
+
+        // Initialize Theme
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            updateThemeButton(savedTheme);
+        });
+    </script>
+</head>
+
+<body>
+    <% var filters=(typeof filters !=='undefined' ) ? filters : { from: '' , to: '' , collector_id: '' , status: '' ,
+        q: '' }; var payments=(typeof payments !=='undefined' ) ? payments : []; var collectors=(typeof collectors
+        !=='undefined' ) ? collectors : []; %>
+        <div class="container-fluid">
+            <%- include('../../partials/billing-responsive-sidebar', { page: 'payments' }) %>
+                <main class="main-content px-md-4">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 billing-toolbar">
+                            <h3 class="h3 mb-0">Pembayaran & Keuangan</h3>
+                            <button class="btn btn-white shadow-sm border-0 icon-only-btn" id="themeToggle" onclick="toggleTheme()" aria-label="Ganti tema">
+                                <i class="bi bi-sun-fill text-warning" id="themeIcon"></i>
+                            </button>
+                        </div>
+
+                        <!-- Tab Navigation -->
+                        <div class="billing-tabs-wrap mb-4">
+                        <ul class="nav nav-tabs billing-tabs">
+                            <li class="nav-item">
+                                <a class="nav-link <%= typeof page !== 'undefined' && page === 'payments' ? 'active' : '' %>"
+                                    href="/admin/billing/payments">
+                                    <i class="bi bi-credit-card"></i> Transaksi Kolektor
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <%= typeof page !== 'undefined' && page === 'all-payments' ? 'active' : '' %>"
+                                    href="/admin/billing/all-payments">
+                                    <i class="bi bi-list-ul"></i> Riwayat Pembayaran
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <%= typeof page !== 'undefined' && page === 'financial-report' ? 'active' : '' %>"
+                                    href="/admin/billing/financial-report">
+                                    <i class="bi bi-line-chart"></i> Laporan Keuangan
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <%= typeof page !== 'undefined' && page === 'reports' ? 'active' : '' %>"
+                                    href="/admin/billing/reports">
+                                    <i class="bi bi-analytics"></i> Laporan Analisis
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link <%= typeof page !== 'undefined' && page === 'expenses' ? 'active' : '' %>"
+                                    href="/admin/billing/expenses">
+                                    <i class="bi bi-money-withdraw"></i> Manajemen Pengeluaran
+                                </a>
+                            </li>
+                        </ul>
+                        </div>
+
+                        <form class="row g-2 align-items-end mb-3 billing-panel">
+                            <div class="col-auto">
+                                <label class="form-label">Dari</label>
+                                <input type="date" class="form-control" name="from" value="<%= filters.from %>">
+                            </div>
+                            <div class="col-auto">
+                                <label class="form-label">Sampai</label>
+                                <input type="date" class="form-control" name="to" value="<%= filters.to %>">
+                            </div>
+                            <div class="col-auto">
+                                <label class="form-label">Kolektor</label>
+                                <select class="form-select" name="collector_id">
+                                    <option value="">Semua</option>
+                                    <% (collectors||[]).forEach(function(col){ %>
+                                        <option value="<%= col.id %>"
+                                            <%=String(filters.collector_id)===String(col.id)?'selected':'' %>><%=
+                                                col.name %>
+                                        </option>
+                                        <% }) %>
+                                </select>
+                            </div>
+                            <div class="col-auto">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" name="status">
+                                    <option value="">Semua</option>
+                                    <option value="completed" <%=filters.status==='completed' ?'selected':'' %>
+                                        >Completed</option>
+                                    <option value="received" <%=filters.status==='received' ?'selected':'' %>>Remitted
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-auto">
+                                <label class="form-label">Cari</label>
+                                <input type="text" class="form-control" name="q" value="<%= filters.q %>"
+                                    placeholder="Nama/No/Notes">
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-primary">Terapkan</button>
+                                <button class="btn btn-outline-secondary" type="button" id="exportPayments">Export
+                                    CSV</button>
+                            </div>
+                        </form>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Kolektor</th>
+                                        <th>Pelanggan</th>
+                                        <th>Amount</th>
+                                        <th>Komisi</th>
+                                        <th>Metode</th>
+                                        <th>Status</th>
+                                        <th>Remittance</th>
+                                        <th>Catatan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% (payments||[]).forEach(function(p){ %>
+                                        <tr>
+                                            <td>
+                                                <%= (p.collected_at || p.payment_date || p.date) ? new Date(p.collected_at || p.payment_date || p.date).toLocaleDateString('id-ID') : '-' %>
+                                            </td>
+                                            <td>
+                                                <%= p.collector_name %>
+                                            </td>
+                                            <td>
+                                                <%= p.customer_name %> <small class="text-muted d-block">
+                                                        <%= p.customer_phone || '' %>
+                                                    </small>
+                                            </td>
+                                            <td>Rp <%= Number(p.payment_amount||p.amount||0).toLocaleString('id-ID') %>
+                                            </td>
+                                            <td>Rp <%= Number(p.commission_amount||0).toLocaleString('id-ID') %>
+                                            </td>
+                                            <td>
+                                                <%= p.payment_method %>
+                                            </td>
+                                            <td><span
+                                                    class="badge bg-<%= p.status==='completed'?'success':'secondary' %>">
+                                                    <%= p.status || 'completed' %>
+                                                </span></td>
+                                            <td><span
+                                                    class="badge bg-<%= (p.remittance_status==='received' || !p.collector_id)?'primary':'warning' %>">
+                                                    <%= (p.remittance_status && p.collector_id) ? p.remittance_status :
+                                                        (!p.collector_id ? 'N/A (Admin)' : 'pending' ) %>
+                                                </span></td>
+                                            <td>
+                                                <%= p.notes || '' %>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+            </div>
+        </div>
+
+        <!-- Hidden element to store payments data for export -->
+        <script id="paymentsData" type="application/json"><%= JSON.stringify(payments || []) %></script>
+
+        <script>
+            // Export payments to CSV
+            document.getElementById('exportPayments').addEventListener('click', function () {
+                const headers = ['Date', 'Collector', 'Customer', 'Phone', 'Amount', 'Commission', 'Method', 'Status', 'Remittance', 'Notes'];
+                const paymentsDataElement = document.getElementById('paymentsData');
+                if (!paymentsDataElement || !paymentsDataElement.textContent) {
+                    alert('Tidak ada data untuk di-export');
+                    return;
+                }
+                const paymentsData = JSON.parse(paymentsDataElement.textContent);
+                const rows = paymentsData.map(p => [
+                    p.payment_date,
+                    p.collector_name,
+                    p.customer_name,
+                    p.customer_phone || '',
+                    p.payment_amount || p.amount || 0,
+                    p.commission_amount || 0,
+                    p.payment_method,
+                    p.status,
+                    p.remittance_status || 'pending',
+                    String(p.notes || '').replace(/\n/g, ' ')
+                ]);
+                const csv = [headers].concat(rows).map(r => r.map(x => `"${String(x).replace(/"/g, '""')}"`).join(',')).join('\n');
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'payments.csv'; a.click();
+                URL.revokeObjectURL(url);
+            });
+
+            // Show technician navigation if accessed by technician
+            document.addEventListener('DOMContentLoaded', function () {
+                // Check if this is technician view
+                const isTechnicianView = window.location.pathname.includes('/technician/') ||
+                    document.body.classList.contains('technician-view');
+
+                if (isTechnicianView) {
+                    // Hide admin nav and show technician nav
+                    const adminNav = document.querySelector('.admin-mobile-bottom-nav');
+                    const technicianNav = document.getElementById('technicianNav');
+
+                    if (adminNav) adminNav.style.display = 'none';
+                    if (technicianNav) technicianNav.style.display = 'block';
+                }
+            });
+        </script>
+        <script>
+            (function () {
+                const currentPath = window.location.pathname.replace(/\/+$/, '');
+                const billingTabLinks = Array.from(document.querySelectorAll('.billing-tabs .nav-link'));
+                let bestMatch = null;
+
+                billingTabLinks.forEach((link) => {
+                    const linkPath = new URL(link.href, window.location.origin).pathname.replace(/\/+$/, '');
+                    const isMatch = currentPath === linkPath || currentPath.startsWith(linkPath + '/');
+
+                    if (isMatch && (!bestMatch || linkPath.length > bestMatch.path.length)) {
+                        bestMatch = { link, path: linkPath };
+                    }
+                });
+
+                if (bestMatch) {
+                    billingTabLinks.forEach((link) => link.classList.remove('active'));
+                    bestMatch.link.classList.add('active');
+                }
+            })();
+        </script>
+
+        <!-- Mobile Bottom Navbar -->
+        <%- include('../../partials/admin-mobile-navbar', { currentPage: 'payments' }) %>
+</body>
+
+</html>

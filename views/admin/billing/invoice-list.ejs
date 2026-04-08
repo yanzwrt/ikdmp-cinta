@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %> - <%= appSettings.companyHeader %>
+    </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <!-- Admin Mobile Optimizations -->
+    <link href="/css/admin-mobile.css" rel="stylesheet">
+    <link href="/css/responsive-admin.css" rel="stylesheet">
+    <!-- Dark Mode Script -->
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+    </script>
+    <style>
+        :root {
+            --bg-card: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #eef2f6;
+        }
+
+        [data-theme="dark"] {
+            --bg-card: #2d2d2d;
+            --text-color: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border-color: #404040;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(45, 212, 191, 0.12), transparent 22%),
+                linear-gradient(180deg, #f7faff 0%, #eef4ff 44%, #f8fbff 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+        }
+
+        .main-content {
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+        
+        @media (min-width: 992px) {
+            .sidebar.collapsed + .main-content {
+                margin-left: 80px;
+                width: calc(100% - 80px);
+            }
+        }
+
+        /* Dark Mode Styles */
+        body[data-theme="dark"] {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(20, 184, 166, 0.12), transparent 24%),
+                linear-gradient(180deg, #081120 0%, #0b1324 44%, #0a1428 100%);
+            color: var(--text-color);
+        }
+
+        .invoice-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .invoice-stat-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 22px;
+            padding: 1.25rem 1.35rem;
+            color: #fff;
+            box-shadow: 0 16px 34px rgba(37, 99, 235, 0.14);
+            min-height: 118px;
+            border: 0 !important;
+        }
+
+        .invoice-stat-card::after {
+            content: "";
+            position: absolute;
+            right: -18px;
+            bottom: -24px;
+            width: 128px;
+            height: 128px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.14);
+        }
+
+        .invoice-stat-card .label {
+            position: relative;
+            z-index: 1;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.95;
+        }
+
+        .invoice-stat-card .value {
+            position: relative;
+            z-index: 1;
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-top: 0.4rem;
+        }
+
+        .invoice-stat-card .subtext {
+            position: relative;
+            z-index: 1;
+            font-size: 0.84rem;
+            opacity: 0.9;
+            margin-top: 0.35rem;
+        }
+
+        .invoice-stat-card.total-card { background: linear-gradient(135deg, #2563eb, #4f46e5); }
+        .invoice-stat-card.paid-card { background: linear-gradient(135deg, #10b981, #06b6d4); }
+        .invoice-stat-card.pending-card { background: linear-gradient(135deg, #f59e0b, #f97316); }
+        .invoice-stat-card.overdue-card { background: linear-gradient(135deg, #ef4444, #ec4899); }
+
+        @media (max-width: 991.98px) {
+            .invoice-stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .invoice-stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .billing-toolbar,
+        .billing-panel,
+        .billing-tabs-wrap {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 24px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.88), rgba(244,247,255,0.82));
+            backdrop-filter: blur(16px);
+            box-shadow: 0 18px 44px rgba(37, 99, 235, 0.08);
+        }
+
+        .billing-toolbar,
+        .billing-panel {
+            padding: 16px 20px;
+            margin-bottom: 1.5rem;
+        }
+
+        .theme-icon-btn {
+            width: 46px;
+            height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            padding: 0;
+            flex: 0 0 auto;
+        }
+
+        .billing-tabs-wrap {
+            margin-bottom: 1.5rem;
+            padding: 0.55rem 0.75rem;
+        }
+
+        .invoice-page-toolbar {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .invoice-page-tabs {
+            margin-bottom: 1.25rem !important;
+        }
+
+        [data-theme="dark"] .billing-toolbar,
+        [data-theme="dark"] .billing-panel,
+        [data-theme="dark"] .billing-tabs-wrap {
+            background: linear-gradient(145deg, rgba(15,23,42,0.88), rgba(17,24,39,0.9));
+            border-color: rgba(148, 163, 184, 0.16);
+            box-shadow: 0 20px 42px rgba(2, 8, 23, 0.32);
+        }
+
+        .billing-tabs.nav-tabs {
+            border-bottom: 0;
+            gap: 1rem;
+            padding: 0 0.35rem;
+        }
+
+        .billing-tabs.nav-tabs .nav-item {
+            flex: 0 0 auto;
+            display: block;
+        }
+
+        .billing-tabs.nav-tabs .nav-link {
+            border: 0;
+            border-bottom: 3px solid transparent;
+            border-radius: 0;
+            background: transparent !important;
+            padding: 0.85rem 0.1rem 0.7rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            width: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.4rem;
+            text-align: left;
+            box-shadow: none !important;
+        }
+
+        .billing-tabs.nav-tabs .nav-link.active,
+        .billing-tabs.nav-tabs .show > .nav-link {
+            color: #2563eb !important;
+            border-bottom-color: #2563eb;
+        }
+
+        .billing-tabs.nav-tabs .nav-link.active::after,
+        .billing-tabs.nav-tabs .show > .nav-link::after {
+            display: none;
+        }
+
+        [data-theme="dark"] .billing-tabs.nav-tabs .nav-link {
+            color: #cbd5e1 !important;
+        }
+
+        [data-theme="dark"] .billing-tabs.nav-tabs .nav-link.active,
+        [data-theme="dark"] .billing-tabs.nav-tabs .show > .nav-link {
+            color: #60a5fa !important;
+            border-bottom-color: #60a5fa;
+        }
+
+        .billing-panel .card-header,
+        .billing-panel .card-body {
+            background: transparent !important;
+            border-color: rgba(148, 163, 184, 0.16) !important;
+        }
+
+        .billing-panel .card-header {
+            padding: 0 0 1rem 0;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+        }
+
+        .billing-panel .card-body {
+            padding: 0;
+        }
+
+        .card,
+        .card-body,
+        .card-header,
+        .table,
+        .table td,
+        .table th,
+        .form-label,
+        .form-select,
+        .form-control,
+        .text-dark,
+        .text-body {
+            color: var(--text-color) !important;
+        }
+
+        .card,
+        .modal-content,
+        .table-responsive,
+        .form-select,
+        .form-control {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .text-muted,
+        small.text-muted,
+        .table small,
+        .card-subtitle {
+            color: var(--text-muted) !important;
+        }
+
+        .btn-close {
+            filter: none;
+        }
+
+        [data-theme="dark"] .btn-close {
+            filter: invert(1) grayscale(100%);
+        }
+
+        [data-theme="dark"] .badge.bg-light.text-dark {
+            background-color: #4a5568 !important;
+            color: #e2e8f0 !important;
+        }
+
+        [data-theme="dark"] .badge.bg-info.text-dark,
+        [data-theme="dark"] .badge.bg-warning.text-dark {
+            color: #0f172a !important;
+        }
+
+        [data-theme="dark"] .billing-toolbar h1,
+        [data-theme="dark"] .billing-toolbar .text-muted,
+        [data-theme="dark"] .billing-panel h5,
+        [data-theme="dark"] .billing-tabs .nav-link,
+        [data-theme="dark"] .table thead th,
+        [data-theme="dark"] .table tbody td,
+        [data-theme="dark"] .table tbody td small,
+        [data-theme="dark"] .form-label,
+        [data-theme="dark"] .badge,
+        [data-theme="dark"] .btn-outline-primary,
+        [data-theme="dark"] .btn-outline-secondary,
+        [data-theme="dark"] .text-dark,
+        [data-theme="dark"] .text-body,
+        [data-theme="dark"] .modal-title,
+        [data-theme="dark"] .card-title,
+        [data-theme="dark"] .page-link,
+        [data-theme="dark"] .dataTables_info,
+        [data-theme="dark"] .dataTables_length,
+        [data-theme="dark"] .dataTables_filter,
+        [data-theme="dark"] .dataTables_paginate,
+        [data-theme="dark"] .dataTables_wrapper,
+        [data-theme="dark"] .dataTables_wrapper label,
+        [data-theme="dark"] .table-responsive {
+            color: #e5edf8 !important;
+        }
+
+        [data-theme="dark"] .table {
+            --bs-table-bg: transparent;
+            --bs-table-color: #e5edf8;
+            --bs-table-border-color: rgba(148, 163, 184, 0.18);
+            --bs-table-hover-color: #f8fbff;
+            --bs-table-hover-bg: rgba(59, 130, 246, 0.12);
+        }
+
+        [data-theme="dark"] .table thead th {
+            background: rgba(15, 23, 42, 0.9) !important;
+            color: #f8fbff !important;
+            border-bottom-color: rgba(148, 163, 184, 0.2) !important;
+        }
+
+        [data-theme="dark"] .table tbody tr {
+            background: rgba(15, 23, 42, 0.68) !important;
+        }
+
+        [data-theme="dark"] .form-control,
+        [data-theme="dark"] .form-select {
+            background: rgba(15, 23, 42, 0.82) !important;
+            color: #f8fbff !important;
+            border-color: rgba(148, 163, 184, 0.22) !important;
+        }
+
+        .pagination .page-link {
+            border-radius: 8px;
+            margin: 0 2px;
+            border: 1px solid #dee2e6;
+            color: #667eea;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+        }
+
+        .billing-panel .card-header,
+        .billing-panel .card-body {
+            background: transparent !important;
+            border-color: rgba(148, 163, 184, 0.16) !important;
+        }
+
+        .billing-panel .card-header {
+            padding: 0 0 1rem 0;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+        }
+
+        .billing-panel .card-body {
+            padding: 0;
+        }
+    </style>
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButton(newTheme);
+        }
+
+        function updateThemeButton(theme) {
+            const icon = document.getElementById('themeIcon');
+            const btn = document.getElementById('themeToggle');
+            if (!icon || !btn) return;
+
+            if (theme === 'dark') {
+                icon.className = 'bi bi-moon-stars-fill text-white';
+                btn.classList.remove('btn-white');
+                btn.classList.add('btn-dark');
+            } else {
+                icon.className = 'bi bi-sun-fill text-warning';
+                btn.classList.remove('btn-dark');
+                btn.classList.add('btn-white');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeButton(savedTheme);
+        });
+    </script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Include Sidebar -->
+            <%- include('../../partials/billing-responsive-sidebar', { page: 'invoices' }) %>
+
+                <!-- Main content -->
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                    <div class="billing-toolbar invoice-page-toolbar d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center gap-3">
+                        <h3 class="h3 mb-0">Invoice</h3>
+                        <button class="btn btn-white shadow-sm border theme-icon-btn" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">
+                            <i class="bi bi-sun-fill text-warning" id="themeIcon"></i>
+                        </button>
+                    </div>
+
+                    <!-- Tab Navigation -->
+                    <div class="billing-tabs-wrap invoice-page-tabs">
+                    <ul class="nav nav-tabs billing-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link <%= typeof page !== 'undefined' && page === 'invoices' ? 'active' : '' %>"
+                                href="/admin/billing/invoices">
+                                <i class="bi bi-receipt"></i> Buat Invoice
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <%= typeof page !== 'undefined' && page === 'auto-invoice' ? 'active' : '' %>"
+                                href="/admin/billing/auto-invoice">
+                                <i class="bi bi-calendar-check"></i> Auto Invoice
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <%= typeof page !== 'undefined' && page === 'invoices-by-type' ? 'active' : '' %>"
+                                href="/admin/billing/invoices-by-type">
+                                <i class="bi bi-list-ul"></i> Invoice per Tipe
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <%= typeof page !== 'undefined' && page === 'invoice-list' ? 'active' : '' %>"
+                                href="/admin/billing/invoice-list">
+                                <i class="bi bi-receipt"></i> Semua Invoice
+                            </a>
+                        </li>
+                    </ul>
+                    </div>
+
+                    <div class="billing-toolbar d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center gap-3">
+                        <div>
+                            <h1 class="h2 mb-1">
+                                <i class="bx bx-receipt me-1"></i> Semua Invoice
+                            </h1>
+                            <div class="text-muted">Telusuri seluruh invoice berdasarkan status, tipe, dan pelanggan dengan filter yang lebih rapi.</div>
+                        </div>
+                        <div class="btn-toolbar mb-2 mb-md-0">
+                            <div class="btn-group me-2">
+                                <a href="/admin/billing/invoices" class="btn btn-sm btn-outline-primary">
+                                    <i class="bx bx-plus"></i> Buat Invoice Baru
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summary Cards -->
+                    <div class="invoice-stats-grid">
+                        <div class="invoice-stat-card total-card">
+                            <div class="label">Total Invoice</div>
+                            <div class="value"><%= pagination.totalCount %></div>
+                            <div class="subtext">Semua jenis invoice</div>
+                        </div>
+                        <div class="invoice-stat-card paid-card">
+                            <div class="label">Lunas</div>
+                            <div class="value"><%= invoices.filter(inv => String(inv.status || '').trim().toLowerCase() === 'paid').length %></div>
+                            <div class="subtext">Invoice yang sudah dibayar</div>
+                        </div>
+                        <div class="invoice-stat-card pending-card">
+                            <div class="label">Pending</div>
+                            <div class="value"><%= invoices.filter(inv => ['pending','unpaid'].includes(String(inv.status || '').trim().toLowerCase())).length %></div>
+                            <div class="subtext">Menunggu pembayaran</div>
+                        </div>
+                        <div class="invoice-stat-card overdue-card">
+                            <div class="label">Jatuh Tempo</div>
+                            <div class="value"><%= invoices.filter(inv => String(inv.status || '').trim().toLowerCase() === 'overdue').length %></div>
+                            <div class="subtext">Invoice yang terlambat</div>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="card billing-panel">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bx bx-filter"></i> Filter & Pencarian
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="GET" action="/admin/billing/invoice-list" class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Status</label>
+                                    <select name="status" class="form-control">
+                                        <option value="">Semua Status</option>
+                                        <option value="pending" <%=filters.status==='pending' ? 'selected' : '' %>
+                                            >Pending</option>
+                                        <option value="paid" <%=filters.status==='paid' ? 'selected' : '' %>>Lunas
+                                        </option>
+                                        <option value="overdue" <%=filters.status==='overdue' ? 'selected' : '' %>>Jatuh
+                                            Tempo</option>
+                                        <option value="cancelled" <%=filters.status==='cancelled' ? 'selected' : '' %>
+                                            >Dibatalkan</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Tipe Invoice</label>
+                                    <select name="type" class="form-control">
+                                        <option value="">Semua Tipe</option>
+                                        <option value="monthly" <%=filters.type==='monthly' ? 'selected' : '' %>>Bulanan
+                                        </option>
+                                        <option value="voucher" <%=filters.type==='voucher' ? 'selected' : '' %>>Voucher
+                                        </option>
+                                        <option value="manual" <%=filters.type==='manual' ? 'selected' : '' %>>Manual
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Username Pelanggan</label>
+                                    <input type="text" name="customer_username" class="form-control"
+                                        placeholder="Masukkan username pelanggan"
+                                        value="<%= filters.customer_username %>">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bx bx-search"></i> Cari
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Invoice Table -->
+                    <div class="card billing-panel">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bx bx-list-ul"></i> Daftar Invoice
+                                <span class="badge bg-light text-dark ms-2">
+                                    Halaman <%= pagination.currentPage %> dari <%= pagination.totalPages %>
+                                </span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <% if (invoices && invoices.length> 0) { %>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Invoice #</th>
+                                                <th>Pelanggan</th>
+                                                <th>Paket</th>
+                                                <th>Jumlah</th>
+                                                <th>Status</th>
+                                                <th>Tipe</th>
+                                                <th>Tanggal Dibuat</th>
+                                                <th>Jatuh Tempo</th>
+                                                <th>Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% invoices.forEach(invoice=> { const normalizedStatus = String(invoice.status || '').trim().toLowerCase(); const normalizedPaymentStatus = String(invoice.payment_status || '').trim().toLowerCase(); %>
+                                                <tr>
+                                                    <td>
+                                                        <strong>#<%= invoice.invoice_number %></strong>
+                                                    </td>
+                                                    <td>
+                                                        <div>
+                                                            <strong>
+                                                                <%= invoice.customer_name %>
+                                                            </strong><br>
+                                                            <small class="text-muted">@<%= invoice.username %></small>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-info">
+                                                            <%= invoice.package_name %>
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <strong>Rp <%= invoice.amount.toLocaleString('id-ID') %>
+                                                                </strong>
+                                                    </td>
+                                                    <td>
+                                                        <% if (normalizedStatus === 'paid') { %>
+                                                            <span class="badge bg-success">Lunas</span>
+                                                            <% } else if (normalizedStatus === 'overdue') { %>
+                                                                <span class="badge bg-danger">Jatuh Tempo</span>
+                                                                <% } else if (normalizedStatus === 'pending' || normalizedStatus === 'unpaid') { %>
+                                                                    <span class="badge bg-warning">Pending</span>
+                                                                    <% } else { %>
+                                                                        <span class="badge bg-secondary">
+                                                                            <%= invoice.status %>
+                                                                        </span>
+                                                                        <% } %>
+                                                        <% if (normalizedPaymentStatus === 'pending' && normalizedStatus !== 'paid') { %>
+                                                            <br><span class="badge bg-info text-dark mt-1">Pending Gateway</span>
+                                                        <% } else if (normalizedPaymentStatus === 'manual_admin' && normalizedStatus !== 'paid') { %>
+                                                            <br><span class="badge bg-primary mt-1">Manual Admin</span>
+                                                        <% } %>
+                                                    </td>
+                                                    <td>
+                                                        <% if (invoice.invoice_type==='monthly' ) { %>
+                                                            <span class="badge bg-primary">Bulanan</span>
+                                                            <% } else if (invoice.invoice_type==='voucher' ) { %>
+                                                                <span class="badge bg-success">Voucher</span>
+                                                                <% } else { %>
+                                                                    <span class="badge bg-secondary">Manual</span>
+                                                                    <% } %>
+                                                    </td>
+                                                    <td>
+                                                        <%= new Date(invoice.created_at).toLocaleDateString('id-ID') %>
+                                                    </td>
+                                                    <td>
+                                                        <%= new Date(invoice.due_date).toLocaleDateString('id-ID') %>
+                                                    </td>
+                                                    <td>
+                                                        <div class="btn-group btn-group-sm">
+                                                            <a href="/admin/billing/invoices/<%= invoice.id %>"
+                                                                class="btn btn-outline-primary" title="Lihat Detail">
+                                                                <i class="bx bx-show"></i>
+                                                            </a>
+                                                            <a href="/admin/billing/invoices/<%= invoice.id %>/edit"
+                                                                class="btn btn-outline-warning" title="Edit">
+                                                                <i class="bx bx-edit"></i>
+                                                            </a>
+                                                            <a href="/admin/billing/invoices/<%= invoice.id %>/print"
+                                                                class="btn btn-outline-info" title="Print"
+                                                                target="_blank">
+                                                                <i class="bx bx-printer"></i>
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <% }); %>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Pagination -->
+                                <% if (pagination.totalPages> 1) { %>
+                                    <nav aria-label="Invoice pagination">
+                                        <ul class="pagination justify-content-center">
+                                            <% if (pagination.currentPage> 1) { %>
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                        href="?page=<%= pagination.currentPage - 1 %>&status=<%= filters.status %>&type=<%= filters.type %>&customer_username=<%= filters.customer_username %>">
+                                                        <i class="bx bx-chevron-left"></i>
+                                                    </a>
+                                                </li>
+                                                <% } %>
+
+                                                    <% for (let i=Math.max(1, pagination.currentPage - 2); i
+                                                        <=Math.min(pagination.totalPages, pagination.currentPage + 2);
+                                                        i++) { %>
+                                                        <li
+                                                            class="page-item <%= i === pagination.currentPage ? 'active' : '' %>">
+                                                            <a class="page-link"
+                                                                href="?page=<%= i %>&status=<%= filters.status %>&type=<%= filters.type %>&customer_username=<%= filters.customer_username %>">
+                                                                <%= i %>
+                                                            </a>
+                                                        </li>
+                                                        <% } %>
+
+                                                            <% if (pagination.currentPage < pagination.totalPages) { %>
+                                                                <li class="page-item">
+                                                                    <a class="page-link"
+                                                                        href="?page=<%= pagination.currentPage + 1 %>&status=<%= filters.status %>&type=<%= filters.type %>&customer_username=<%= filters.customer_username %>">
+                                                                        <i class="bx bx-chevron-right"></i>
+                                                                    </a>
+                                                                </li>
+                                                                <% } %>
+                                        </ul>
+                                    </nav>
+                                    <% } %>
+                                        <% } else { %>
+                                            <div class="text-center py-5">
+                                                <i class="bx bx-receipt fs-1 text-muted"></i>
+                                                <h5 class="mt-3">Tidak ada invoice ditemukan</h5>
+                                                <p class="text-muted">Belum ada invoice yang sesuai dengan filter yang
+                                                    dipilih.</p>
+                                                <a href="/admin/billing/invoices" class="btn btn-primary">
+                                                    <i class="bx bx-plus"></i> Buat Invoice Baru
+                                                </a>
+                                            </div>
+                                            <% } %>
+                        </div>
+                    </div>
+                </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-submit form on filter change
+        document.querySelectorAll('select[name="status"], select[name="type"]').forEach(select => {
+            select.addEventListener('change', function () {
+                this.form.submit();
+            });
+        });
+    </script>
+    <script>
+        (function () {
+            const currentPath = window.location.pathname.replace(/\/+$/, '');
+            const billingTabLinks = Array.from(document.querySelectorAll('.billing-tabs .nav-link'));
+            let bestMatch = null;
+
+            billingTabLinks.forEach((link) => {
+                const linkPath = new URL(link.href, window.location.origin).pathname.replace(/\/+$/, '');
+                const isMatch = currentPath === linkPath || currentPath.startsWith(linkPath + '/');
+
+                if (isMatch && (!bestMatch || linkPath.length > bestMatch.path.length)) {
+                    bestMatch = { link, path: linkPath };
+                }
+            });
+
+            if (bestMatch) {
+                billingTabLinks.forEach((link) => link.classList.remove('active'));
+                bestMatch.link.classList.add('active');
+            }
+        })();
+    </script>
+    <!-- Mobile Bottom Navbar -->
+    <%- include('../../partials/admin-mobile-navbar', { currentPage: 'invoices' }) %>
+</body>
+
+</html>

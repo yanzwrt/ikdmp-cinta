@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengaturan Invoice Otomatis - Admin Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Admin Mobile Optimizations -->
+    <link href="/css/admin-mobile.css" rel="stylesheet">
+    <link href="/css/responsive-admin.css" rel="stylesheet">
+    
+    <!-- Dark Mode Script -->
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+    </script>
+    <style>
+        :root {
+            --bg-card: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #eef2f6;
+        }
+
+        [data-theme="dark"] {
+            --bg-card: #2d2d2d;
+            --text-color: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border-color: #404040;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(45, 212, 191, 0.12), transparent 22%),
+                linear-gradient(180deg, #f7faff 0%, #eef4ff 44%, #f8fbff 100%);
+            color: var(--text-color);
+        }
+
+        body[data-theme="dark"] {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(20, 184, 166, 0.12), transparent 24%),
+                linear-gradient(180deg, #081120 0%, #0b1324 44%, #0a1428 100%);
+            color: var(--text-color);
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 1;
+            transition: margin-left 0.3s ease;
+        }
+
+        .billing-toolbar,
+        .billing-panel,
+        .billing-tabs-wrap {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 24px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.88), rgba(244,247,255,0.82));
+            backdrop-filter: blur(16px);
+            box-shadow: 0 18px 44px rgba(37, 99, 235, 0.08);
+        }
+
+        .billing-toolbar,
+        .billing-panel {
+            padding: 16px 20px;
+            margin-bottom: 1.5rem;
+        }
+
+        .theme-icon-btn {
+            width: 46px;
+            height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            padding: 0;
+            flex: 0 0 auto;
+        }
+
+        .billing-tabs-wrap {
+            padding: 0.55rem 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .invoice-page-toolbar {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .invoice-page-tabs {
+            margin-bottom: 1.25rem !important;
+        }
+
+        [data-theme="dark"] .billing-toolbar,
+        [data-theme="dark"] .billing-panel,
+        [data-theme="dark"] .billing-tabs-wrap {
+            background: linear-gradient(145deg, rgba(15,23,42,0.88), rgba(17,24,39,0.9));
+            border-color: rgba(148, 163, 184, 0.16);
+            box-shadow: 0 20px 42px rgba(2, 8, 23, 0.32);
+        }
+
+        .billing-tabs.nav-tabs {
+            border-bottom: 0;
+            gap: 1rem;
+            padding: 0 0.35rem;
+        }
+
+        .billing-tabs.nav-tabs .nav-item {
+            flex: 0 0 auto;
+            display: block;
+        }
+
+        .billing-tabs.nav-tabs .nav-link {
+            border: 0;
+            border-bottom: 3px solid transparent;
+            border-radius: 0;
+            background: transparent !important;
+            padding: 0.85rem 0.1rem 0.7rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            width: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.4rem;
+            text-align: left;
+            box-shadow: none !important;
+        }
+
+        .billing-tabs.nav-tabs .nav-link.active,
+        .billing-tabs.nav-tabs .show > .nav-link {
+            color: #2563eb !important;
+            border-bottom-color: #2563eb;
+        }
+
+        .billing-tabs.nav-tabs .nav-link.active::after,
+        .billing-tabs.nav-tabs .show > .nav-link::after {
+            display: none;
+        }
+
+        [data-theme="dark"] .billing-tabs.nav-tabs .nav-link {
+            color: #cbd5e1 !important;
+        }
+
+        [data-theme="dark"] .billing-tabs.nav-tabs .nav-link.active,
+        [data-theme="dark"] .billing-tabs.nav-tabs .show > .nav-link {
+            color: #60a5fa !important;
+            border-bottom-color: #60a5fa;
+        }
+
+        .billing-panel .card-header,
+        .billing-panel .card-body {
+            background: transparent !important;
+            border-color: rgba(148, 163, 184, 0.16) !important;
+        }
+
+        .billing-panel .card-header {
+            padding: 0 0 1rem 0;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+        }
+
+        .billing-panel .card-body {
+            padding: 0;
+        }
+
+        [data-theme="dark"] .billing-panel .card-header {
+            border-bottom-color: rgba(148, 163, 184, 0.14);
+        }
+
+        .card,
+        .card-body,
+        .card-header,
+        .table,
+        .table td,
+        .table th,
+        .form-label,
+        .form-select,
+        .form-control,
+        .text-dark,
+        .text-body {
+            color: var(--text-color) !important;
+        }
+
+        .card,
+        .modal-content,
+        .table-responsive,
+        .form-select,
+        .form-control {
+            background-color: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .text-muted,
+        small.text-muted,
+        .table small,
+        .card-subtitle {
+            color: var(--text-muted) !important;
+        }
+
+        .btn-close {
+            filter: none;
+        }
+
+        [data-theme="dark"] .btn-close {
+            filter: invert(1) grayscale(100%);
+        }
+
+        [data-theme="dark"] .billing-toolbar h1,
+        [data-theme="dark"] .billing-toolbar .text-muted,
+        [data-theme="dark"] .billing-panel h5,
+        [data-theme="dark"] .billing-tabs .nav-link,
+        [data-theme="dark"] .table thead th,
+        [data-theme="dark"] .table tbody td,
+        [data-theme="dark"] .table tbody td small,
+        [data-theme="dark"] .form-label,
+        [data-theme="dark"] .badge,
+        [data-theme="dark"] .btn-outline-primary,
+        [data-theme="dark"] .btn-outline-secondary,
+        [data-theme="dark"] .alert,
+        [data-theme="dark"] .alert * {
+            color: #e5edf8 !important;
+        }
+
+        [data-theme="dark"] .table {
+            --bs-table-bg: transparent;
+            --bs-table-color: #e5edf8;
+            --bs-table-border-color: rgba(148, 163, 184, 0.18);
+            --bs-table-hover-color: #f8fbff;
+            --bs-table-hover-bg: rgba(59, 130, 246, 0.12);
+        }
+
+        [data-theme="dark"] .table thead th {
+            background: rgba(15, 23, 42, 0.9) !important;
+            color: #f8fbff !important;
+            border-bottom-color: rgba(148, 163, 184, 0.2) !important;
+        }
+
+        [data-theme="dark"] .table tbody tr {
+            background: rgba(15, 23, 42, 0.68) !important;
+        }
+
+        [data-theme="dark"] .form-control,
+        [data-theme="dark"] .form-select {
+            background: rgba(15, 23, 42, 0.82) !important;
+            color: #f8fbff !important;
+            border-color: rgba(148, 163, 184, 0.22) !important;
+        }
+
+        [data-theme="dark"] .alert-info {
+            background: rgba(8, 145, 178, 0.16) !important;
+            border-color: rgba(34, 211, 238, 0.22) !important;
+        }
+
+        .info-banner {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .info-banner .icon-wrap {
+            width: 52px;
+            height: 52px;
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(59, 130, 246, 0.12));
+            color: #0284c7;
+            flex: 0 0 auto;
+        }
+
+        .info-banner .icon-wrap i {
+            font-size: 1.6rem;
+        }
+
+        .info-banner h6 {
+            font-weight: 800;
+            margin-bottom: 0.4rem;
+        }
+
+        .info-banner ul {
+            margin-bottom: 0;
+            padding-left: 1.2rem;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .status-tile {
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            border-radius: 20px;
+            padding: 1.15rem 1rem;
+            text-align: center;
+            background: linear-gradient(145deg, rgba(255,255,255,0.65), rgba(248,250,252,0.78));
+        }
+
+        .status-tile .tile-icon {
+            width: 54px;
+            height: 54px;
+            margin: 0 auto 0.8rem;
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(37, 99, 235, 0.12);
+        }
+
+        .status-tile .tile-icon i {
+            font-size: 1.65rem;
+        }
+
+        .status-tile h6 {
+            font-weight: 800;
+            margin-bottom: 0.35rem;
+        }
+
+        .status-tile p {
+            margin: 0;
+            color: var(--text-muted) !important;
+        }
+
+        .status-tile.primary .tile-icon { background: rgba(37, 99, 235, 0.14); color: #2563eb; }
+        .status-tile.success .tile-icon { background: rgba(16, 185, 129, 0.14); color: #10b981; }
+        .status-tile.info .tile-icon { background: rgba(6, 182, 212, 0.14); color: #06b6d4; }
+        .status-tile.warning .tile-icon { background: rgba(245, 158, 11, 0.14); color: #f59e0b; }
+
+        .action-card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .action-block {
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            border-radius: 20px;
+            padding: 1rem;
+            background: linear-gradient(145deg, rgba(255,255,255,0.6), rgba(248,250,252,0.8));
+        }
+
+        .action-block p {
+            margin: 0.8rem 0 0;
+            color: var(--text-muted) !important;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        [data-theme="dark"] .info-banner .icon-wrap {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(59, 130, 246, 0.16));
+            color: #7dd3fc;
+        }
+
+        [data-theme="dark"] .status-tile,
+        [data-theme="dark"] .action-block {
+            background: linear-gradient(145deg, rgba(15,23,42,0.7), rgba(30,41,59,0.76));
+            border-color: rgba(148, 163, 184, 0.16);
+        }
+
+        [data-theme="dark"] .status-tile p,
+        [data-theme="dark"] .action-block p {
+            color: #94a3b8 !important;
+        }
+
+        [data-theme="dark"] .status-tile.primary .tile-icon { color: #60a5fa; }
+        [data-theme="dark"] .status-tile.success .tile-icon { color: #34d399; }
+        [data-theme="dark"] .status-tile.info .tile-icon { color: #67e8f9; }
+        [data-theme="dark"] .status-tile.warning .tile-icon { color: #fbbf24; }
+
+        @media (max-width: 991.98px) {
+            .status-grid,
+            .action-card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .sidebar.collapsed + .main-content {
+                margin-left: 80px;
+                width: calc(100% - 80px);
+            }
+        }
+    </style>
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            body.setAttribute('data-theme', newTheme);
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButton(newTheme);
+        }
+
+        function updateThemeButton(theme) {
+            const icon = document.getElementById('themeIcon');
+            const btn = document.getElementById('themeToggle');
+            if (!icon || !btn) return;
+
+            if (theme === 'dark') {
+                icon.className = 'bi bi-moon-stars-fill text-white';
+                btn.classList.remove('btn-white');
+                btn.classList.add('btn-dark');
+            } else {
+                icon.className = 'bi bi-sun-fill text-warning';
+                btn.classList.remove('btn-dark');
+                btn.classList.add('btn-white');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeButton(savedTheme);
+        });
+    </script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Include Sidebar -->
+            <%- include('../../partials/billing-responsive-sidebar', { page: 'invoices' }) %>
+
+                <!-- Main content -->
+                <main class="main-content px-md-4">
+                    <div class="billing-toolbar invoice-page-toolbar d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center gap-3">
+                        <h3 class="h3 mb-0">Invoice</h3>
+                        <button class="btn btn-white shadow-sm border theme-icon-btn" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">
+                            <i class="bi bi-sun-fill text-warning" id="themeIcon"></i>
+                        </button>
+                    </div>
+
+                    <!-- Tab Navigation -->
+                    <div class="billing-tabs-wrap invoice-page-tabs">
+                    <ul class="nav nav-tabs billing-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link <%= typeof page !== 'undefined' && page === 'invoices' ? 'active' : '' %>"
+                                href="/admin/billing/invoices">
+                                <i class="bi bi-receipt"></i> Buat Invoice
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <%= typeof page !== 'undefined' && page === 'auto-invoice' ? 'active' : '' %>"
+                                href="/admin/billing/auto-invoice">
+                                <i class="bi bi-calendar-check"></i> Auto Invoice
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <%= typeof page !== 'undefined' && page === 'invoices-by-type' ? 'active' : '' %>"
+                                href="/admin/billing/invoices-by-type">
+                                <i class="bi bi-list-ul"></i> Invoice per Tipe
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <%= typeof page !== 'undefined' && page === 'invoice-list' ? 'active' : '' %>"
+                                href="/admin/billing/invoice-list">
+                                <i class="bi bi-receipt"></i> Semua Invoice
+                            </a>
+                        </li>
+                    </ul>
+                    </div>
+
+                    <div class="billing-toolbar d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center gap-3 mobile-header-visible">
+                        <div>
+                            <h1 class="h2 mb-1">
+                                <i class="bx bx-receipt me-1"></i> Auto Invoice
+                            </h1>
+                            <div class="text-muted">Atur pembuatan invoice otomatis bulanan dan lakukan generate manual bila diperlukan.</div>
+                        </div>
+                    </div>
+                    <div class="billing-panel">
+                        <div class="info-banner">
+                            <div class="icon-wrap">
+                                <i class="bx bx-info-circle"></i>
+                            </div>
+                            <div>
+                                <h6>Sistem auto-invoice aktif</h6>
+                                <ul>
+                                <li>Generate bulanan otomatis setiap tanggal 1.</li>
+                                <li>Jatuh tempo invoice mengikuti <em>billing_day</em> pelanggan.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Card -->
+                    <div class="card billing-panel">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bx bx-info-circle"></i> Status Sistem Auto Invoice
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="status-grid">
+                                <div class="status-tile primary">
+                                    <div class="tile-icon"><i class="bx bx-calendar"></i></div>
+                                    <h6>Jadwal Berjalan</h6>
+                                    <p>Setiap tanggal 1 bulanan</p>
+                                </div>
+                                <div class="status-tile success">
+                                    <div class="tile-icon"><i class="bx bx-user-check"></i></div>
+                                    <h6>Pelanggan Aktif</h6>
+                                    <p><%= activeCustomersCount %> pelanggan</p>
+                                </div>
+                                <div class="status-tile info">
+                                    <div class="tile-icon"><i class="bx bx-receipt"></i></div>
+                                    <h6>Invoice Bulan Ini</h6>
+                                    <p><%= thisMonthInvoicesCount %> invoice</p>
+                                </div>
+                                <div class="status-tile warning">
+                                    <div class="tile-icon"><i class="bx bx-time"></i></div>
+                                    <h6>Berikutnya</h6>
+                                    <p><%= nextRunDate %></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="card billing-panel">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bx bx-cog"></i> Aksi Manual
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="action-card-grid">
+                                <div class="action-block">
+                                    <button type="button" class="btn btn-primary btn-lg w-100"
+                                        id="generateInvoicesBtn">
+                                        <i class="bx bx-calendar-plus"></i> Generate Invoice Bulan Ini
+                                    </button>
+                                    <p class="small">Buat invoice untuk semua pelanggan aktif yang belum memiliki invoice bulan ini</p>
+                                </div>
+                                <div class="action-block">
+                                    <button type="button" class="btn btn-outline-info btn-lg w-100"
+                                        id="previewInvoicesBtn">
+                                        <i class="bx bx-show"></i> Preview Invoice yang Akan Dibuat
+                                    </button>
+                                    <p class="small">Lihat daftar pelanggan yang akan dibuatkan invoice sebelum dijalankan.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preview Section -->
+                    <div class="card billing-panel" id="previewSection" style="display: none;">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bx bx-list-ul"></i> Preview Invoice yang Akan Dibuat
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-centered table-nowrap table-hover mb-0" id="previewTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Username</th>
+                                            <th>Nama</th>
+                                            <th>Paket</th>
+                                            <th>Harga</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="previewTableBody">
+                                        <!-- Preview data will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="preview-actions">
+                                <button type="button" class="btn btn-success" id="confirmGenerateBtn">
+                                    <i class="bx bx-check"></i> Konfirmasi Generate Invoice
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="cancelPreviewBtn">
+                                    <i class="bx bx-x"></i> Batal
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Section removed: now following per-customer billing_day and daily scheduler -->
+                </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Generate Invoices
+        document.getElementById('generateInvoicesBtn').addEventListener('click', function () {
+            if (confirm('Apakah Anda yakin ingin generate invoice untuk semua pelanggan aktif?')) {
+                this.disabled = true;
+                this.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Generating...';
+
+                fetch('/admin/billing/auto-invoice/generate', {
+                    method: 'POST'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showAlert('success', `Berhasil generate ${data.count} invoice`);
+                            setTimeout(() => location.reload(), 2000);
+                        } else {
+                            showAlert('danger', data.message || 'Gagal generate invoice');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showAlert('danger', 'Terjadi kesalahan');
+                    })
+                    .finally(() => {
+                        this.disabled = false;
+                        this.innerHTML = '<i class="bx bx-calendar-plus"></i> Generate Invoice Bulan Ini';
+                    });
+            }
+        });
+
+        // Preview Invoices
+        document.getElementById('previewInvoicesBtn').addEventListener('click', function () {
+            this.disabled = true;
+            this.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Loading...';
+
+            fetch('/admin/billing/auto-invoice/preview')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayPreview(data.customers);
+                        document.getElementById('previewSection').style.display = 'block';
+                    } else {
+                        showAlert('danger', data.message || 'Gagal memuat preview');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('danger', 'Terjadi kesalahan');
+                })
+                .finally(() => {
+                    this.disabled = false;
+                    this.innerHTML = '<i class="bx bx-show"></i> Preview Invoice yang Akan Dibuat';
+                });
+        });
+
+        // Display Preview
+        function displayPreview(customers) {
+            const tbody = document.getElementById('previewTableBody');
+            tbody.innerHTML = '';
+
+            if (customers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Tidak ada pelanggan yang perlu dibuatkan invoice</td></tr>';
+                return;
+            }
+
+            customers.forEach(customer => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${customer.username}</td>
+                    <td>${customer.name}</td>
+                    <td>${customer.package_name || '-'}</td>
+                    <td>Rp ${Math.round(parseFloat(customer.package_price || 0)).toLocaleString('id-ID')}</td>
+                    <td><span class="badge bg-success">Aktif</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Confirm Generate
+        document.getElementById('confirmGenerateBtn').addEventListener('click', function () {
+            document.getElementById('generateInvoicesBtn').click();
+        });
+
+        // Cancel Preview
+        document.getElementById('cancelPreviewBtn').addEventListener('click', function () {
+            document.getElementById('previewSection').style.display = 'none';
+        });
+
+        // Settings form removed
+
+        function showAlert(type, message) {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            document.querySelector('.main-content').insertAdjacentHTML('afterbegin', alertHtml);
+        }
+    </script>
+    <script>
+        (function () {
+            const currentPath = window.location.pathname.replace(/\/+$/, '');
+            const billingTabLinks = Array.from(document.querySelectorAll('.billing-tabs .nav-link'));
+            let bestMatch = null;
+
+            billingTabLinks.forEach((link) => {
+                const linkPath = new URL(link.href, window.location.origin).pathname.replace(/\/+$/, '');
+                const isMatch = currentPath === linkPath || currentPath.startsWith(linkPath + '/');
+
+                if (isMatch && (!bestMatch || linkPath.length > bestMatch.path.length)) {
+                    bestMatch = { link, path: linkPath };
+                }
+            });
+
+            if (bestMatch) {
+                billingTabLinks.forEach((link) => link.classList.remove('active'));
+                bestMatch.link.classList.add('active');
+            }
+        })();
+    </script>
+    <!-- Mobile Bottom Navbar -->
+    <%- include('../../partials/admin-mobile-navbar', { currentPage: 'settings' }) %>
+</body>
+
+</html>

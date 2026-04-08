@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Admin Mobile Optimizations -->
+    <link href="/css/admin-mobile.css" rel="stylesheet">
+    <link href="/css/responsive-admin.css" rel="stylesheet">
+    <style>
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #007bff;
+        }
+
+        .stat-card.income {
+            border-left-color: #28a745;
+        }
+
+        .stat-card.expense {
+            border-left-color: #dc3545;
+        }
+
+        .stat-card.profit {
+            border-left-color: #ffc107;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .transaction-type-income {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .transaction-type-expense {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .filter-section {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        :root {
+            --bg-body: #f5f7fb;
+            --bg-card: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #eef2f6;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        }
+
+        /* Dark Mode Variables */
+        [data-theme="dark"] {
+            --bg-body: #1a1a1a;
+            --bg-card: #2d2d2d;
+            --text-color: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border-color: #404040;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .card, .modal-content {
+            background-color: var(--bg-card) !important;
+            color: var(--text-color);
+            border-color: var(--border-color) !important;
+        }
+        
+        [data-theme="dark"] .main-content {
+            background-color: var(--bg-body);
+        }
+        
+        [data-theme="dark"] .stat-card {
+            background-color: #2d2d2d;
+            border-color: #404040; /* Left border color handled by specific classes */
+            color: #e0e0e0;
+        }
+        
+        [data-theme="dark"] .stat-value {
+            color: #ffffff;
+        }
+        
+        [data-theme="dark"] .stat-label {
+            color: #a0a0a0;
+        }
+        
+        [data-theme="dark"] .filter-section {
+            background-color: #2d2d2d;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        [data-theme="dark"] .table {
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+        
+        [data-theme="dark"] .table-hover tbody tr:hover {
+            color: var(--text-color);
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        [data-theme="dark"] .form-control, 
+        [data-theme="dark"] .form-select {
+            background-color: #2d2d2d;
+            border-color: #404040;
+            color: #e0e0e0;
+        }
+        
+        [data-theme="dark"] .text-muted {
+            color: #a0a0a0 !important;
+        }
+
+        [data-theme="dark"] .nav-tabs .nav-link {
+             color: var(--text-muted);
+        }
+        
+        [data-theme="dark"] .nav-tabs .nav-link.active {
+             background-color: var(--bg-body);
+             border-color: var(--border-color) var(--border-color) var(--bg-body);
+             color: var(--text-color);
+        }
+
+        .billing-tabs-wrap {
+            margin-bottom: 1.5rem;
+            padding: 0.55rem 0.75rem;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 20px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.88), rgba(244,247,255,0.82));
+            backdrop-filter: blur(16px);
+            box-shadow: 0 14px 34px rgba(37, 99, 235, 0.08);
+        }
+
+        [data-theme="dark"] .billing-tabs-wrap {
+            background: linear-gradient(145deg, rgba(15,23,42,0.88), rgba(17,24,39,0.9));
+            border-color: rgba(148, 163, 184, 0.16);
+            box-shadow: 0 18px 36px rgba(2, 8, 23, 0.32);
+        }
+
+        .billing-tabs.nav-tabs {
+            border-bottom: 0;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .billing-tabs.nav-tabs .nav-item {
+            flex: 0 0 auto;
+            display: block;
+        }
+
+        .billing-tabs.nav-tabs .nav-link {
+            position: relative;
+            border: 0;
+            border-radius: 999px;
+            padding: 0.9rem 1rem 1rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            width: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.4rem;
+            text-align: left;
+            transform: translateY(2px);
+        }
+
+        .billing-tabs.nav-tabs .nav-link.active,
+        .billing-tabs.nav-tabs .show > .nav-link {
+            background: linear-gradient(135deg, #2563eb, #4f46e5) !important;
+            color: #fff !important;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18);
+            transform: translateY(0);
+        }
+
+        .billing-tabs.nav-tabs .nav-link.active::after,
+        .billing-tabs.nav-tabs .show > .nav-link::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 6px;
+            transform: translateX(-50%);
+            width: 34px;
+            height: 4px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.92);
+        }
+
+        [data-theme="dark"] .billing-tabs.nav-tabs .nav-link {
+            color: #cbd5e1 !important;
+        }
+
+        [data-theme="dark"] .billing-tabs.nav-tabs .nav-link.active,
+        [data-theme="dark"] .billing-tabs.nav-tabs .show > .nav-link {
+            background: linear-gradient(135deg, #2563eb, #4f46e5) !important;
+            color: #ffffff !important;
+        }
+    </style>
+    <script>
+        // Theme Toggle Functionality
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            updateThemeButton(newTheme);
+        }
+
+        function updateThemeButton(theme) {
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+            const btn = document.getElementById('themeToggle');
+            
+            if (!icon || !text || !btn) return;
+
+            if (theme === 'dark') {
+                icon.className = 'bi bi-moon-stars-fill text-white me-1';
+                text.textContent = 'Dark';
+                btn.classList.remove('btn-white');
+                btn.classList.add('btn-dark');
+                // Apply dark mode styles dynamically
+                document.documentElement.style.setProperty('--bg-body', '#1a1a1a');
+                document.documentElement.style.setProperty('--bg-card', '#2d2d2d');
+                document.documentElement.style.setProperty('--text-color', '#ffffff');
+                document.documentElement.style.setProperty('--text-muted', '#a0a0a0');
+            } else {
+                icon.className = 'bi bi-sun-fill text-warning me-1';
+                text.textContent = 'Light';
+                btn.classList.remove('btn-dark');
+                btn.classList.add('btn-white');
+                // Apply light mode styles dynamically
+                document.documentElement.style.setProperty('--bg-body', '#f5f7fb');
+                document.documentElement.style.setProperty('--bg-card', '#ffffff');
+                document.documentElement.style.setProperty('--text-color', '#212529');
+                document.documentElement.style.setProperty('--text-muted', '#6c757d');
+            }
+        }
+
+        // Initialize Theme
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            updateThemeButton(savedTheme);
+        });
+    </script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <%- include('../../partials/billing-responsive-sidebar', { page: 'payments' }) %>
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content py-4">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+                        <h3 class="h3 mb-0">Pembayaran & Keuangan</h3>
+                        <button class="btn btn-white shadow-sm border rounded-pill px-3" id="themeToggle" onclick="toggleTheme()">
+                            <i class="bi bi-sun-fill text-warning me-1" id="themeIcon"></i> <span class="small fw-bold" id="themeText">Light</span>
+                        </button>
+                    </div>
+
+                    <!-- Tab Navigation -->
+                    <div class="billing-tabs-wrap mb-4">
+                    <ul class="nav nav-tabs billing-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link <%= typeof page !== 'undefined' && page === 'payments' ? 'active' : '' %>"
+                                href="/admin/billing/payments">
+                                <i class="bi bi-credit-card"></i> Transaksi Kolektor
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <%= typeof page !== 'undefined' && page === 'all-payments' ? 'active' : '' %>"
+                                href="/admin/billing/all-payments">
+                                <i class="bi bi-list-ul"></i> Riwayat Pembayaran
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <%= typeof page !== 'undefined' && page === 'financial-report' ? 'active' : '' %>"
+                                href="/admin/billing/financial-report">
+                                <i class="bi bi-line-chart"></i> Laporan Keuangan
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <%= typeof page !== 'undefined' && page === 'reports' ? 'active' : '' %>"
+                                href="/admin/billing/reports">
+                                <i class="bi bi-analytics"></i> Laporan Analisis
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <%= typeof page !== 'undefined' && page === 'expenses' ? 'active' : '' %>"
+                                href="/admin/billing/expenses">
+                                <i class="bi bi-money-withdraw"></i> Manajemen Pengeluaran
+                            </a>
+                        </li>
+                    </ul>
+                    </div>
+
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h2><i class="bx bx-line-chart"></i> Laporan Keuangan</h2>
+                            <p class="text-muted mb-0">Analisis pemasukan, pengeluaran, dan laba bersih</p>
+                        </div>
+                    </div>
+
+                    <!-- Filter Section -->
+                    <div class="filter-section">
+                        <form method="GET" class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label">Tanggal Mulai</label>
+                                <input type="date" class="form-control" name="start_date" value="<%= startDate %>"
+                                    required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Tanggal Selesai</label>
+                                <input type="date" class="form-control" name="end_date" value="<%= endDate %>" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Tipe Laporan</label>
+                                <select class="form-select" name="type">
+                                    <option value="all" <%=type==='all' ? 'selected' : '' %>>Semua Transaksi</option>
+                                    <option value="income" <%=type==='income' ? 'selected' : '' %>>Hanya Pemasukan
+                                    </option>
+                                    <option value="expense" <%=type==='expense' ? 'selected' : '' %>>Hanya Pengeluaran
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bx bx-search"></i> Terapkan Filter
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary ms-2" onclick="exportToCSV()">
+                                    <i class="bx bx-download"></i> Export CSV
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Summary Cards -->
+                    <% if (financialData && financialData.summary) { %>
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="stat-card income">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            <i class="bx bx-trending-up" style="font-size: 2rem; color: #28a745;"></i>
+                                        </div>
+                                        <div>
+                                            <div class="stat-value" style="color: #28a745;">
+                                                Rp <%= Number(financialData.summary.totalIncome ||
+                                                    0).toLocaleString('id-ID') %>
+                                            </div>
+                                            <div class="stat-label">Total Pemasukan</div>
+                                            <small class="text-muted">
+                                                <%= financialData.summary.incomeCount || 0 %> transaksi
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card expense">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            <i class="bx bx-trending-down" style="font-size: 2rem; color: #dc3545;"></i>
+                                        </div>
+                                        <div>
+                                            <div class="stat-value" style="color: #dc3545;">
+                                                Rp <%= Number(financialData.summary.totalExpense ||
+                                                    0).toLocaleString('id-ID') %>
+                                            </div>
+                                            <div class="stat-label">Total Pengeluaran</div>
+                                            <small class="text-muted">
+                                                <%= financialData.summary.expenseCount || 0 %> transaksi
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card" style="border-left-color: #6f42c1;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            <i class="bx bx-user-check" style="font-size: 2rem; color: #6f42c1;"></i>
+                                        </div>
+                                        <div>
+                                            <div class="stat-value" style="color: #6f42c1;">
+                                                Rp <%= Number(financialData.summary.totalCommission ||
+                                                    0).toLocaleString('id-ID') %>
+                                            </div>
+                                            <div class="stat-label">Total Komisi Kolektor</div>
+                                            <small class="text-muted">Biaya operasional</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card profit">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            <i class="bx bx-money" style="font-size: 2rem; color: #ffc107;"></i>
+                                        </div>
+                                        <div>
+                                            <div
+                                                class="stat-value <%= (financialData.summary.netProfit || 0) >= 0 ? 'text-success' : 'text-danger' %>">
+                                                Rp <%= Number(financialData.summary.netProfit ||
+                                                    0).toLocaleString('id-ID') %>
+                                            </div>
+                                            <div class="stat-label">Laba Bersih</div>
+                                            <small class="text-muted">Pemasukan - Pengeluaran</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <% } %>
+
+                            <!-- Transaction List -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="bx bx-list-ul"></i> Daftar Transaksi
+                                        <span class="badge bg-secondary ms-2">
+                                            <%= financialData && financialData.transactions ?
+                                                financialData.transactions.length : 0 %> transaksi
+                                        </span>
+                                    </h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <% if (financialData && financialData.transactions &&
+                                        financialData.transactions.length> 0) { %>
+                                        <div class="table-responsive">
+                                            <table class="table table-hover mb-0">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Tanggal</th>
+                                                        <th>Tipe</th>
+                                                        <th>Jumlah</th>
+                                                        <th>Metode</th>
+                                                        <th>Kolektor</th>
+                                                        <th>Komisi</th>
+                                                        <th>Keterangan</th>
+                                                        <th>Invoice/Pelanggan</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% financialData.transactions.forEach(function(transaction) { %>
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex flex-column">
+                                                                    <span>
+                                                                        <%= new
+                                                                            Date(transaction.date).toLocaleDateString('id-ID')
+                                                                            %>
+                                                                    </span>
+                                                                    <small class="text-muted">
+                                                                        <%= new
+                                                                            Date(transaction.date).toLocaleTimeString('id-ID')
+                                                                            %>
+                                                                    </small>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <% if (transaction.type==='income' ) { %>
+                                                                    <span class="transaction-type-income">
+                                                                        <i class="bx bx-trending-up"></i> Pemasukan
+                                                                    </span>
+                                                                    <% } else { %>
+                                                                        <span class="transaction-type-expense">
+                                                                            <i class="bx bx-trending-down"></i>
+                                                                            Pengeluaran
+                                                                        </span>
+                                                                        <% } %>
+                                                            </td>
+                                                            <td>
+                                                                <strong
+                                                                    class="<%= transaction.type === 'income' ? 'text-success' : 'text-danger' %>">
+                                                                    <%= transaction.type==='income' ? '+' : '-' %>Rp <%=
+                                                                            Number(transaction.amount ||
+                                                                            0).toLocaleString('id-ID') %>
+                                                                </strong>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge bg-secondary">
+                                                                    <%= transaction.payment_method || '-' %>
+                                                                </span>
+                                                                <% if (transaction.gateway_name &&
+                                                                    transaction.gateway_name !=='Manual Payment' ) { %>
+                                                                    <br><small class="text-muted">
+                                                                        <%= transaction.gateway_name %>
+                                                                    </small>
+                                                                    <% } %>
+                                                            </td>
+                                                            <td>
+                                                                <% if (transaction.collector_name) { %>
+                                                                    <span class="badge bg-info">
+                                                                        <%= transaction.collector_name %>
+                                                                    </span>
+                                                                    <% } else { %>
+                                                                        -
+                                                                        <% } %>
+                                                            </td>
+                                                            <td>
+                                                                <% if (transaction.commission_amount &&
+                                                                    transaction.commission_amount> 0) { %>
+                                                                    <span class="text-warning fw-bold">
+                                                                        Rp <%=
+                                                                            Number(transaction.commission_amount).toLocaleString('id-ID')
+                                                                            %>
+                                                                    </span>
+                                                                    <% } else { %>
+                                                                        -
+                                                                        <% } %>
+                                                            </td>
+                                                            <td>
+                                                                <%= transaction.description || transaction.notes || '-'
+                                                                    %>
+                                                            </td>
+                                                            <td>
+                                                                <% if (transaction.invoice_number) { %>
+                                                                    <div class="d-flex flex-column">
+                                                                        <span class="fw-bold">
+                                                                            <%= transaction.invoice_number %>
+                                                                        </span>
+                                                                        <% if (transaction.customer_name) { %>
+                                                                            <small class="text-muted">
+                                                                                <%= transaction.customer_name %>
+                                                                            </small>
+                                                                            <% } %>
+                                                                    </div>
+                                                                    <% } else { %>
+                                                                        -
+                                                                        <% } %>
+                                                            </td>
+                                                        </tr>
+                                                        <% }); %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <% } else { %>
+                                            <div class="text-center py-5">
+                                                <i class="bx bx-inbox" style="font-size: 4rem; color: #dee2e6;"></i>
+                                                <h5 class="mt-3 text-muted">Tidak ada transaksi ditemukan</h5>
+                                                <p class="text-muted">Coba ubah filter tanggal atau tipe laporan</p>
+                                            </div>
+                                            <% } %>
+                                </div>
+                            </div>
+
+                </main>
+    </div>
+
+    <!-- Hidden element to store transactions data for export -->
+    <script id="transactionsData"
+        type="application/json"><%= JSON.stringify(financialData && financialData.transactions ? financialData.transactions : []) %></script>
+
+    <script>
+        function exportToCSV() {
+            const transactionsDataElement = document.getElementById('transactionsData');
+            if (!transactionsDataElement || !transactionsDataElement.textContent) {
+                alert('Tidak ada data untuk di-export');
+                return;
+            }
+
+            const transactions = JSON.parse(transactionsDataElement.textContent);
+            const csvHeaders = ['Tanggal', 'Tipe', 'Jumlah', 'Metode Pembayaran', 'Gateway', 'Kolektor', 'Komisi', 'Keterangan', 'Invoice', 'Pelanggan'];
+
+            const csvRows = [csvHeaders.join(',')];
+
+            transactions.forEach(transaction => {
+                const row = [
+                    `"${new Date(transaction.date).toLocaleDateString('id-ID')}"`,
+                    `"${transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}"`,
+                    `"${transaction.amount}"`,
+                    `"${transaction.payment_method || ''}"`,
+                    `"${transaction.gateway_name || ''}"`,
+                    `"${transaction.collector_name || ''}"`,
+                    `"${transaction.commission_amount || 0}"`,
+                    `"${(transaction.description || transaction.notes || '').replace(/"/g, '""')}"`,
+                    `"${transaction.invoice_number || ''}"`,
+                    `"${transaction.customer_name || ''}"`
+                ];
+                csvRows.push(row.join(','));
+            });
+
+            const csvContent = csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `laporan-keuangan-${document.querySelector('input[name="start_date"]').value}-${document.querySelector('input[name="end_date"]').value}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            const currentPath = window.location.pathname.replace(/\/+$/, '');
+            const billingTabLinks = Array.from(document.querySelectorAll('.billing-tabs .nav-link'));
+            let bestMatch = null;
+
+            billingTabLinks.forEach((link) => {
+                const linkPath = new URL(link.href, window.location.origin).pathname.replace(/\/+$/, '');
+                const isMatch = currentPath === linkPath || currentPath.startsWith(linkPath + '/');
+
+                if (isMatch && (!bestMatch || linkPath.length > bestMatch.path.length)) {
+                    bestMatch = { link, path: linkPath };
+                }
+            });
+
+            if (bestMatch) {
+                billingTabLinks.forEach((link) => link.classList.remove('active'));
+                bestMatch.link.classList.add('active');
+            }
+        })();
+    </script>
+
+    <!-- Mobile Bottom Navbar -->
+    <%- include('../../partials/admin-mobile-navbar', { currentPage: 'payments' }) %>
+</body>
+
+</html>

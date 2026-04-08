@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/admin-mobile.css" rel="stylesheet">
+    <link href="/css/responsive-admin.css" rel="stylesheet">
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+    </script>
+    <style>
+        :root {
+            --bg-body: #f5f7fb;
+            --bg-card: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #eef2f6;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            --surface-border: rgba(148, 163, 184, 0.22);
+            --hero-glow: radial-gradient(circle at top left, rgba(96, 165, 250, 0.22), transparent 38%);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #081120;
+            --bg-card: #101c30;
+            --text-color: #e6eefc;
+            --text-muted: #93a4bf;
+            --border-color: rgba(148, 163, 184, 0.18);
+            --card-shadow: 0 20px 42px rgba(2, 8, 23, 0.36);
+        }
+
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(45, 212, 191, 0.12), transparent 22%),
+                linear-gradient(180deg, #f7faff 0%, #eef4ff 44%, #f8fbff 100%);
+            color: var(--text-color);
+        }
+
+        body[data-theme="dark"] {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(20, 184, 166, 0.12), transparent 24%),
+                linear-gradient(180deg, #081120 0%, #0b1324 44%, #0a1428 100%);
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .billing-toolbar,
+        .billing-panel {
+            position: relative;
+            border: 1px solid var(--surface-border);
+            border-radius: 24px;
+            background:
+                linear-gradient(145deg, rgba(255,255,255,0.88), rgba(244,247,255,0.82)),
+                var(--hero-glow);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 18px 44px rgba(37, 99, 235, 0.08);
+            padding: 16px 20px;
+            margin-bottom: 1.5rem;
+        }
+
+        [data-theme="dark"] .billing-toolbar,
+        [data-theme="dark"] .billing-panel {
+            background:
+                linear-gradient(145deg, rgba(15,23,42,0.88), rgba(17,24,39,0.9)),
+                radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 40%);
+            border-color: rgba(148, 163, 184, 0.22);
+            box-shadow: 0 20px 42px rgba(2, 8, 23, 0.32);
+        }
+
+        .icon-only-btn {
+            width: 42px;
+            min-width: 42px;
+            height: 42px;
+            padding-inline: 0 !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px !important;
+        }
+
+        .card {
+            background-color: var(--bg-card) !important;
+            color: var(--text-color);
+            border: 1px solid var(--border-color) !important;
+            box-shadow: var(--card-shadow);
+            border-radius: 20px;
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .monitor-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .monitor-stat-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 22px;
+            padding: 1.25rem 1.35rem;
+            color: #fff;
+            box-shadow: 0 16px 34px rgba(37, 99, 235, 0.14);
+            min-height: 118px;
+        }
+
+        .monitor-stat-card::after {
+            content: "";
+            position: absolute;
+            right: -18px;
+            bottom: -24px;
+            width: 128px;
+            height: 128px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.14);
+        }
+
+        .monitor-stat-card .label {
+            position: relative;
+            z-index: 1;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.95;
+        }
+
+        .monitor-stat-card .value {
+            position: relative;
+            z-index: 1;
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-top: 0.4rem;
+        }
+
+        .monitor-stat-card .subtext {
+            position: relative;
+            z-index: 1;
+            font-size: 0.84rem;
+            opacity: 0.9;
+            margin-top: 0.35rem;
+        }
+
+        .monitor-stat-card.customers-card { background: linear-gradient(135deg, #2563eb, #4f46e5); }
+        .monitor-stat-card.invoices-card { background: linear-gradient(135deg, #22c55e, #10b981); }
+        .monitor-stat-card.revenue-card { background: linear-gradient(135deg, #f59e0b, #f97316); }
+        .monitor-stat-card.pending-card { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+
+        .report-tabs {
+            margin-bottom: 1.5rem;
+            padding: 0.2rem 0.1rem 0;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 20px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.88), rgba(244,247,255,0.82));
+            backdrop-filter: blur(16px);
+            box-shadow: 0 14px 34px rgba(37, 99, 235, 0.08);
+        }
+
+        .report-tabs .nav {
+            gap: 1rem !important;
+            padding: 0 1rem;
+            border-bottom: 0;
+        }
+
+        .report-tabs .nav-link {
+            border: 0 !important;
+            border-bottom: 3px solid transparent !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            color: var(--text-muted) !important;
+            font-weight: 700 !important;
+            padding: 0.85rem 0.1rem 0.7rem !important;
+            box-shadow: none !important;
+        }
+
+        .report-tabs .nav-link:hover,
+        .report-tabs .nav-link.active {
+            color: #2563eb !important;
+        }
+
+        .report-tabs .nav-link.active {
+            border-bottom-color: #2563eb !important;
+        }
+
+        .tab-content > .tab-pane {
+            display: none !important;
+        }
+
+        .tab-content > .tab-pane.active,
+        .tab-content > .tab-pane.show.active {
+            display: block !important;
+        }
+
+        .report-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+            gap: 1rem;
+        }
+
+        .report-item:last-child {
+            border-bottom: none;
+        }
+
+        .report-label {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .report-value {
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        .chart-wrap {
+            min-height: 260px;
+            padding: 1rem;
+            border-radius: 18px;
+            background: linear-gradient(145deg, rgba(248,250,252,0.95), rgba(241,245,249,0.9));
+            border: 1px solid rgba(148, 163, 184, 0.16);
+        }
+
+        [data-theme="dark"] .chart-wrap {
+            background: linear-gradient(145deg, rgba(15,23,42,0.88), rgba(30,41,59,0.9));
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .action-buttons .btn {
+            border-radius: 999px;
+            padding-inline: 1rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 991.98px) {
+            .monitor-stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .monitor-stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .report-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .report-value {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <%- include('../../partials/billing-responsive-sidebar', { page: 'reports' }) %>
+        <main class="main-content px-md-4 py-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+                <h3 class="h3 mb-0">Laporan</h3>
+                <button class="btn btn-white shadow-sm border-0 icon-only-btn" id="themeToggle" onclick="toggleTheme()" aria-label="Ganti tema">
+                    <i class="bi bi-sun-fill text-warning" id="themeIcon"></i>
+                </button>
+            </div>
+
+            <div class="billing-toolbar d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h1 class="h3 mb-1"><i class="bx bx-analytics me-2"></i>Laporan Analisis</h1>
+                    <div class="text-muted">Ringkasan performa billing, pelanggan, tagihan, dan pembayaran bulan berjalan.</div>
+                </div>
+                <div class="action-buttons m-0">
+                    <button type="button" class="btn btn-outline-secondary" onclick="refreshReport()">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="exportReport()">
+                        <i class="bi bi-download me-1"></i> Export
+                    </button>
+                </div>
+            </div>
+
+            <div class="monitor-stats-grid">
+                <div class="monitor-stat-card customers-card">
+                    <div class="label">Total Pelanggan</div>
+                    <div class="value"><%= stats.totalCustomers %></div>
+                    <div class="subtext">Jumlah pelanggan aktif di billing</div>
+                </div>
+                <div class="monitor-stat-card invoices-card">
+                    <div class="label">Total Tagihan</div>
+                    <div class="value"><%= stats.totalInvoices %></div>
+                    <div class="subtext">Invoice yang tercatat bulan berjalan</div>
+                </div>
+                <div class="monitor-stat-card revenue-card">
+                    <div class="label">Total Pendapatan</div>
+                    <div class="value">Rp <%= stats.totalRevenue.toLocaleString('id-ID') %></div>
+                    <div class="subtext">Akumulasi pendapatan billing bulan ini</div>
+                </div>
+                <div class="monitor-stat-card pending-card">
+                    <div class="label">Pembayaran Pending</div>
+                    <div class="value"><%= stats.pendingPayments %></div>
+                    <div class="subtext">Gateway aktif yang masih menunggu pembayaran</div>
+                </div>
+            </div>
+
+            <div class="report-tabs">
+                <ul class="nav nav-tabs" id="reportTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="report-tab-revenue" data-bs-toggle="tab" data-bs-target="#report-pane-revenue" type="button" role="tab" aria-controls="report-pane-revenue" aria-selected="true">Laporan Pendapatan</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="report-tab-customer" data-bs-toggle="tab" data-bs-target="#report-pane-customer" type="button" role="tab" aria-controls="report-pane-customer" aria-selected="false">Laporan Pelanggan</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="report-tab-invoice" data-bs-toggle="tab" data-bs-target="#report-pane-invoice" type="button" role="tab" aria-controls="report-pane-invoice" aria-selected="false">Laporan Tagihan</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="report-tab-payment" data-bs-toggle="tab" data-bs-target="#report-pane-payment" type="button" role="tab" aria-controls="report-pane-payment" aria-selected="false">Laporan Pembayaran</button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="report-pane-revenue" role="tabpanel" aria-labelledby="report-tab-revenue">
+                    <div class="billing-panel">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0"><i class="bi bi-graph-up me-2"></i>Laporan Pendapatan</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-wrap mb-4">
+                                    <canvas id="revenueChart" height="120"></canvas>
+                                </div>
+                                <div class="report-item">
+                                    <span class="report-label">Pendapatan Hari Ini</span>
+                                    <span class="report-value" id="rev-today">Rp 0</span>
+                                </div>
+                                <div class="report-item">
+                                    <span class="report-label">Pendapatan Minggu Ini</span>
+                                    <span class="report-value" id="rev-week">Rp 0</span>
+                                </div>
+                                <div class="report-item">
+                                    <span class="report-label">Pendapatan Bulan Ini</span>
+                                    <span class="report-value" id="rev-month">Rp <%= stats.totalRevenue.toLocaleString('id-ID') %></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="report-pane-customer" role="tabpanel" aria-labelledby="report-tab-customer">
+                    <div class="billing-panel">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0"><i class="bi bi-people me-2"></i>Laporan Pelanggan</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="report-item">
+                                    <span class="report-label">Pelanggan Aktif</span>
+                                    <span class="report-value"><%= stats.totalCustomers %></span>
+                                </div>
+                                <div class="report-item">
+                                    <span class="report-label">Pelanggan Baru (Bulan Ini)</span>
+                                    <span class="report-value">0</span>
+                                </div>
+                                <div class="report-item">
+                                    <span class="report-label">Pelanggan Non-Aktif</span>
+                                    <span class="report-value">0</span>
+                                </div>
+                                <div class="report-item">
+                                    <span class="report-label">Tingkat Retensi</span>
+                                    <span class="report-value">100%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="report-pane-invoice" role="tabpanel" aria-labelledby="report-tab-invoice">
+                    <div class="billing-panel">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0"><i class="bi bi-receipt me-2"></i>Laporan Tagihan</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="report-item">
+                                    <span class="report-label">Tagihan Dibuat (Bulan Ini)</span>
+                                    <span class="report-value"><%= stats.totalInvoices %></span>
+                                </div>
+                                <div class="report-item">
+                                    <span class="report-label">Tagihan Lunas</span>
+                                    <span class="report-value"><%= stats.paidInvoices %></span>
+                                </div>
+                                <div class="report-item">
+                                    <span class="report-label">Tagihan Belum Lunas</span>
+                                    <span class="report-value"><%= stats.pendingPayments %></span>
+                                </div>
+                                <div class="report-item">
+                                    <span class="report-label">Tingkat Pembayaran</span>
+                                    <span class="report-value"><%= stats.totalInvoices > 0 ? Math.round((stats.paidInvoices / stats.totalInvoices) * 100) : 0 %>%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="report-pane-payment" role="tabpanel" aria-labelledby="report-tab-payment">
+                    <div class="billing-panel">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0"><i class="bi bi-credit-card me-2"></i>Laporan Pembayaran</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="report-item">
+                                    <span class="report-label">Pembayaran Berhasil</span>
+                                    <span class="report-value"><%= stats.paymentSuccess %></span>
+                                </div>
+                                <div class="report-item">
+                                    <span class="report-label">Pembayaran Pending</span>
+                                    <span class="report-value"><%= stats.pendingPayments %></span>
+                                </div>
+                                <div class="report-item">
+                                    <span class="report-label">Pembayaran Gagal</span>
+                                    <span class="report-value"><%= stats.paymentFailed %></span>
+                                </div>
+                                <div class="report-item">
+                                    <span class="report-label">Rata-rata Waktu Pembayaran</span>
+                                    <span class="report-value">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/admin-mobile-billing.js"></script>
+    <script>
+        function updateThemeButton(theme) {
+            const icon = document.getElementById('themeIcon');
+            if (!icon) return;
+            if (theme === 'dark') {
+                icon.className = 'bi bi-moon-stars-fill text-white';
+            } else {
+                icon.className = 'bi bi-sun-fill text-warning';
+            }
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            updateThemeButton(next);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeButton(savedTheme);
+        });
+
+        (function () {
+            fetch('/admin/billing/api/revenue/summary')
+                .then(r => r.json())
+                .then(res => {
+                    if (!(res && res.success && res.data)) return;
+                    const d = res.data;
+                    const fmt = n => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+                    const elToday = document.getElementById('rev-today');
+                    const elWeek = document.getElementById('rev-week');
+                    const elMonth = document.getElementById('rev-month');
+                    if (elToday) elToday.textContent = fmt(d.todayRevenue);
+                    if (elWeek) elWeek.textContent = fmt(d.weekRevenue);
+                    if (elMonth) elMonth.textContent = fmt(d.monthRevenue);
+
+                    const ctx = document.getElementById('revenueChart');
+                    if (ctx && window.Chart) {
+                        new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: ['Hari Ini', 'Minggu Ini', 'Bulan Ini'],
+                                datasets: [{
+                                    label: 'Pendapatan',
+                                    data: [Number(d.todayRevenue || 0), Number(d.weekRevenue || 0), Number(d.monthRevenue || 0)],
+                                    backgroundColor: ['rgba(6,182,212,0.75)', 'rgba(37,99,235,0.75)', 'rgba(34,197,94,0.75)'],
+                                    borderColor: ['rgba(6,182,212,1)', 'rgba(37,99,235,1)', 'rgba(34,197,94,1)'],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { display: false } },
+                                scales: { y: { beginAtZero: true } }
+                            }
+                        });
+                    }
+                })
+                .catch(() => {});
+        })();
+
+        function exportReport() {
+            alert('Fitur export laporan sedang disiapkan.');
+        }
+
+        function refreshReport() {
+            window.location.reload();
+        }
+    </script>
+    <%- include('../../partials/admin-mobile-navbar', { currentPage: 'reports' }) %>
+</body>
+</html>

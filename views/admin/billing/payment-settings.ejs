@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengaturan Gerbang Pembayaran - Admin Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Admin Mobile Optimizations -->
+    <link href="/css/admin-mobile.css" rel="stylesheet">
+    <link href="/css/responsive-admin.css" rel="stylesheet">
+    <style>
+        .main-content {
+            transition: margin-left 0.3s ease;
+            padding-top: 20px !important;
+        }
+        
+        @media (min-width: 992px) {
+            .sidebar.collapsed + .main-content {
+                margin-left: 80px;
+                width: calc(100% - 80px);
+            }
+        }
+
+        .gateway-card {
+            transition: transform 0.3s ease;
+        }
+
+        .gateway-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .status-badge {
+            font-size: 0.8rem;
+        }
+
+        :root {
+            --bg-body: #f5f7fb;
+            --bg-card: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #eef2f6;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        }
+
+        /* Dark Mode Variables */
+        [data-theme="dark"] {
+            --bg-body: #1a1a1a;
+            --bg-card: #2d2d2d;
+            --text-color: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border-color: #404040;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .card, .modal-content {
+            background-color: var(--bg-card) !important;
+            color: var(--text-color);
+            border-color: var(--border-color) !important;
+        }
+        
+        [data-theme="dark"] .table {
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+        
+        [data-theme="dark"] .table-hover tbody tr:hover {
+            color: var(--text-color);
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        [data-theme="dark"] .form-control, 
+        [data-theme="dark"] .form-select {
+            background-color: #2d2d2d;
+            border-color: #404040;
+            color: #e0e0e0;
+        }
+        
+        [data-theme="dark"] .text-muted {
+            color: #a0a0a0 !important;
+        }
+
+        .nav.nav-tabs {
+            border-bottom: 1px solid rgba(148, 163, 184, 0.24) !important;
+            gap: 1.1rem !important;
+        }
+
+        .nav.nav-tabs .nav-link {
+            border: 0 !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            color: #64748b !important;
+            font-weight: 700 !important;
+            padding: 0.7rem 0.05rem 0.8rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.45rem !important;
+            border-bottom: 3px solid transparent !important;
+        }
+
+        .nav.nav-tabs .nav-link:hover {
+            color: #2563eb !important;
+        }
+
+        .nav.nav-tabs .nav-link.active {
+            color: #2563eb !important;
+            border-bottom-color: #2563eb !important;
+        }
+
+        [data-theme="dark"] .nav.nav-tabs {
+            border-bottom-color: rgba(71, 85, 105, 0.5) !important;
+        }
+
+        [data-theme="dark"] .nav.nav-tabs .nav-link {
+            color: #cbd5e1 !important;
+        }
+
+        [data-theme="dark"] .nav.nav-tabs .nav-link.active {
+            color: #60a5fa !important;
+            border-bottom-color: #60a5fa !important;
+        }
+    </style>
+    <script>
+        // Theme Toggle Functionality
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            updateThemeButton(newTheme);
+        }
+
+        function updateThemeButton(theme) {
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+            const btn = document.getElementById('themeToggle');
+            
+            if (!icon || !text || !btn) return;
+
+            if (theme === 'dark') {
+                icon.className = 'bi bi-moon-stars-fill text-white me-1';
+                text.textContent = 'Gelap';
+                btn.classList.remove('btn-white');
+                btn.classList.add('btn-dark');
+                // Apply dark mode styles dynamically
+                document.documentElement.style.setProperty('--bg-body', '#1a1a1a');
+                document.documentElement.style.setProperty('--bg-card', '#2d2d2d');
+                document.documentElement.style.setProperty('--text-color', '#ffffff');
+                document.documentElement.style.setProperty('--text-muted', '#a0a0a0');
+            } else {
+                icon.className = 'bi bi-sun-fill text-warning me-1';
+                text.textContent = 'Terang';
+                btn.classList.remove('btn-dark');
+                btn.classList.add('btn-white');
+                // Apply light mode styles dynamically
+                document.documentElement.style.setProperty('--bg-body', '#f5f7fb');
+                document.documentElement.style.setProperty('--bg-card', '#ffffff');
+                document.documentElement.style.setProperty('--text-color', '#212529');
+                document.documentElement.style.setProperty('--text-muted', '#6c757d');
+            }
+        }
+
+        // Initialize Theme
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            updateThemeButton(savedTheme);
+        });
+    </script>
+</head>
+
+<body>
+    <!-- Include Billing Sidebar -->
+    <%- include('../../partials/billing-responsive-sidebar', { page: 'payment-settings' }) %>
+
+    <!-- Main content -->
+    <main class="main-content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+                        <h3 class="h3 mb-0">Pengaturan</h3>
+                        <button class="btn btn-white shadow-sm border rounded-pill px-3" id="themeToggle" onclick="toggleTheme()">
+                            <i class="bi bi-sun-fill text-warning me-1" id="themeIcon"></i> <span class="small fw-bold" id="themeText">Terang</span>
+                        </button>
+                    </div>
+
+                    <!-- Tab Navigation -->
+                    <ul class="nav nav-tabs mb-4">
+                        <li class="nav-item">
+                            <a class="nav-link <%= typeof page !== 'undefined' && page === 'payment-settings' ? 'active' : '' %>" data-settings-tab="payment-settings"
+                                href="/admin/billing/payment-settings">
+                                <i class="bi bi-cog"></i> Pengaturan Pembayaran
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <%= typeof page !== 'undefined' && page === 'whatsapp-settings' ? 'active' : '' %>" data-settings-tab="whatsapp-settings"
+                                href="/admin/billing/whatsapp-settings">
+                                <i class="bi bi-chat-dots"></i> Pengaturan WhatsApp
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <%= typeof page !== 'undefined' && page === 'service-suspension' ? 'active' : '' %>" data-settings-tab="service-suspension"
+                                href="/admin/billing/service-suspension">
+                                <i class="bi bi-pause-circle"></i> Pengaturan ISOLIR
+                            </a>
+                        </li>
+                    </ul>
+                    <script>
+                        (function () {
+                            const path = window.location.pathname;
+                            let activeKey = 'payment-settings';
+                            if (path.includes('/whatsapp-settings')) activeKey = 'whatsapp-settings';
+                            if (path.includes('/service-suspension')) activeKey = 'service-suspension';
+                            document.querySelectorAll('[data-settings-tab]').forEach(tab => {
+                                const isActive = tab.getAttribute('data-settings-tab') === activeKey;
+                                tab.classList.toggle('active', isActive);
+                                tab.style.borderBottomColor = isActive ? '#2563eb' : 'transparent';
+                                tab.style.color = isActive ? '#2563eb' : '';
+                            });
+                        })();
+                    </script>
+
+                    <div
+                        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">
+                            <i class="bx bx-cog"></i> Pengaturan Gerbang Pembayaran
+                        </h1>
+                    </div>
+
+                    <!-- Alert Messages -->
+                    <div id="alertContainer"></div>
+
+                    <!-- Active Gateway Selection -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="bx bx-target-lock"></i> Gerbang Aktif
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Pilih Gerbang Aktif:</label>
+                                            <select class="form-select" id="activeGateway">
+                                                <option value="midtrans" <%=settings.payment_gateway.active==='midtrans'
+                                                    ? 'selected' : '' %>>Midtrans</option>
+                                                <option value="xendit" <%=settings.payment_gateway.active==='xendit'
+                                                    ? 'selected' : '' %>>Xendit</option>
+                                                <option value="tripay" <%=settings.payment_gateway.active==='tripay'
+                                                    ? 'selected' : '' %>>Tripay</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Status Gerbang:</label>
+                                            <div id="gatewayStatus">
+                                                <span class="badge bg-success">Midtrans: Aktif (Utama)</span>
+                                                <span class="badge bg-secondary">Xendit: Nonaktif</span>
+                                                <span class="badge bg-secondary">Tripay: Nonaktif</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary mt-3" onclick="updateActiveGateway()">
+                                        <i class="bx bx-save"></i> Simpan Gerbang Aktif
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gateway Configurations -->
+                    <div class="row">
+                        <!-- Midtrans Configuration -->
+                        <div class="col-lg-4 mb-4">
+                            <div class="card gateway-card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="bx bx-credit-card"></i> Midtrans
+                                        <span
+                                            class="badge <%= settings.payment_gateway.midtrans.enabled ? 'bg-success' : 'bg-secondary' %> status-badge">
+                                            <%= settings.payment_gateway.midtrans.enabled ? 'Aktif' : 'Nonaktif' %>
+                                        </span>
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="midtransForm">
+                                        <div class="mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="midtransEnabled"
+                                                    <%=settings.payment_gateway.midtrans.enabled ? 'checked' : '' %>>
+                                                <label class="form-check-label" for="midtransEnabled">
+                                                    Aktifkan Midtrans
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="midtransProduction"
+                                                    <%=settings.payment_gateway.midtrans.production ? 'checked' : '' %>>
+                                                <label class="form-check-label" for="midtransProduction">
+                                                    Mode Produksi
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Server Key:</label>
+                                            <input type="text" class="form-control" id="midtransServerKey"
+                                                value="<%= settings.payment_gateway.midtrans.server_key %>">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Client Key:</label>
+                                            <input type="text" class="form-control" id="midtransClientKey"
+                                                value="<%= settings.payment_gateway.midtrans.client_key %>">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Merchant ID:</label>
+                                            <input type="text" class="form-control" id="midtransMerchantId"
+                                                value="<%= settings.payment_gateway.midtrans.merchant_id %>">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Base URL (Callback/Return):</label>
+                                            <input type="text" class="form-control" id="midtransBaseUrl"
+                                                placeholder="https://billing.domainanda.com atau http://IP:PORT"
+                                                value="<%= (settings.payment_gateway.midtrans && settings.payment_gateway.midtrans.base_url) ? settings.payment_gateway.midtrans.base_url : '' %>">
+                                            <div class="form-text">Jika kosong, sistem menggunakan host/port dari
+                                                settings.json</div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="bx bx-save"></i> Simpan Midtrans
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Xendit Configuration -->
+                        <div class="col-lg-4 mb-4">
+                            <div class="card gateway-card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="bx bx-credit-card"></i> Xendit
+                                        <span
+                                            class="badge <%= settings.payment_gateway.xendit.enabled ? 'bg-success' : 'bg-secondary' %> status-badge">
+                                            <%= settings.payment_gateway.xendit.enabled ? 'Aktif' : 'Nonaktif' %>
+                                        </span>
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="xenditForm">
+                                        <div class="mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="xenditEnabled"
+                                                    <%=settings.payment_gateway.xendit.enabled ? 'checked' : '' %>>
+                                                <label class="form-check-label" for="xenditEnabled">
+                                                    Aktifkan Xendit
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="xenditProduction"
+                                                    <%=settings.payment_gateway.xendit.production ? 'checked' : '' %>>
+                                                <label class="form-check-label" for="xenditProduction">
+                                                    Mode Produksi
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">API Key:</label>
+                                            <input type="text" class="form-control" id="xenditApiKey"
+                                                value="<%= settings.payment_gateway.xendit.api_key %>">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Callback Token:</label>
+                                            <input type="text" class="form-control" id="xenditCallbackToken"
+                                                value="<%= settings.payment_gateway.xendit.callback_token %>">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Base URL (Redirect):</label>
+                                            <input type="text" class="form-control" id="xenditBaseUrl"
+                                                placeholder="https://billing.domainanda.com atau http://IP:PORT"
+                                                value="<%= (settings.payment_gateway.xendit && settings.payment_gateway.xendit.base_url) ? settings.payment_gateway.xendit.base_url : '' %>">
+                                            <div class="form-text">Jika kosong, sistem menggunakan host/port dari
+                                                settings.json</div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="bx bx-save"></i> Simpan Xendit
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tripay Configuration -->
+                        <div class="col-lg-4 mb-4">
+                            <div class="card gateway-card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="bx bx-credit-card"></i> Tripay
+                                        <span
+                                            class="badge <%= settings.payment_gateway.tripay.enabled ? 'bg-success' : 'bg-secondary' %> status-badge">
+                                            <%= settings.payment_gateway.tripay.enabled ? 'Aktif' : 'Nonaktif' %>
+                                        </span>
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="tripayForm">
+                                        <div class="mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="tripayEnabled"
+                                                    <%=settings.payment_gateway.tripay.enabled ? 'checked' : '' %>>
+                                                <label class="form-check-label" for="tripayEnabled">
+                                                    Aktifkan Tripay
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="tripayProduction"
+                                                    <%=settings.payment_gateway.tripay.production ? 'checked' : '' %>>
+                                                <label class="form-check-label" for="tripayProduction">
+                                                    Mode Produksi
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">API Key:</label>
+                                            <input type="text" class="form-control" id="tripayApiKey"
+                                                value="<%= settings.payment_gateway.tripay.api_key %>">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Private Key:</label>
+                                            <input type="text" class="form-control" id="tripayPrivateKey"
+                                                value="<%= settings.payment_gateway.tripay.private_key %>">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Merchant Code:</label>
+                                            <input type="text" class="form-control" id="tripayMerchantCode"
+                                                value="<%= settings.payment_gateway.tripay.merchant_code %>">
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="alert alert-info">
+                                                <i class="bx bx-info-circle"></i>
+                                                <strong>Info:</strong> Metode pembayaran Tripay (QRIS, DANA, GoPay, dll)
+                                                sekarang dipilih langsung oleh pelanggan saat melakukan pembayaran.
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Base URL (Callback/Return):</label>
+                                            <input type="text" class="form-control" id="tripayBaseUrl"
+                                                placeholder="https://billing.domainanda.com atau http://IP:PORT"
+                                                value="<%= (settings.payment_gateway.tripay && settings.payment_gateway.tripay.base_url) ? settings.payment_gateway.tripay.base_url : '' %>">
+                                            <div class="form-text">Harus diawali http:// atau https://</div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="bx bx-save"></i> Simpan Tripay
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Test Connection Section -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        <i class="bx bx-test-tube"></i> Uji Koneksi Gerbang
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <button class="btn btn-outline-primary w-100"
+                                                onclick="testGateway('midtrans')">
+                                                <i class="bx bx-test-tube"></i> Uji Midtrans
+                                            </button>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button class="btn btn-outline-primary w-100"
+                                                onclick="testGateway('xendit')">
+                                                <i class="bx bx-test-tube"></i> Uji Xendit
+                                            </button>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button class="btn btn-outline-primary w-100"
+                                                onclick="testGateway('tripay')">
+                                                <i class="bx bx-test-tube"></i> Uji Tripay
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showAlert(type, message) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            alertContainer.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        async function updateActiveGateway() {
+            const activeGateway = document.getElementById('activeGateway').value;
+
+            try {
+                const response = await fetch('/admin/billing/payment-settings/active-gateway', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ activeGateway })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('success', 'Gerbang aktif berhasil diperbarui');
+                    updateGatewayStatus();
+                } else {
+                    showAlert('danger', result.message || 'Gagal memperbarui gerbang aktif');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('danger', 'Terjadi kesalahan saat memperbarui gerbang aktif');
+            }
+        }
+
+        async function updateGatewayStatus() {
+            try {
+                const response = await fetch('/payment/gateway-status');
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const status = result.data;
+                    let statusHtml = '';
+
+                    Object.keys(status).forEach(gateway => {
+                        const isEnabled = status[gateway].enabled;
+                        const isActive = status[gateway].active;
+                        const statusClass = isEnabled ? 'success' : 'secondary';
+                        const statusText = isEnabled ? 'Aktif' : 'Nonaktif';
+                        const activeText = isActive ? ' (Utama)' : '';
+
+                        statusHtml += `
+                            <span class="badge bg-${statusClass} me-2">
+                                ${gateway.charAt(0).toUpperCase() + gateway.slice(1)}: ${statusText}${activeText}
+                            </span>
+                        `;
+                    });
+
+                    document.getElementById('gatewayStatus').innerHTML = statusHtml;
+                }
+            } catch (error) {
+                console.error('Gagal memperbarui status gerbang:', error);
+            }
+        }
+
+        // Form submission handlers
+        document.getElementById('midtransForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveGatewayConfig('midtrans');
+        });
+
+        document.getElementById('xenditForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveGatewayConfig('xendit');
+        });
+
+        document.getElementById('tripayForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveGatewayConfig('tripay');
+        });
+
+        async function saveGatewayConfig(gateway) {
+            const formData = {
+                enabled: document.getElementById(`${gateway}Enabled`).checked,
+                production: document.getElementById(`${gateway}Production`).checked
+            };
+
+            // Add gateway-specific fields
+            if (gateway === 'midtrans') {
+                formData.server_key = document.getElementById('midtransServerKey').value;
+                formData.client_key = document.getElementById('midtransClientKey').value;
+                formData.merchant_id = document.getElementById('midtransMerchantId').value;
+                const baseUrl = document.getElementById('midtransBaseUrl').value.trim();
+                if (baseUrl && !/^https?:\/\//i.test(baseUrl)) {
+                    showAlert('danger', 'Base URL harus diawali http:// atau https://');
+                    return;
+                }
+                if (baseUrl) formData.base_url = baseUrl;
+            } else if (gateway === 'xendit') {
+                formData.api_key = document.getElementById('xenditApiKey').value;
+                formData.callback_token = document.getElementById('xenditCallbackToken').value;
+                const baseUrl = document.getElementById('xenditBaseUrl').value.trim();
+                if (baseUrl && !/^https?:\/\//i.test(baseUrl)) {
+                    showAlert('danger', 'Base URL harus diawali http:// atau https://');
+                    return;
+                }
+                if (baseUrl) formData.base_url = baseUrl;
+            } else if (gateway === 'tripay') {
+                formData.api_key = document.getElementById('tripayApiKey').value;
+                formData.private_key = document.getElementById('tripayPrivateKey').value;
+                formData.merchant_code = document.getElementById('tripayMerchantCode').value;
+                const baseUrl = document.getElementById('tripayBaseUrl').value.trim();
+                if (baseUrl && !/^https?:\/\//i.test(baseUrl)) {
+                    showAlert('danger', 'Base URL harus diawali http:// atau https://');
+                    return;
+                }
+                if (baseUrl) formData.base_url = baseUrl;
+            }
+
+            try {
+                const response = await fetch(`/admin/billing/payment-settings/${gateway}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('success', `Konfigurasi ${gateway} berhasil disimpan`);
+                    updateGatewayStatus();
+                } else {
+                    showAlert('danger', result.message || `Gagal menyimpan konfigurasi ${gateway}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('danger', `Terjadi kesalahan saat menyimpan konfigurasi ${gateway}`);
+            }
+        }
+
+        async function testGateway(gateway) {
+            try {
+                const response = await fetch(`/admin/billing/payment-settings/test/${gateway}`, {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('success', `Test koneksi ${gateway} berhasil: ${result.message}`);
+                } else {
+                    showAlert('danger', `Test koneksi ${gateway} gagal: ${result.message}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('danger', `Terjadi kesalahan saat test koneksi ${gateway}`);
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function () {
+            updateGatewayStatus();
+        });
+    </script>
+
+    <!-- Mobile Bottom Navbar -->
+    <%- include('../../partials/admin-mobile-navbar', { currentPage: 'settings' }) %>
+</body>
+
+</html>
+
+
+

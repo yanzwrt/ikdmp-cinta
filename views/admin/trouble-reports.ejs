@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title || 'Laporan Gangguan' %> - <%= typeof isTechnicianView !== 'undefined' && isTechnicianView ? 'Portal Teknisi' : 'Admin Panel' %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/dataTables.responsive.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    <link href="/css/responsive-admin.css" rel="stylesheet">
+    <link href="/css/admin-mobile.css" rel="stylesheet">
+    <meta name="theme-color" content="#667eea">
+    <style>
+        :root {
+            --bg-body: #f5f7fb;
+            --bg-card: #ffffff;
+            --bg-card-soft: rgba(255, 255, 255, 0.84);
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --border-color: rgba(148, 163, 184, 0.20);
+            --surface-border: rgba(148, 163, 184, 0.22);
+            --card-shadow: 0 16px 38px rgba(15, 23, 42, 0.08);
+            --card-hover-shadow: 0 24px 46px rgba(15, 23, 42, 0.14);
+            --hero-glow: radial-gradient(circle at top left, rgba(96, 165, 250, 0.22), transparent 38%);
+            --primary-gradient: linear-gradient(135deg, #1f6feb 0%, #1d4ed8 100%);
+            --danger-gradient: linear-gradient(135deg, #ef476f 0%, #c1121f 100%);
+            --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --success-gradient: linear-gradient(135deg, #16c784 0%, #0f766e 100%);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #081120;
+            --bg-card: #101c30;
+            --bg-card-soft: rgba(15, 23, 42, 0.86);
+            --text-color: #e6eefc;
+            --text-muted: #93a4bf;
+            --border-color: rgba(148, 163, 184, 0.18);
+            --surface-border: rgba(148, 163, 184, 0.24);
+            --card-shadow: 0 20px 42px rgba(2, 8, 23, 0.36);
+            --card-hover-shadow: 0 28px 54px rgba(2, 8, 23, 0.44);
+            --hero-glow: radial-gradient(circle at top left, rgba(56, 189, 248, 0.14), transparent 42%);
+            --primary-gradient: linear-gradient(135deg, #3366ff 0%, #1e3a8a 100%);
+            --danger-gradient: linear-gradient(135deg, #ff4d6d 0%, #be123c 100%);
+            --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+            --success-gradient: linear-gradient(135deg, #16c784 0%, #0f766e 100%);
+        }
+
+        html, body {
+            overflow-x: hidden;
+            max-width: 100%;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(45, 212, 191, 0.12), transparent 22%),
+                linear-gradient(180deg, #f7faff 0%, #eef4ff 44%, #f8fbff 100%);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            position: relative;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        [data-theme="dark"] body {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(20, 184, 166, 0.12), transparent 24%),
+                linear-gradient(180deg, #081120 0%, #0b1324 44%, #0a1428 100%);
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            border-radius: 999px;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(12px);
+        }
+
+        body::before {
+            width: 360px;
+            height: 360px;
+            top: -80px;
+            right: -120px;
+            background: rgba(96, 165, 250, 0.14);
+        }
+
+        body::after {
+            width: 280px;
+            height: 280px;
+            bottom: 60px;
+            left: 18%;
+            background: rgba(45, 212, 191, 0.12);
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 1;
+            padding: 20px 20px 36px;
+        }
+
+        .trouble-hero,
+        .trouble-actions,
+        .trouble-card {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--surface-border) !important;
+            border-radius: 24px !important;
+            background:
+                linear-gradient(145deg, rgba(255,255,255,0.88), rgba(244,247,255,0.82)),
+                var(--hero-glow);
+            backdrop-filter: blur(18px);
+            box-shadow: var(--card-shadow);
+        }
+
+        [data-theme="dark"] .trouble-hero,
+        [data-theme="dark"] .trouble-actions,
+        [data-theme="dark"] .trouble-card {
+            background:
+                linear-gradient(145deg, rgba(15,23,42,0.88), rgba(17,24,39,0.9)),
+                var(--hero-glow);
+        }
+
+        .trouble-hero,
+        .trouble-actions {
+            padding: 18px 20px;
+            height: 100%;
+        }
+
+        .trouble-hero::before,
+        .trouble-actions::before {
+            content: "";
+            position: absolute;
+            inset: auto -60px -110px auto;
+            width: 220px;
+            height: 220px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(96, 165, 250, 0.16), transparent 70%);
+            pointer-events: none;
+        }
+
+        .page-title {
+            font-size: clamp(1.95rem, 2.8vw, 2.6rem);
+            line-height: 1.08;
+            font-weight: 800;
+            margin-bottom: 0.45rem;
+            color: var(--text-color);
+            letter-spacing: -0.03em;
+        }
+
+        .hero-subtitle {
+            color: var(--text-muted) !important;
+        }
+
+        .trouble-actions h5 {
+            color: var(--text-color);
+            font-size: 1.12rem;
+            font-weight: 800;
+            margin-bottom: 0.35rem;
+        }
+
+        .trouble-actions .btn {
+            border-radius: 999px;
+            min-height: 40px;
+            padding-inline: 1rem;
+            font-weight: 700;
+        }
+
+        .btn-white {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            color: #1e293b;
+        }
+
+        [data-theme="dark"] .btn-white {
+            background: rgba(15, 23, 42, 0.88);
+            color: #e6eefc;
+            border-color: rgba(148, 163, 184, 0.24);
+        }
+
+        .stat-card-modern {
+            border: none !important;
+            border-radius: 22px !important;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: var(--card-shadow);
+            min-height: 156px;
+        }
+
+        .stat-card-modern:hover,
+        .trouble-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        .stat-gradient-card::before {
+            content: "";
+            position: absolute;
+            top: -22px;
+            right: -16px;
+            width: 118px;
+            height: 118px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+        }
+
+        .stat-gradient-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0));
+            pointer-events: none;
+        }
+
+        .stat-gradient-card .card-body {
+            position: relative;
+            z-index: 1;
+            padding: 1.45rem 1.55rem;
+        }
+
+        .stat-card-modern .card-body {
+            padding: 1.5rem !important;
+        }
+
+        .stat-card-modern .text-muted,
+        .stat-card-modern .small,
+        .stat-card-modern .stat-value,
+        .stat-card-modern .fw-bold {
+            color: #ffffff !important;
+        }
+
+        .stat-card-modern .stat-value {
+            font-size: 2rem !important;
+            line-height: 1.1;
+        }
+
+        .stat-icon-box {
+            width: 60px;
+            height: 60px;
+            flex: 0 0 60px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+        }
+
+        .stat-gradient-primary { background: var(--primary-gradient) !important; }
+        .stat-gradient-danger { background: var(--danger-gradient) !important; }
+        .stat-gradient-warning { background: var(--warning-gradient) !important; }
+        .stat-gradient-success { background: var(--success-gradient) !important; }
+
+        .bg-light-primary { background-color: #eef2ff !important; }
+        .bg-light-success { background-color: #ecfdf5 !important; }
+        .bg-light-danger { background-color: #fef2f2 !important; }
+        .bg-light-info { background-color: #f0f9ff !important; }
+        .bg-light-warning { background-color: #fffbeb !important; }
+
+        .filter-card .card-body,
+        .table-card .card-body {
+            padding: 1.3rem 1.35rem;
+        }
+
+        .section-heading {
+            font-size: 1.08rem;
+            font-weight: 800;
+            color: var(--text-color);
+        }
+
+        .section-subtext {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+        }
+
+        .form-label {
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 0.6rem;
+        }
+
+        .form-select,
+        .form-control {
+            border-radius: 14px;
+            min-height: 48px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card-soft);
+            color: var(--text-color);
+            box-shadow: none;
+        }
+
+        .form-select:focus,
+        .form-control:focus {
+            border-color: rgba(37, 99, 235, 0.45);
+            box-shadow: 0 0 0 0.22rem rgba(37, 99, 235, 0.12);
+            background: var(--bg-card);
+            color: var(--text-color);
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-box .form-control {
+            padding-left: 42px;
+            border-radius: 999px;
+        }
+
+        .table-card .table-responsive {
+            padding: 0 1.35rem 1.35rem;
+        }
+
+        .table {
+            margin-bottom: 0;
+            color: var(--text-color);
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table thead th {
+            padding: 1rem 0.95rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.76rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            background: transparent !important;
+        }
+
+        .table tbody td {
+            padding: 1rem 0.95rem;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+            background: transparent !important;
+            color: var(--text-color);
+        }
+
+        .table-hover tbody tr {
+            transition: background-color 0.25s ease, transform 0.25s ease;
+        }
+
+        .table-hover tbody tr:hover {
+            background: rgba(37, 99, 235, 0.04);
+        }
+
+        [data-theme="dark"] .table-hover tbody tr:hover {
+            background: rgba(59, 130, 246, 0.08);
+        }
+
+        .avatar-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1rem;
+            background: linear-gradient(135deg, #1f6feb 0%, #3b82f6 100%);
+            color: #ffffff;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.20);
+        }
+
+        .category-pill,
+        .status-pill,
+        .summary-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 0.85rem;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.82rem;
+        }
+
+        .category-pill {
+            background: rgba(37, 99, 235, 0.08);
+            color: #1d4ed8;
+        }
+
+        [data-theme="dark"] .category-pill {
+            background: rgba(59, 130, 246, 0.16);
+            color: #bfdbfe;
+        }
+
+        .status-pill.status-open {
+            background: rgba(239, 71, 111, 0.12);
+            color: #be123c;
+        }
+
+        .status-pill.status-progress {
+            background: rgba(245, 158, 11, 0.14);
+            color: #b45309;
+        }
+
+        .status-pill.status-done {
+            background: rgba(22, 199, 132, 0.14);
+            color: #0f766e;
+        }
+
+        .status-pill.status-closed {
+            background: rgba(100, 116, 139, 0.14);
+            color: #475569;
+        }
+
+        [data-theme="dark"] .status-pill.status-open { color: #fda4af; }
+        [data-theme="dark"] .status-pill.status-progress { color: #fcd34d; }
+        [data-theme="dark"] .status-pill.status-done { color: #86efac; }
+        [data-theme="dark"] .status-pill.status-closed { color: #cbd5e1; }
+
+        .btn-action {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            margin-right: 0.35rem;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.10);
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3.2rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3.2rem;
+            color: rgba(148, 163, 184, 0.8);
+        }
+
+        .table-card-header {
+            padding: 1.15rem 1.35rem 0.9rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .summary-pill {
+            background: rgba(37, 99, 235, 0.10);
+            color: #2563eb;
+        }
+
+        [data-theme="dark"] .summary-pill {
+            background: rgba(59, 130, 246, 0.16);
+            color: #93c5fd;
+        }
+
+        @media (max-width: 991.98px) {
+            .main-content {
+                padding-inline: 12px;
+            }
+
+            .trouble-hero,
+            .trouble-actions,
+            .trouble-card,
+            .stat-card-modern {
+                border-radius: 20px !important;
+            }
+
+            .table-card .table-responsive {
+                padding-inline: 0.9rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-top: 70px !important;
+                padding: 12px 10px 96px !important;
+            }
+
+            .page-title {
+                font-size: 1.9rem;
+            }
+
+            .table-card-header {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 0.75rem;
+            }
+
+            .table thead th,
+            .table tbody td {
+                padding-inline: 0.75rem;
+            }
+
+            body {
+                padding-bottom: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Include Responsive Sidebar -->
+        <% if (typeof isTechnicianView !== 'undefined' && isTechnicianView) { %>
+            <%- include('../partials/technician-responsive-sidebar', { page: 'troubletickets', technician: technician }) %>
+        <% } else { %>
+            <%- include('../partials/admin-responsive-sidebar', { page: 'trouble', settings: settings }) %>
+        <% } %>
+        
+        <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4 main-content">
+            <% if (typeof isTechnicianView !== 'undefined' && isTechnicianView) { %>
+                <!-- Welcome Section for Technician -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="user-info">
+                            <h4 class="mb-1">
+                                <i class="bx bx-error-circle me-2"></i>Laporan Gangguan
+                            </h4>
+                            <p class="mb-0 opacity-75">
+                                <i class="bx bx-user-circle me-1"></i>Teknisi: <%= technician.name %> | 
+                                <i class="bx bx-briefcase me-1"></i>Role: <%= technician.role || 'Technician' %>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            <% } else { %>
+                <div class="row g-3 align-items-stretch mb-4 pt-2">
+                    <div class="col-lg-8">
+                        <div class="trouble-hero">
+                            <h1 class="page-title"><%= title || 'Manajemen Laporan Gangguan' %></h1>
+                            <p class="hero-subtitle mb-0">Kelola dan pantau semua laporan gangguan dari pelanggan.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="trouble-actions d-flex flex-column justify-content-between gap-3">
+                            <h5 class="mb-0">Panel Aksi</h5>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button class="btn btn-white shadow-sm border-0" id="themeToggle" onclick="toggleTheme()" title="Ganti tema">
+                                    <i class="bi bi-sun-fill text-warning" id="themeIcon"></i>
+                                </button>
+                                <button class="btn btn-primary" type="button">
+                                    <i class="bi bi-file-earmark-text me-2"></i>Export Laporan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+            
+            <!-- Statistik Laporan -->
+            <div class="row mb-4">
+                <div class="col-md-6 col-6 mb-3">
+                    <div class="card stat-card-modern stat-gradient-card stat-gradient-primary h-100">
+                        <div class="card-body p-4 d-flex align-items-center">
+                            <div class="stat-icon-box bg-light-primary text-primary me-3">
+                                <i class="bi bi-clipboard-data fs-3"></i>
+                            </div>
+                            <div>
+                                <div class="text-muted small fw-bold text-uppercase mb-1">Total Laporan</div>
+                                <div class="stat-value fw-bold fs-2"><%= stats.total %></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-6 mb-3">
+                    <div class="card stat-card-modern stat-gradient-card stat-gradient-danger h-100">
+                        <div class="card-body p-4 d-flex align-items-center">
+                            <div class="stat-icon-box bg-light-danger text-danger me-3">
+                                <i class="bi bi-exclamation-circle fs-3"></i>
+                            </div>
+                            <div>
+                                <div class="text-muted small fw-bold text-uppercase mb-1">Belum Ditangani</div>
+                                <div class="stat-value fw-bold fs-2"><%= stats.open %></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-6 col-6 mb-3">
+                    <div class="card stat-card-modern stat-gradient-card stat-gradient-warning h-100">
+                        <div class="card-body p-4 d-flex align-items-center">
+                            <div class="stat-icon-box bg-light-warning text-warning me-3">
+                                <i class="bi bi-gear fs-3"></i>
+                            </div>
+                            <div>
+                                <div class="text-muted small fw-bold text-uppercase mb-1">Sedang Ditangani</div>
+                                <div class="stat-value fw-bold fs-2"><%= stats.inProgress %></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-6 mb-3">
+                    <div class="card stat-card-modern stat-gradient-card stat-gradient-success h-100">
+                        <div class="card-body p-4 d-flex align-items-center">
+                            <div class="stat-icon-box bg-light-success text-success me-3">
+                                <i class="bi bi-check-circle fs-3"></i>
+                            </div>
+                            <div>
+                                <div class="text-muted small fw-bold text-uppercase mb-1">Terselesaikan</div>
+                                <div class="stat-value fw-bold fs-2"><%= stats.resolved + stats.closed %></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filter dan Pencarian -->
+            <div class="card trouble-card filter-card mb-4">
+                <div class="card-body">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-2 mb-3">
+                        <div>
+                            <div class="section-heading">Filter dan Pencarian</div>
+                            <div class="section-subtext">Saring tiket berdasarkan status, kategori, atau identitas pelanggan.</div>
+                        </div>
+                    </div>
+                    <div class="row align-items-end">
+                        <div class="col-md-4 mb-3">
+                            <label for="statusFilter" class="form-label"><i class="bi bi-funnel me-2"></i>Filter Status</label>
+                            <select class="form-select" id="statusFilter">
+                                <option value="all">Semua Status</option>
+                                <option value="open">Belum Ditangani</option>
+                                <option value="in_progress">Sedang Ditangani</option>
+                                <option value="resolved">Terselesaikan</option>
+                                <option value="closed">Ditutup</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="categoryFilter" class="form-label"><i class="bi bi-tag me-2"></i>Filter Kategori</label>
+                            <select class="form-select" id="categoryFilter">
+                                <option value="all">Semua Kategori</option>
+                                <% 
+                                const categories = new Set();
+                                reports.forEach(report => {
+                                    if (report.category) categories.add(report.category);
+                                });
+                                Array.from(categories).forEach(category => { 
+                                %>
+                                    <option value="<%= category %>"><%= category %></option>
+                                <% }); %>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="searchInput" class="form-label"><i class="bi bi-search me-2"></i>Pencarian</label>
+                            <div class="search-box">
+                                <i class="bi bi-search"></i>
+                                <input type="text" class="form-control" id="searchInput" placeholder="Cari berdasarkan ID, nama, atau nomor HP...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabel Laporan -->
+            <div class="card trouble-card table-card">
+                <div class="card-body p-0">
+                    <div class="d-flex justify-content-between align-items-center table-card-header">
+                        <div>
+                            <h5 class="card-title mb-1 section-heading"><i class="bi bi-list-ul me-2"></i>Daftar Laporan Gangguan</h5>
+                            <div class="section-subtext">Urutkan prioritas penanganan dari tiket terbaru dan pantau pembaruan terakhir.</div>
+                        </div>
+                        <span class="summary-pill"><i class="bi bi-collection"></i><%= reports ? reports.length : 0 %> Laporan</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4">ID Tiket</th>
+                                    <th>Pelanggan</th>
+                                    <th>Kategori</th>
+                                    <th>Tanggal Laporan</th>
+                                    <th>Status</th>
+                                    <th>Terakhir Diupdate</th>
+                                    <th class="text-end pe-4">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportTableBody">
+                                <% if (reports && reports.length > 0) { %>
+                                    <% reports.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).forEach(report => { %>
+                                        <tr class="report-row" 
+                                            data-status="<%= report.status %>" 
+                                            data-category="<%= report.category %>"
+                                            data-search="<%= report.id %> <%= report.name %> <%= report.phone %>">
+                                            <td class="ps-4">
+                                                <span class="fw-bold">#<%= report.id %></span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-circle bg-primary text-white me-2">
+                                                        <%= report.name.charAt(0).toUpperCase() %>
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-medium"><%= report.name %></div>
+                                                        <div class="text-muted small"><i class="bi bi-telephone me-1"></i><%= report.phone %></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="category-pill">
+                                                    <% if (report.category === 'internet') { %>
+                                                        <i class="bi bi-globe me-1"></i>
+                                                    <% } else if (report.category === 'wifi') { %>
+                                                        <i class="bi bi-wifi me-1"></i>
+                                                    <% } else if (report.category === 'perangkat') { %>
+                                                        <i class="bi bi-router me-1"></i>
+                                                    <% } else { %>
+                                                        <i class="bi bi-question-circle me-1"></i>
+                                                    <% } %>
+                                                    <%= report.category %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div><i class="bi bi-calendar-event me-1"></i><%= new Date(report.createdAt).toLocaleDateString('id-ID') %></div>
+                                                <small class="text-muted"><%= new Date(report.createdAt).toLocaleTimeString('id-ID') %></small>
+                                            </td>
+                                            <td>
+                                                <span class="status-pill <%= 
+                                                    report.status === 'open' ? 'status-open' : 
+                                                    report.status === 'in_progress' ? 'status-progress' : 
+                                                    report.status === 'resolved' ? 'status-done' : 
+                                                    'status-closed' 
+                                                %>">
+                                                    <% if (report.status === 'open') { %>
+                                                        <i class="bi bi-exclamation-circle me-1"></i>
+                                                    <% } else if (report.status === 'in_progress') { %>
+                                                        <i class="bi bi-gear me-1"></i>
+                                                    <% } else if (report.status === 'resolved') { %>
+                                                        <i class="bi bi-check-circle me-1"></i>
+                                                    <% } else { %>
+                                                        <i class="bi bi-archive me-1"></i>
+                                                    <% } %>
+                                                    <%= 
+                                                        report.status === 'open' ? 'Belum Ditangani' : 
+                                                        report.status === 'in_progress' ? 'Sedang Ditangani' : 
+                                                        report.status === 'resolved' ? 'Terselesaikan' : 
+                                                        'Ditutup' 
+                                                    %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div><i class="bi bi-clock-history me-1"></i><%= new Date(report.updatedAt).toLocaleDateString('id-ID') %></div>
+                                                <small class="text-muted"><%= new Date(report.updatedAt).toLocaleTimeString('id-ID') %></small>
+                                            </td>
+                                            <td class="text-end pe-4">
+                                                <% if (typeof isTechnicianView !== 'undefined' && isTechnicianView) { %>
+                                                    <a href="/technician/troubletickets/detail/<%= report.id %>" class="btn btn-primary btn-action me-1" title="Lihat Detail">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                <% } else { %>
+                                                    <a href="/admin/trouble/detail/<%= report.id %>" class="btn btn-primary btn-action me-1" title="Lihat Detail">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                <% } %>
+                                                <a href="https://wa.me/<%= report.phone.replace(/^0/, '62') %>" target="_blank" class="btn btn-success btn-action" title="Hubungi via WhatsApp">
+                                                    <i class="bi bi-whatsapp"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5">
+                                            <div class="empty-state">
+                                                <i class="bi bi-clipboard-x"></i>
+                                                <p class="mt-3 mb-0 text-muted">Belum ada laporan gangguan</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    function toggleTheme() {
+        const body = document.body;
+        const currentTheme = body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+        body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeButton(newTheme);
+    }
+
+    function updateThemeButton(theme) {
+        const icon = document.getElementById('themeIcon');
+        const btn = document.getElementById('themeToggle');
+
+        if (!icon || !btn) return;
+
+        if (theme === 'dark') {
+            icon.className = 'bi bi-moon-stars-fill text-white';
+            btn.classList.remove('btn-white');
+            btn.classList.add('btn-dark');
+        } else {
+            icon.className = 'bi bi-sun-fill text-warning';
+            btn.classList.remove('btn-dark');
+            btn.classList.add('btn-white');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        updateThemeButton(savedTheme);
+
+        const statusFilter = document.getElementById('statusFilter');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const searchInput = document.getElementById('searchInput');
+        const reportRows = document.querySelectorAll('.report-row');
+
+        function filterTable() {
+            const statusValue = statusFilter.value;
+            const categoryValue = categoryFilter.value;
+            const searchValue = searchInput.value.toLowerCase();
+
+            reportRows.forEach(row => {
+                const rowStatus = row.getAttribute('data-status');
+                const rowCategory = row.getAttribute('data-category');
+                const rowSearchText = row.getAttribute('data-search').toLowerCase();
+
+                const statusMatch = statusValue === 'all' || rowStatus === statusValue;
+                const categoryMatch = categoryValue === 'all' || rowCategory === categoryValue;
+                const searchMatch = rowSearchText.includes(searchValue);
+
+                row.style.display = statusMatch && categoryMatch && searchMatch ? '' : 'none';
+            });
+        }
+
+        if (statusFilter && categoryFilter && searchInput) {
+            statusFilter.addEventListener('change', filterTable);
+            categoryFilter.addEventListener('change', filterTable);
+            searchInput.addEventListener('input', filterTable);
+        }
+
+        const isTechnicianView = window.location.pathname.includes('/technician/') ||
+            document.body.classList.contains('technician-view');
+
+        if (isTechnicianView) {
+            const adminNav = document.querySelector('.bottom-nav');
+            const technicianNav = document.getElementById('technicianNav');
+
+            if (adminNav) adminNav.style.display = 'none';
+            if (technicianNav) {
+                technicianNav.style.display = 'block';
+                technicianNav.style.position = 'fixed';
+                technicianNav.style.bottom = '0';
+                technicianNav.style.left = '0';
+                technicianNav.style.right = '0';
+                technicianNav.style.zIndex = '1030';
+            }
+        }
+    });
+</script>
+
+<!-- Mobile Bottom Navigation -->
+<% if (typeof isTechnicianView !== 'undefined' && isTechnicianView) { %>
+    <%- include('../technician/partials/mobile-navbar', { currentPage: 'troubletickets', technician: technician }) %>
+<% } else { %>
+    <%- include('../partials/main-admin-mobile-navbar', { page: 'trouble' }) %>
+<% } %>
+
+<!-- Add bottom padding for mobile -->
+<style>
+    @media (max-width: 768px) {
+        body {
+            padding-bottom: 80px !important;
+        }
+        
+        .main-content {
+            padding-bottom: 80px !important;
+        }
+    }
+</style>
+<%- include('../partials/footer') %>
+</body>
+</html>

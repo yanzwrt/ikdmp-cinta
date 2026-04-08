@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Billing - Admin Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/admin-mobile.css" rel="stylesheet">
+    <link href="/css/responsive-admin.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            --success-gradient: linear-gradient(135deg, #198754 0%, #146c43 100%);
+            --info-gradient: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);
+            --warning-gradient: linear-gradient(135deg, #ffc107 0%, #cc9a06 100%);
+            --danger-gradient: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+            --bg-body: #f5f7fb;
+            --bg-card: #ffffff;
+            --bg-sidebar: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #eef2f6;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            --card-hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+            --surface-border: rgba(148, 163, 184, 0.22);
+            --hero-glow: radial-gradient(circle at top left, rgba(96, 165, 250, 0.22), transparent 38%);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #081120;
+            --bg-card: #101c30;
+            --bg-sidebar: #0d1728;
+            --text-color: #e6eefc;
+            --text-muted: #93a4bf;
+            --border-color: rgba(148, 163, 184, 0.18);
+            --card-shadow: 0 20px 42px rgba(2, 8, 23, 0.36);
+            --card-hover-shadow: 0 24px 46px rgba(2, 8, 23, 0.32);
+            --surface-border: rgba(148, 163, 184, 0.22);
+        }
+
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(45, 212, 191, 0.12), transparent 22%),
+                linear-gradient(180deg, #f7faff 0%, #eef4ff 44%, #f8fbff 100%);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .main-content {
+            padding-top: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        body[data-theme="dark"] {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(20, 184, 166, 0.12), transparent 24%),
+                linear-gradient(180deg, #081120 0%, #0b1324 44%, #0a1428 100%);
+        }
+
+        .billing-toolbar,
+        .billing-hero,
+        .billing-tabs-wrap {
+            position: relative;
+            border: 1px solid var(--surface-border);
+            border-radius: 24px;
+            background:
+                linear-gradient(145deg, rgba(255,255,255,0.88), rgba(244,247,255,0.82)),
+                var(--hero-glow);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 18px 44px rgba(37, 99, 235, 0.08);
+        }
+
+        .billing-toolbar,
+        .billing-hero {
+            padding: 16px 20px;
+        }
+
+        .billing-toolbar {
+            overflow: visible;
+            z-index: 25;
+        }
+
+        .billing-tabs-wrap {
+            padding: 10px 14px 0;
+        }
+
+        .billing-header-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .billing-header-summary h3 {
+            font-size: 1.15rem;
+            letter-spacing: -0.02em;
+            color: #334155;
+            font-weight: 800;
+        }
+
+        .billing-header-summary p {
+            margin: 0;
+            color: var(--text-muted);
+        }
+
+        .billing-action-toolbar {
+            margin-left: auto;
+            position: relative;
+            z-index: 3;
+        }
+
+        .icon-only-btn {
+            width: 42px;
+            min-width: 42px;
+            height: 42px;
+            padding-inline: 0 !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px !important;
+        }
+
+        .icon-only-btn i {
+            margin-right: 0 !important;
+            font-size: 1rem;
+        }
+
+        .billing-utility-btn {
+            background: rgba(255,255,255,0.78);
+            border-width: 1px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .billing-utility-btn:hover,
+        .billing-utility-btn:focus-visible {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12);
+        }
+
+        .section-header {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 1rem !important;
+        }
+
+        .section-header::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.32), rgba(148, 163, 184, 0.18));
+        }
+
+        .section-header h6 {
+            margin: 0;
+            font-size: 0.78rem;
+            letter-spacing: 0.18em;
+            color: #5b6ea6 !important;
+            font-weight: 800 !important;
+            text-transform: uppercase;
+        }
+
+        .billing-subhero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .billing-subhero h1 {
+            margin: 0;
+        }
+
+        .billing-notification-menu {
+            width: min(360px, calc(100vw - 28px));
+            border-radius: 20px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(244,247,255,0.98));
+            border: 1px solid rgba(148, 163, 184, 0.16) !important;
+            box-shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
+            backdrop-filter: blur(18px);
+            z-index: 1085;
+        }
+
+        .billing-notification-header {
+            padding: 16px 18px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(99, 102, 241, 0.08));
+        }
+
+        .billing-notification-list {
+            max-height: 360px;
+            overflow-y: auto;
+        }
+
+        .billing-notification-item,
+        .billing-notification-empty {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            white-space: normal;
+        }
+
+        .billing-notification-item {
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            transition: background-color 0.2s ease;
+        }
+
+        .billing-notification-item:last-child {
+            border-bottom: 0;
+        }
+
+        .billing-notification-item:hover,
+        .billing-notification-item:focus {
+            background: rgba(59, 130, 246, 0.06);
+        }
+
+        .billing-notification-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .notification-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .notification-success { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+
+        .billing-notification-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .billing-notification-title {
+            color: #0f172a;
+            font-weight: 800;
+            font-size: 0.92rem;
+        }
+
+        .billing-notification-text {
+            color: #475569;
+            font-size: 0.82rem;
+            line-height: 1.45;
+        }
+
+        .billing-notification-meta {
+            color: #64748b;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .notification-badge {
+            font-size: 0.62rem;
+            padding: 0.28rem 0.38rem;
+            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.28);
+        }
+
+        [data-theme="dark"] .billing-toolbar,
+        [data-theme="dark"] .billing-hero,
+        [data-theme="dark"] .billing-tabs-wrap {
+            background:
+                linear-gradient(145deg, rgba(15,23,42,0.88), rgba(17,24,39,0.9)),
+                radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 40%);
+            border-color: rgba(148, 163, 184, 0.22);
+            box-shadow: 0 20px 42px rgba(2, 8, 23, 0.32);
+        }
+
+        [data-theme="dark"] .billing-header-summary h3,
+        [data-theme="dark"] .billing-subhero h1,
+        [data-theme="dark"] .section-header h6 {
+            color: #f8fafc !important;
+        }
+
+        [data-theme="dark"] .billing-utility-btn {
+            background: rgba(15, 23, 42, 0.72);
+            border-color: rgba(148, 163, 184, 0.28) !important;
+            color: #e2e8f0 !important;
+            box-shadow: 0 18px 34px rgba(2, 8, 23, 0.28);
+        }
+
+        [data-theme="dark"] .billing-notification-menu {
+            background: linear-gradient(180deg, rgba(8,17,32,0.98), rgba(13,23,40,0.98));
+            border-color: rgba(148, 163, 184, 0.18) !important;
+        }
+
+        [data-theme="dark"] .billing-notification-header {
+            border-bottom-color: rgba(148, 163, 184, 0.14);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.16), rgba(99, 102, 241, 0.14));
+        }
+
+        [data-theme="dark"] .billing-notification-header strong,
+        [data-theme="dark"] .billing-notification-title {
+            color: #f8fafc !important;
+        }
+
+        [data-theme="dark"] .billing-notification-text,
+        [data-theme="dark"] .billing-notification-empty .text-muted {
+            color: #cbd5e1 !important;
+        }
+
+        [data-theme="dark"] .billing-notification-meta,
+        [data-theme="dark"] .billing-notification-header .text-muted {
+            color: #93a4bf !important;
+        }
+
+        .billing-tabs.nav-tabs {
+            border-bottom: 0;
+            gap: 0.5rem;
+        }
+
+        .billing-tabs .nav-link {
+            border: 0;
+            border-radius: 999px;
+            padding: 0.65rem 1rem;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .billing-tabs .nav-link.active {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: #fff !important;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18);
+        }
+
+        .section-card-soft {
+            border-radius: 24px !important;
+            border: 1px solid rgba(148, 163, 184, 0.16) !important;
+            background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(247,250,255,0.98)) !important;
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+        }
+
+        [data-theme="dark"] .section-card-soft {
+            background: linear-gradient(180deg, rgba(12,19,33,0.96), rgba(16,28,48,0.98)) !important;
+            border-color: rgba(148, 163, 184, 0.12) !important;
+        }
+
+        .dashboard-title {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background-color: var(--bg-card) !important;
+            color: var(--text-color);
+            border: 1px solid var(--border-color) !important;
+            box-shadow: var(--card-shadow);
+        }
+
+        .sidebar {
+            background-color: var(--bg-sidebar) !important;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .sidebar .nav-link {
+            color: var(--text-muted) !important;
+        }
+
+        .sidebar .nav-link:hover {
+            background: #f8fafc !important;
+            color: #0d6efd !important;
+        }
+
+        [data-theme="dark"] .sidebar .nav-link:hover {
+            background: rgba(59, 130, 246, 0.12) !important;
+            color: #e6eefc !important;
+        }
+
+        .sidebar .nav-link.main-link,
+        .sidebar .logo-container {
+            background-color: var(--bg-card) !important;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow) !important;
+        }
+
+        .bg-white {
+            background-color: var(--bg-card) !important;
+            color: var(--text-color) !important;
+        }
+
+        .text-dark {
+            color: var(--text-color) !important;
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        .bg-light {
+            background-color: #f8f9fa !important;
+        }
+
+        [data-theme="dark"] .bg-light {
+            background-color: #333 !important;
+        }
+
+        .bg-light-primary { background-color: rgba(13, 110, 253, 0.1) !important; }
+        .bg-light-success { background-color: rgba(25, 135, 84, 0.1) !important; }
+        .bg-light-info { background-color: rgba(13, 202, 240, 0.1) !important; }
+        .bg-light-warning { background-color: rgba(255, 193, 7, 0.1) !important; }
+        .bg-light-danger { background-color: rgba(220, 53, 69, 0.1) !important; }
+
+        [data-theme="dark"] .bg-light-primary { background-color: rgba(13, 110, 253, 0.2) !important; }
+        [data-theme="dark"] .bg-light-success { background-color: rgba(25, 135, 84, 0.2) !important; }
+        [data-theme="dark"] .bg-light-info { background-color: rgba(13, 202, 240, 0.2) !important; }
+        [data-theme="dark"] .bg-light-warning { background-color: rgba(255, 193, 7, 0.2) !important; }
+        [data-theme="dark"] .bg-light-danger { background-color: rgba(220, 53, 69, 0.2) !important; }
+
+        .stat-card {
+            border: none;
+            border-radius: 15px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+            height: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        .stat-card .card-body {
+            position: relative;
+            z-index: 2;
+            padding: 1.5rem;
+        }
+
+        .stat-card .icon-bg {
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            font-size: 5rem;
+            opacity: 0.2;
+            z-index: 1;
+            transform: rotate(-15deg);
+        }
+
+        .bg-gradient-blue { background: var(--primary-gradient); }
+        .bg-gradient-green { background: var(--success-gradient); }
+        .bg-gradient-cyan { background: var(--info-gradient); color: #fff !important; }
+        .bg-gradient-orange { background: var(--warning-gradient); color: #fff !important; }
+        .bg-gradient-red { background: var(--danger-gradient); }
+
+        .stat-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-desc {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .content-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            background: var(--bg-card);
+            transition: transform 0.2s;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+        }
+
+        .content-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .card-header-clean {
+            background: transparent;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding: 1rem 1.25rem;
+        }
+
+        [data-theme="dark"] .card-header-clean {
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: #344767;
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        [data-theme="dark"] .card-title {
+            color: var(--text-color);
+        }
+
+        .table-modern thead th {
+            background-color: var(--bg-body);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem;
+        }
+
+        .table-modern tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .table-modern tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table-modern tbody tr:hover {
+            background-color: rgba(0,0,0,0.02);
+        }
+
+        [data-theme="dark"] .table {
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .table-modern tbody tr:hover,
+        [data-theme="dark"] .table-hover tbody tr:hover {
+            color: var(--text-color);
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        .badge-soft {
+            padding: 0.5em 0.8em;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .badge-soft-success { background-color: rgba(25, 135, 84, 0.1); color: #198754; }
+        .badge-soft-danger { background-color: rgba(220, 53, 69, 0.1); color: #dc3545; }
+        .badge-soft-warning { background-color: rgba(255, 193, 7, 0.1); color: #ffc107; }
+        .badge-soft-primary { background-color: rgba(13, 110, 253, 0.1); color: #0d6efd; }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        /* =========================
+           FIX UKURAN TEKS DASHBOARD
+        ========================= */
+
+        .stat-card-modern .card-body {
+            padding: 1.25rem !important;
+        }
+
+        .stat-card-modern .stat-icon-box {
+            width: 50px !important;
+            height: 50px !important;
+            min-width: 50px;
+        }
+
+        .stat-card-modern .stat-icon-box i {
+            font-size: 1.4rem !important;
+        }
+
+        .stat-card-modern .text-uppercase {
+            font-size: 0.72rem !important;
+            letter-spacing: 0.3px !important;
+            margin-bottom: 0.2rem !important;
+            line-height: 1.2;
+        }
+
+        .stat-card-modern .stat-value {
+            font-size: 1.65rem !important;
+            line-height: 1.15 !important;
+            margin-bottom: 0.2rem !important;
+        }
+
+        /* Billing dashboard top cards: match admin dashboard cards */
+        .dashboard-stats .stat-card-modern {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.28) !important;
+            border-radius: 24px !important;
+            box-shadow: 0 18px 38px rgba(15, 23, 42, 0.09);
+            color: #ffffff !important;
+            isolation: isolate;
+            transition: transform 0.28s ease, box-shadow 0.28s ease;
+        }
+
+        .dashboard-stats .stat-card-modern:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 28px 52px rgba(15, 23, 42, 0.14);
+        }
+
+        .dashboard-stats .stat-card-modern::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at top right, rgba(255,255,255,0.28), transparent 42%),
+                linear-gradient(180deg, rgba(255,255,255,0.08), transparent 55%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .dashboard-stats .stat-card-modern::after {
+            content: "";
+            position: absolute;
+            inset: auto -52px -52px auto;
+            width: 170px;
+            height: 170px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.14);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .dashboard-stats .stat-card-modern .card-body {
+            position: relative;
+            z-index: 1;
+            min-height: 110px;
+            padding: 1.05rem 1.2rem !important;
+        }
+
+        .dashboard-stats .stat-card-modern .text-dark,
+        .dashboard-stats .stat-card-modern .text-muted,
+        .dashboard-stats .stat-card-modern .text-primary,
+        .dashboard-stats .stat-card-modern .text-success,
+        .dashboard-stats .stat-card-modern .text-info,
+        .dashboard-stats .stat-card-modern .text-warning,
+        .dashboard-stats .stat-card-modern .small,
+        .dashboard-stats .stat-card-modern .fw-bold {
+            color: #ffffff !important;
+        }
+
+        .dashboard-stats .stat-card-modern .stat-icon-box {
+            width: 54px !important;
+            height: 54px !important;
+            min-width: 54px;
+            background: rgba(255,255,255,0.16) !important;
+            border: 1px solid rgba(255,255,255,0.28);
+            color: #ffffff !important;
+            border-radius: 999px !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
+            backdrop-filter: blur(6px);
+        }
+
+        .dashboard-stats .stat-icon-box i {
+            font-size: 1.45rem !important;
+            color: #ffffff !important;
+        }
+
+        .dashboard-stats .text-uppercase.small,
+        .dashboard-stats .text-uppercase {
+            font-size: 0.72rem !important;
+            letter-spacing: 0.10em !important;
+            margin-bottom: 0.2rem !important;
+            line-height: 1.2;
+            opacity: 0.95;
+        }
+
+        .dashboard-stats .stat-value {
+            font-size: 1.95rem !important;
+            line-height: 1.15 !important;
+            margin-bottom: 0.2rem !important;
+            letter-spacing: -0.03em;
+            text-shadow: 0 10px 24px rgba(0,0,0,0.18);
+        }
+
+        .dashboard-stats .col-xl-3:nth-child(1) .stat-card-modern { background: linear-gradient(135deg, #4f7cff 0%, #2756d8 100%) !important; }
+        .dashboard-stats .col-xl-3:nth-child(2) .stat-card-modern { background: linear-gradient(135deg, #20c997 0%, #0f9f8a 100%) !important; }
+        .dashboard-stats .col-xl-3:nth-child(3) .stat-card-modern { background: linear-gradient(135deg, #20b7f5 0%, #0b84d8 100%) !important; }
+        .dashboard-stats .col-xl-3:nth-child(4) .stat-card-modern { background: linear-gradient(135deg, #f7b801 0%, #e28a00 100%) !important; }
+
+        [data-theme="dark"] .dashboard-stats .stat-card-modern .text-uppercase,
+        [data-theme="dark"] .dashboard-stats .stat-card-modern .stat-value,
+        [data-theme="dark"] .dashboard-stats .stat-card-modern .small,
+        [data-theme="dark"] .dashboard-stats .stat-card-modern .text-muted,
+        [data-theme="dark"] .dashboard-stats .stat-card-modern .text-dark,
+        [data-theme="dark"] .dashboard-stats .stat-card-modern .text-primary,
+        [data-theme="dark"] .dashboard-stats .stat-card-modern .text-success,
+        [data-theme="dark"] .dashboard-stats .stat-card-modern .text-info,
+        [data-theme="dark"] .dashboard-stats .stat-card-modern .text-warning,
+        [data-theme="dark"] .dashboard-stats .stat-card-modern i {
+            color: #ffffff !important;
+            opacity: 1 !important;
+        }
+
+        .content-card .card-body h4 {
+            font-size: 1.75rem;
+        }
+
+        .content-card .card-body p.text-muted.small {
+            font-size: 0.8rem !important;
+        }
+
+        .content-card .bg-light span,
+        .content-card .bg-light strong,
+        .content-card .bg-light .badge {
+            font-size: 0.9rem;
+        }
+
+        .content-card .bg-light strong {
+            font-weight: 700;
+        }
+
+        .btn-sm {
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .stat-card-modern .card-body {
+                padding: 1rem !important;
+            }
+
+            .stat-card-modern .stat-icon-box {
+                width: 44px !important;
+                height: 44px !important;
+                min-width: 44px;
+            }
+
+            .stat-card-modern .stat-icon-box i {
+                font-size: 1.2rem !important;
+            }
+
+            .stat-card-modern .text-uppercase {
+                font-size: 0.68rem !important;
+            }
+
+            .stat-card-modern .stat-value {
+                font-size: 1.35rem !important;
+            }
+
+            .card-title {
+                font-size: 0.95rem;
+            }
+
+            .content-card .card-body h4 {
+                font-size: 1.4rem;
+            }
+        }
+
+        [data-theme="dark"] .content-card,
+        [data-theme="dark"] .content-card .card-body,
+        [data-theme="dark"] .content-card .card-header-clean,
+        [data-theme="dark"] .dropdown-menu,
+        [data-theme="dark"] .dropdown-item,
+        [data-theme="dark"] .form-control,
+        [data-theme="dark"] .form-select,
+        [data-theme="dark"] .table,
+        [data-theme="dark"] .table td,
+        [data-theme="dark"] .table th,
+        [data-theme="dark"] .page-link {
+            color: var(--text-color) !important;
+        }
+
+        [data-theme="dark"] .content-card,
+        [data-theme="dark"] .dropdown-menu,
+        [data-theme="dark"] .form-control,
+        [data-theme="dark"] .form-select,
+        [data-theme="dark"] .page-link {
+            background:
+                linear-gradient(180deg, rgba(12,19,33,0.96), rgba(16,28,48,0.98)) !important;
+            border-color: rgba(148, 163, 184, 0.12) !important;
+        }
+
+        [data-theme="dark"] .content-card .bg-light,
+        [data-theme="dark"] .content-card .bg-white,
+        [data-theme="dark"] .table tbody tr,
+        [data-theme="dark"] .table-light {
+            background-color: rgba(30, 41, 59, 0.72) !important;
+            color: var(--text-color) !important;
+        }
+
+        [data-theme="dark"] .content-card {
+            border-color: rgba(148, 163, 184, 0.14) !important;
+            box-shadow: 0 24px 50px rgba(2, 8, 23, 0.28);
+        }
+
+        [data-theme="dark"] .card-header-clean {
+            border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+        }
+
+        [data-theme="dark"] .table-modern thead th {
+            background-color: rgba(10, 20, 40, 0.76);
+            color: #9db4df;
+            border-bottom-color: rgba(148, 163, 184, 0.14);
+        }
+
+        [data-theme="dark"] .table-modern tbody td {
+            border-bottom-color: rgba(148, 163, 184, 0.12);
+        }
+
+        [data-theme="dark"] .content-card .bg-light .text-muted,
+        [data-theme="dark"] .content-card .bg-light strong,
+        [data-theme="dark"] .content-card .bg-light span,
+        [data-theme="dark"] .content-card .table .text-muted,
+        [data-theme="dark"] .content-card .table .text-dark,
+        [data-theme="dark"] .dropdown-item:hover,
+        [data-theme="dark"] .page-link:hover {
+            color: var(--text-color) !important;
+        }
+
+        [data-theme="dark"] .dropdown-item:hover,
+        [data-theme="dark"] .page-link:hover {
+            background-color: rgba(59, 130, 246, 0.16) !important;
+        }
+    </style>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            updateThemeButton(newTheme);
+        }
+
+        function updateThemeButton(theme) {
+            const icon = document.getElementById('themeIcon');
+            const btn = document.getElementById('themeToggle');
+
+            if (!icon || !btn) return;
+
+            if (theme === 'dark') {
+                icon.className = 'bi bi-moon-stars-fill text-white';
+                btn.classList.remove('btn-white');
+                btn.classList.add('btn-dark');
+                document.documentElement.style.setProperty('--bg-body', '#1a1a1a');
+                document.documentElement.style.setProperty('--bg-card', '#2d2d2d');
+                document.documentElement.style.setProperty('--text-color', '#ffffff');
+                document.documentElement.style.setProperty('--text-muted', '#a0a0a0');
+            } else {
+                icon.className = 'bi bi-brightness-high-fill text-warning';
+                btn.classList.remove('btn-dark');
+                btn.classList.add('btn-white');
+                document.documentElement.style.setProperty('--bg-body', '#f5f7fb');
+                document.documentElement.style.setProperty('--bg-card', '#ffffff');
+                document.documentElement.style.setProperty('--text-color', '#212529');
+                document.documentElement.style.setProperty('--text-muted', '#6c757d');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            updateThemeButton(savedTheme);
+        });
+    </script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <%- include('../../partials/billing-responsive-sidebar', { page: 'billing' }) %>
+
+        <main class="main-content px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 billing-toolbar">
+                <div class="billing-header-summary">
+                    <h3 class="h3 mb-1">Dashboard Billing</h3>
+                    <p class="small">Pantau ringkasan tagihan, keterlambatan, dan pembayaran terbaru.</p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap align-items-center billing-action-toolbar">
+                    <a href="/admin/billing/monthly-summary" class="btn btn-secondary btn-sm">
+                        <i class="bx bx-calendar"></i><span class="d-none d-md-inline"> Summary</span>
+                    </a>
+                    <a href="/admin/billing/invoices-by-type" class="btn btn-info btn-sm">
+                        <i class="bx bx-receipt"></i><span class="d-none d-md-inline"> Invoice</span>
+                    </a>
+                    <div class="dropdown">
+                        <button class="btn btn-primary btn-sm dropdown-toggle" type="button"
+                            id="moreActionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bx bx-dots-horizontal-rounded"></i><span class="d-none d-md-inline"> Lainnya</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="moreActionsDropdown">
+                            <li>
+                                <a class="dropdown-item text-danger" href="#" onclick="cleanupVouchers(); return false;">
+                                    <i class="bx bx-trash"></i> Hapus Voucher Expired
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-warning" href="#" onclick="cleanupData(); return false;">
+                                    <i class="bx bx-refresh"></i> Perbaiki Data
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="/admin/billing/payment-settings">
+                                    <i class="bx bx-cog"></i> Payment Settings
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-outline-dark icon-only-btn billing-utility-btn position-relative" id="billingNotificationToggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Notifikasi Billing" aria-label="Notifikasi Billing">
+                            <i class="bi bi-bell-fill"></i>
+                            <% if ((billingNotificationCount || 0) > 0) { %>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
+                                <%= billingNotificationCount > 9 ? '9+' : billingNotificationCount %>
+                            </span>
+                            <% } %>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end p-0 billing-notification-menu border-0 overflow-hidden" aria-labelledby="billingNotificationToggle">
+                            <div class="billing-notification-header d-flex align-items-center justify-content-between">
+                                <div>
+                                    <strong>Notifikasi Billing</strong>
+                                    <div class="small text-muted"><%= billingNotificationCount || 0 %> alert aktif</div>
+                                </div>
+                                <a href="/admin/billing/invoices" class="small text-decoration-none fw-semibold">Lihat Semua</a>
+                            </div>
+                            <div class="billing-notification-list">
+                                <% if ((billingNotifications || []).length) { %>
+                                    <% billingNotifications.forEach(function(notification) { %>
+                                    <a href="<%= notification.link %>" class="dropdown-item billing-notification-item">
+                                        <span class="billing-notification-icon notification-<%= notification.type %>">
+                                            <i class="bi <%= notification.icon %>"></i>
+                                        </span>
+                                        <span class="billing-notification-copy">
+                                            <span class="billing-notification-title"><%= notification.title %></span>
+                                            <span class="billing-notification-text"><%= notification.message %></span>
+                                            <span class="billing-notification-meta"><%= notification.meta %></span>
+                                        </span>
+                                    </a>
+                                    <% }) %>
+                                <% } else { %>
+                                    <div class="billing-notification-empty">
+                                        <span class="billing-notification-icon notification-success">
+                                            <i class="bi bi-check2-all"></i>
+                                        </span>
+                                        <div>
+                                            <strong>Tidak ada alert aktif</strong>
+                                            <div class="small text-muted">Tagihan billing sedang terkendali.</div>
+                                        </div>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-white shadow-sm border-0 icon-only-btn" id="themeToggle" onclick="toggleTheme()" title="Ganti tema" aria-label="Ganti tema">
+                        <i class="bi bi-brightness-high-fill text-warning" id="themeIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="section-header mb-3">
+                <h6>Statistik & Ringkasan</h6>
+            </div>
+
+            <!-- Statistik Cards -->
+            <div class="row g-4 mb-4 dashboard-stats">
+                <div class="col-xl-3 col-md-6">
+<div class="card stat-card-modern border-0 h-100" style="background: linear-gradient(135deg, #3b82f6, #2563eb) !important;">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="stat-icon-box bg-light-primary text-primary me-3 rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="bx bx-group"></i>
+                            </div>
+                            <div>
+                                <div class="text-muted small fw-bold text-uppercase mb-1">Total Pelanggan</div>
+                                <div class="stat-value fw-bold text-dark"><%= stats.total_customers || 0 %></div>
+                                <div class="text-muted small">
+                                    <i class="bx bx-check-circle text-success"></i> <%= stats.active_customers || 0 %> Aktif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+<div class="card stat-card-modern border-0 h-100" style="background: linear-gradient(135deg, #10b981, #059669) !important;">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="stat-icon-box bg-light-success text-success me-3 rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="bx bx-money"></i>
+                            </div>
+                            <div>
+                                <div class="text-muted small fw-bold text-uppercase mb-1">Pendapatan (Bulanan)</div>
+                                <div class="stat-value fw-bold text-dark">Rp <%= (stats.current_monthly_revenue || 0).toLocaleString('id-ID') %></div>
+                                <div class="text-muted small">
+                                    <i class="bx bx-calendar text-success"></i> Bulan Ini
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+<div class="card stat-card-modern border-0 h-100" style="background: linear-gradient(135deg, #06b6d4, #0284c7) !important;">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="stat-icon-box bg-light-info text-info me-3 rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="bx bx-wifi"></i>
+                            </div>
+                            <div>
+                                <div class="text-muted small fw-bold text-uppercase mb-1">Pendapatan (Voucher)</div>
+                                <div class="stat-value fw-bold text-dark">Rp <%= (stats.current_voucher_revenue || 0).toLocaleString('id-ID') %></div>
+                                <div class="text-muted small">
+                                    <i class="bx bx-calendar text-info"></i> Bulan Ini
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+<div class="card stat-card-modern border-0 h-100" style="background: linear-gradient(135deg, #f59e0b, #d97706) !important;">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="stat-icon-box bg-light-warning text-warning me-3 rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="bx bx-wallet"></i>
+                            </div>
+                            <div>
+                                <div class="text-muted small fw-bold text-uppercase mb-1">Total Pendapatan</div>
+                                <div class="stat-value fw-bold text-dark">Rp <%= ((stats.current_monthly_revenue || 0) + (stats.current_voucher_revenue || 0)).toLocaleString('id-ID') %></div>
+                                <div class="text-muted small">
+                                    <i class="bx bx-calendar text-warning"></i> Total Bulan Ini
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header mb-3">
+                <h6>Summary Invoice</h6>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-xl-6">
+                    <div class="content-card h-100">
+                        <div class="card-header-clean">
+                            <div class="card-title">
+                                <i class="bx bx-receipt text-primary me-2"></i>Tagihan Bulan Ini (Langganan)
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center mb-4">
+                                <div class="col-4 border-end">
+                                    <h4 class="text-primary mb-1 fw-bold"><%= stats.current_monthly_invoices_total || 0 %></h4>
+                                    <p class="text-muted small mb-0">Total Tagihan</p>
+                                </div>
+                                <div class="col-4 border-end">
+                                    <h4 class="text-success mb-1 fw-bold"><%= stats.current_monthly_invoices_paid || 0 %></h4>
+                                    <p class="text-muted small mb-0">Sudah Lunas</p>
+                                </div>
+                                <div class="col-4">
+                                    <h4 class="text-danger mb-1 fw-bold"><%= stats.current_monthly_invoices_unpaid || 0 %></h4>
+                                    <p class="text-muted small mb-0">Belum Lunas</p>
+                                </div>
+                            </div>
+                            <div class="bg-light p-3 rounded-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Pendapatan:</span>
+                                    <strong class="text-success">Rp <%= (stats.current_monthly_revenue || 0).toLocaleString('id-ID') %></strong>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Belum Dibayar:</span>
+                                    <strong class="text-danger">Rp <%= (stats.current_monthly_unpaid || 0).toLocaleString('id-ID') %></strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-6">
+                    <div class="content-card h-100">
+                        <div class="card-header-clean">
+                            <div class="card-title">
+                                <i class="bx bx-purchase-tag-alt text-info me-2"></i>Tagihan Bulan Ini (Voucher)
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center mb-4">
+                                <div class="col-4 border-end">
+                                    <h4 class="text-info mb-1 fw-bold"><%= stats.current_voucher_invoices_total || 0 %></h4>
+                                    <p class="text-muted small mb-0">Total Voucher</p>
+                                </div>
+                                <div class="col-4 border-end">
+                                    <h4 class="text-success mb-1 fw-bold"><%= stats.current_voucher_invoices_paid || 0 %></h4>
+                                    <p class="text-muted small mb-0">Sudah Lunas</p>
+                                </div>
+                                <div class="col-4">
+                                    <h4 class="text-danger mb-1 fw-bold"><%= stats.current_voucher_invoices_unpaid || 0 %></h4>
+                                    <p class="text-muted small mb-0">Belum Lunas</p>
+                                </div>
+                            </div>
+                            <div class="bg-light p-3 rounded-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Pendapatan:</span>
+                                    <strong class="text-success">Rp <%= (stats.current_voucher_revenue || 0).toLocaleString('id-ID') %></strong>
+                                </div>
+                                <% if ((stats.current_voucher_unpaid || 0) > 0) { %>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Belum Dibayar:</span>
+                                    <strong class="text-danger">Rp <%= (stats.current_voucher_unpaid || 0).toLocaleString('id-ID') %></strong>
+                                </div>
+                                <% } else { %>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Status:</span>
+                                    <span class="badge bg-success bg-opacity-10 text-success">Semua Lunas</span>
+                                </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header mb-3">
+                <h6>Aktivitas Tagihan</h6>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-xl-8">
+                    <div class="content-card">
+                        <div class="card-header-clean d-flex justify-content-between align-items-center">
+                            <div class="card-title">
+                                <i class="bx bx-receipt text-primary me-2"></i>Tagihan Terbaru
+                            </div>
+                            <a href="/admin/billing/invoices" class="btn btn-sm btn-primary px-3 rounded-pill">Lihat Semua</a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-modern table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>No. Tagihan</th>
+                                            <th>Pelanggan</th>
+                                            <th>Paket</th>
+                                            <th>Jumlah</th>
+                                            <th>Status</th>
+                                            <th>Jatuh Tempo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (recentInvoices && recentInvoices.length > 0) { %>
+                                            <% recentInvoices.forEach(function(invoice) { %>
+                                                <tr>
+                                                    <td>
+                                                        <a href="/admin/billing/invoices/<%= invoice.id %>" class="text-primary fw-bold text-decoration-none">
+                                                            <%= invoice.invoice_number %>
+                                                        </a>
+                                                    </td>
+                                                    <td>
+                                                        <span class="fw-semibold text-dark"><%= invoice.customer_name %></span>
+                                                        <br>
+                                                        <small class="text-muted"><%= invoice.customer_phone %></small>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge badge-soft-primary"><%= invoice.package_name %></span>
+                                                    </td>
+                                                    <td class="fw-bold">
+                                                        Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %>
+                                                    </td>
+                                                    <td>
+                                                        <% if (invoice.status === 'paid') { %>
+                                                            <span class="badge badge-soft-success">Lunas</span>
+                                                        <% } else if (invoice.status === 'unpaid') { %>
+                                                            <% if (new Date(invoice.due_date) < new Date()) { %>
+                                                                <span class="badge badge-soft-danger">Terlambat</span>
+                                                            <% } else { %>
+                                                                <span class="badge badge-soft-warning">Belum Lunas</span>
+                                                            <% } %>
+                                                        <% } %>
+                                                    </td>
+                                                    <td>
+                                                        <%= new Date(invoice.due_date).toLocaleDateString('id-ID') %>
+                                                    </td>
+                                                </tr>
+                                            <% }); %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted py-4">Belum ada tagihan</td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-4">
+                    <div class="content-card">
+                        <div class="card-header-clean d-flex justify-content-between align-items-center">
+                            <div class="card-title">
+                                <i class="bx bx-time text-danger me-2"></i>Tagihan Terlambat
+                            </div>
+                            <span class="badge bg-danger rounded-pill"><%= overdueInvoices.length %></span>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-modern table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Pelanggan</th>
+                                            <th>Jumlah</th>
+                                            <th>Jatuh Tempo</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (overdueInvoices && overdueInvoices.length > 0) { %>
+                                            <% overdueInvoices.forEach(function(invoice) { %>
+                                                <tr>
+                                                    <td>
+                                                        <span class="fw-semibold text-dark"><%= invoice.customer_name %></span>
+                                                        <br>
+                                                        <small class="text-muted"><%= invoice.customer_phone %></small>
+                                                    </td>
+                                                    <td class="fw-bold text-danger">
+                                                        Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %>
+                                                    </td>
+                                                    <td>
+                                                        <span class="text-danger fw-semibold">
+                                                            <%= new Date(invoice.due_date).toLocaleDateString('id-ID') %>
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="btn-group btn-group-sm" role="group">
+                                                            <button type="button" class="btn btn-outline-danger"
+                                                                onclick="suspendCustomer('<%= invoice.username %>')" title="Isolir">
+                                                                <i class="bx bx-block"></i>
+                                                            </button>
+                                                            <button type="button" class="btn btn-outline-success"
+                                                                onclick="restoreCustomer('<%= invoice.username %>')" title="Restore">
+                                                                <i class="bx bx-rotate-left"></i>
+                                                            </button>
+                                                            <button type="button"
+                                                                class="btn btn-outline-secondary"
+                                                                data-phone="<%= invoice.customer_phone || '' %>"
+                                                                data-name="<%= invoice.customer_name || '' %>"
+                                                                data-invoicenumber="<%= invoice.invoice_number || '' %>"
+                                                                data-amount="<%= invoice.amount || 0 %>"
+                                                                onclick="sendWaReminderFromBtn(this)" title="Kirim Reminder">
+                                                                <i class="bx bx-message-rounded-dots"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            <% }); %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="4" class="text-center text-muted py-4">Tidak ada tagihan terlambat</td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function showToast(type, title, message, duration = 5000) {
+            const toastId = 'toast-' + Date.now();
+            const iconClass = type === 'success' ? 'bi-check-circle' : type === 'error' ? 'bi-x-circle' : 'bi-info-circle';
+            const bgClass = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-primary';
+
+            const toastHtml = `
+                <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="bi ${iconClass} me-2"></i>
+                            <strong>${title}</strong><br>
+                            <small>${message}</small>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+
+            const container = document.getElementById('toast-container');
+            container.insertAdjacentHTML('beforeend', toastHtml);
+
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement, { delay: duration });
+            toast.show();
+
+            toastElement.addEventListener('hidden.bs.toast', () => {
+                toastElement.remove();
+            });
+        }
+
+        setInterval(function () {
+            fetch('/admin/billing/api/stats')
+                .then(response => response.json())
+                .then(res => {
+                    if (!res.success) return;
+                    const data = res.data;
+                    const fmt = (n) => 'Rp ' + (n || 0).toLocaleString('id-ID');
+
+                    const elCust = document.querySelector('[title="Total Customers"]');
+                    if (elCust) elCust.nextElementSibling.textContent = data.total_customers || 0;
+
+                    const elMonthly = document.querySelector('[title="Monthly Revenue"]');
+                    if (elMonthly) {
+                        elMonthly.nextElementSibling.textContent = fmt(data.current_monthly_revenue);
+                    }
+
+                    const elVoucher = document.querySelector('[title="Voucher Revenue"]');
+                    if (elVoucher) {
+                        elVoucher.nextElementSibling.textContent = fmt(data.current_voucher_revenue);
+                    }
+
+                    const elTotal = document.querySelector('[title="Total Revenue"]');
+                    if (elTotal) {
+                        const totalCurrent = (data.current_monthly_revenue || 0) + (data.current_voucher_revenue || 0);
+                        elTotal.nextElementSibling.textContent = fmt(totalCurrent);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating stats:', error);
+                });
+        }, 30000);
+
+        async function suspendCustomer(username) {
+            const reason = prompt('Masukkan alasan isolir (opsional):', 'Telat bayar');
+            if (reason === null) return;
+            try {
+                const res = await fetch(`/admin/billing/service-suspension/suspend/${encodeURIComponent(username)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('success', 'Isolir Berhasil', `Pelanggan ${username} diisolir. ${reason ? 'Alasan: ' + reason : ''}`);
+                } else {
+                    showToast('error', 'Isolir Gagal', data.message || 'Gagal melakukan isolir');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('error', 'Error', e.message || 'Terjadi kesalahan');
+            }
+        }
+
+        async function restoreCustomer(username) {
+            const reason = prompt('Masukkan alasan pemulihan (opsional):', 'Manual restore');
+            if (reason === null) return;
+            try {
+                const res = await fetch(`/admin/billing/service-suspension/restore/${encodeURIComponent(username)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('success', 'Restore Berhasil', `Pelanggan ${username} dipulihkan. ${reason ? 'Alasan: ' + reason : ''}`);
+                } else {
+                    showToast('error', 'Restore Gagal', data.message || 'Gagal melakukan restore');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('error', 'Error', e.message || 'Terjadi kesalahan');
+            }
+        }
+
+        function sendWaReminder(phone, name, invoiceNumber, amount) {
+            if (!phone) {
+                showToast('error', 'Nomor tidak tersedia', 'Nomor WhatsApp pelanggan kosong.');
+                return;
+            }
+            const rupiah = (() => {
+                const n = parseFloat(amount || 0);
+                if (isNaN(n)) return '0';
+                return n.toLocaleString('id-ID');
+            })();
+            const text = `Halo ${name}, ini pengingat tagihan Anda${invoiceNumber ? ' #' + invoiceNumber : ''} sebesar Rp ${rupiah}. Mohon segera melakukan pembayaran. Terima kasih.`;
+            const url = `https://wa.me/${encodeURIComponent(phone)}?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+
+        function sendWaReminderFromBtn(btn) {
+            const phone = btn.getAttribute('data-phone') || '';
+            const name = btn.getAttribute('data-name') || '';
+            const invoiceNumber = btn.getAttribute('data-invoicenumber') || '';
+            const amount = btn.getAttribute('data-amount') || 0;
+            sendWaReminder(phone, name, invoiceNumber, amount);
+        }
+
+        async function cleanupData() {
+            const btn = document.getElementById('cleanupDataBtn');
+            const originalText = btn ? btn.innerHTML : '';
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Memperbaiki...';
+            }
+
+            try {
+                const response = await fetch('/admin/billing/api/cleanup-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('success', 'Berhasil!', result.message);
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    showAlert('danger', 'Error!', result.message);
+                }
+            } catch (error) {
+                showAlert('danger', 'Error!', 'Gagal memperbaiki data: ' + error.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            }
+        }
+
+        async function cleanupVouchers() {
+            const btn = document.getElementById('cleanupVoucherBtn');
+            const originalText = btn ? btn.innerHTML : '';
+
+            if (!confirm('Apakah Anda yakin ingin menghapus invoice voucher yang expired? Tindakan ini tidak dapat dibatalkan!')) {
+                return;
+            }
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Menghapus...';
+            }
+
+            try {
+                const response = await fetch('/admin/billing/api/voucher-cleanup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    let message = result.message;
+                    if (result.cleaned > 0) {
+                        message += ` (${result.cleaned} invoice dihapus)`;
+                    }
+                    showAlert('success', 'Berhasil!', message);
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    showAlert('danger', 'Error!', result.message);
+                }
+            } catch (error) {
+                showAlert('danger', 'Error!', 'Gagal menghapus voucher expired: ' + error.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            }
+        }
+
+        function showAlert(type, title, message) {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <strong>${title}:</strong> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+
+            const mainContent = document.querySelector('.main-content');
+            const firstChild = mainContent.firstElementChild;
+            firstChild.insertAdjacentHTML('afterend', alertHtml);
+
+            setTimeout(() => {
+                const alert = document.querySelector('.alert');
+                if (alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, 5000);
+        }
+    </script>
+
+    <%- include('../../partials/admin-mobile-navbar', { currentPage: 'dashboard' }) %>
+</body>
+
+</html>
+
+
+

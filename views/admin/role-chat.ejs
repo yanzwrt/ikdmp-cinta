@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/responsive-admin.css" rel="stylesheet">
+    <style>
+        body { background: #eef4ff; }
+        .chat-shell { background:#fff; border-radius:28px; overflow:hidden; box-shadow:0 24px 48px rgba(37,99,235,.08); }
+        .chat-header { padding:18px 20px; background:linear-gradient(135deg,#6d4bff 0%,#7c3aed 42%,#8b5cf6 100%); color:#fff; }
+        .chat-messages { min-height:60vh; max-height:64vh; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:12px; background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(245,247,255,.98));}
+        .chat-bubble { max-width:min(78%,560px); border-radius:20px; padding:12px 14px; box-shadow:0 10px 24px rgba(15,23,42,.07); }
+        .chat-bubble--admin { align-self:flex-end; background:linear-gradient(135deg,#3b82f6 0%,#6d4bff 100%); color:#fff; }
+        .chat-bubble--role { align-self:flex-start; background:#fff; color:#0f172a; border:1px solid rgba(148,163,184,.24); }
+        .chat-compose { padding:16px 20px; background:#fff; border-top:1px solid rgba(148,163,184,.16); }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <%- include('../partials/admin-responsive-sidebar', { page: 'chats', settings: settings, versionInfo: versionInfo, versionBadge: versionBadge }) %>
+        <main class="col-md-10 ms-sm-auto main-content py-4">
+            <div class="mb-3 d-flex justify-content-between align-items-center gap-3">
+                <div>
+                    <h2 class="mb-1">Chat <%= participant.name %></h2>
+                    <div class="text-muted"><%= role %> • <%= participant.subtitle || '-' %></div>
+                </div>
+                <a href="/admin/chats" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Kembali</a>
+            </div>
+            <div class="chat-shell">
+                <div class="chat-header">
+                    <div class="fw-bold fs-5"><%= participant.name %></div>
+                    <div class="small opacity-75"><%= participant.subtitle || '-' %></div>
+                </div>
+                <div id="chatMessages" class="chat-messages"><div class="text-center text-muted py-5">Memuat percakapan...</div></div>
+                <div class="chat-compose">
+                    <form id="chatForm" class="d-flex gap-2">
+                        <input type="text" id="chatInput" class="form-control form-control-lg" placeholder="Ketik pesan..." required>
+                        <button type="submit" class="btn btn-primary px-4">Kirim</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<script>
+const role = <%- JSON.stringify(role) %>;
+const userId = <%- JSON.stringify(String(participant.id)) %>;
+const participantName = <%- JSON.stringify(participant.name || role) %>;
+function escapeHtml(value){return String(value||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function formatWib(value){const date=new Date(value); if(Number.isNaN(date.getTime())) return '-'; return new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(date)+' WIB';}
+function senderLabel(item){if(item.sender_role==='admin') return 'Admin'; if(item.sender_role==='technician') return 'Teknisi'; if(item.sender_role==='customer') return 'Customer'; if(item.sender_role==='agent') return 'Agent'; if(item.sender_role==='collector') return 'Collector'; return participantName;}
+function renderMessages(messages){
+ const wrap=document.getElementById('chatMessages');
+ if(!messages?.length){wrap.innerHTML='<div class="text-center text-muted py-5">Belum ada percakapan.</div>'; return;}
+ wrap.innerHTML=messages.map((item)=>`<div class="chat-bubble ${item.sender_role==='admin'?'chat-bubble--admin':'chat-bubble--role'}"><div class="fw-semibold small mb-1">${escapeHtml(senderLabel(item))}</div><div>${escapeHtml(item.message)}</div><div class="small mt-2 ${item.sender_role==='admin'?'text-white-50':'text-muted'}">${formatWib(item.created_at)}</div></div>`).join('');
+ wrap.scrollTop=wrap.scrollHeight;
+}
+async function loadMessages(){const r=await fetch(`/admin/chats/${role}/${userId}/messages`,{cache:'no-store'});const j=await r.json(); if(!j.success) throw new Error(j.message||'Gagal'); renderMessages(j.messages||[]);}
+document.getElementById('chatForm').addEventListener('submit',async(e)=>{e.preventDefault();const input=document.getElementById('chatInput');const message=input.value.trim(); if(!message)return; const r=await fetch(`/admin/chats/${role}/${userId}/messages`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message})}); const j=await r.json(); if(!j.success){alert(j.message||'Gagal'); return;} input.value=''; await loadMessages();});
+loadMessages().catch((error)=>{document.getElementById('chatMessages').innerHTML=`<div class="text-center text-danger py-5">${escapeHtml(error.message)}</div>`;});
+setInterval(()=>loadMessages().catch(()=>{}),12000);
+</script>
+</body>
+</html>

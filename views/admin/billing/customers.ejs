@@ -1,0 +1,3898 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title || 'Kelola Pelanggan' %> - <%= typeof isTechnicianView !=='undefined' && isTechnicianView
+                ? 'Portal Teknisi' : 'Admin Portal' %>
+    </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Admin Mobile Optimizations -->
+    <link href="/css/admin-mobile.css" rel="stylesheet">
+    <link href="/css/responsive-admin.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --bg-body: #f5f7fb;
+            --bg-card: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #eef2f6;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        }
+
+        /* Dark Mode Variables */
+        [data-theme="dark"] {
+            --bg-body: #1a1a1a;
+            --bg-card: #2d2d2d;
+            --text-color: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border-color: #404040;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(45, 212, 191, 0.12), transparent 22%),
+                linear-gradient(180deg, #f7faff 0%, #eef4ff 44%, #f8fbff 100%);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body[data-theme="dark"] {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(20, 184, 166, 0.12), transparent 24%),
+                linear-gradient(180deg, #081120 0%, #0b1324 44%, #0a1428 100%);
+        }
+
+        .card, .modal-content {
+            background-color: var(--bg-card) !important;
+            color: var(--text-color);
+            border-color: var(--border-color) !important;
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .billing-toolbar,
+        .billing-tabs-wrap,
+        .billing-subhero,
+        .billing-section-card {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 24px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.88), rgba(244,247,255,0.82));
+            backdrop-filter: blur(16px);
+            box-shadow: 0 18px 44px rgba(37, 99, 235, 0.08);
+        }
+
+        .billing-toolbar,
+        .billing-subhero {
+            padding: 16px 20px;
+        }
+
+        .billing-tabs-wrap {
+            padding: 10px 14px 0;
+        }
+
+        .billing-tabs.nav-tabs {
+            border-bottom: 0;
+            gap: 0.5rem;
+            display: flex;
+            align-items: stretch;
+        }
+
+        .billing-tabs .nav-item {
+            flex: 0 0 auto;
+            display: block;
+        }
+
+        .billing-tabs.nav-tabs .nav-link {
+            border: 0 !important;
+            border-radius: 999px !important;
+            padding: 0.65rem 1rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            width: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            text-align: center;
+            background: transparent !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        .billing-tabs.nav-tabs .nav-link:hover {
+            color: #2563eb;
+            background: rgba(37, 99, 235, 0.06) !important;
+        }
+
+        .billing-tabs.nav-tabs .nav-link.active,
+        .billing-tabs.nav-tabs .show > .nav-link {
+            background: linear-gradient(135deg, #2563eb, #4f46e5) !important;
+            color: #2563eb !important;
+            color: #fff !important;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18) !important;
+            transform: none !important;
+        }
+
+        .billing-tabs.nav-tabs .nav-link.active::after,
+        .billing-tabs.nav-tabs .show > .nav-link::after {
+            display: none !important;
+        }
+
+        [data-theme="dark"] .billing-tabs.nav-tabs {
+            border-bottom-color: rgba(71, 85, 105, 0.8);
+        }
+
+        [data-theme="dark"] .billing-tabs.nav-tabs .nav-link {
+            color: #cbd5e1 !important;
+            background: transparent !important;
+        }
+
+        [data-theme="dark"] .billing-tabs.nav-tabs .nav-link.active,
+        [data-theme="dark"] .billing-tabs.nav-tabs .show > .nav-link {
+            background: linear-gradient(135deg, #2563eb, #4f46e5) !important;
+            color: #fff !important;
+        }
+
+        [data-theme="dark"] .billing-toolbar,
+        [data-theme="dark"] .billing-tabs-wrap,
+        [data-theme="dark"] .billing-subhero,
+        [data-theme="dark"] .billing-section-card {
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.96), rgba(17, 24, 39, 0.96));
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 42px rgba(2, 8, 23, 0.36);
+        }
+        /* Summary cards: samakan proporsi dengan dashboard billing */
+        .customer-stats {
+            row-gap: 1rem;
+        }
+
+        .summary-card {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.28) !important;
+            border-radius: 24px !important;
+            color: #ffffff !important;
+            box-shadow: 0 18px 38px rgba(15, 23, 42, 0.09) !important;
+            isolation: isolate;
+            transition: transform 0.28s ease, box-shadow 0.28s ease;
+            height: 100%;
+        }
+        .summary-card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 28px 52px rgba(15, 23, 42, 0.14) !important;
+        }
+        .summary-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at top right, rgba(255,255,255,0.28), transparent 42%),
+                linear-gradient(180deg, rgba(255,255,255,0.08), transparent 55%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .summary-card::after {
+            content: "";
+            position: absolute;
+            inset: auto -52px -52px auto;
+            width: 170px;
+            height: 170px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.14);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .summary-card .card-body {
+            position: relative;
+            z-index: 1;
+            min-height: 110px;
+            padding: 1.05rem 1.2rem !important;
+            display: flex;
+            align-items: center;
+        }
+        .summary-card .summary-body {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+        .summary-card .summary-content {
+            min-width: 0;
+            flex: 1 1 auto;
+        }
+        .summary-card .text-muted,
+        .summary-card .summary-label,
+        .summary-card .summary-value,
+        .summary-card .summary-note,
+        .summary-card i,
+        .summary-card .fw-bold {
+            color: #ffffff !important;
+        }
+        .summary-card .summary-label {
+            font-size: 0.72rem !important;
+            letter-spacing: 0.10em !important;
+            margin-bottom: 0.2rem !important;
+            line-height: 1.2;
+            text-transform: uppercase;
+            font-weight: 700;
+            opacity: 0.95;
+        }
+        .summary-card .summary-value {
+            font-size: 1.95rem !important;
+            line-height: 1.15 !important;
+            margin-bottom: 0.2rem !important;
+            letter-spacing: -0.03em;
+            font-weight: 700;
+            text-shadow: 0 10px 24px rgba(0,0,0,0.18);
+        }
+        .summary-card .summary-note {
+            font-size: 0.84rem !important;
+            line-height: 1.35;
+            opacity: 0.96;
+        }
+        .summary-card-1 { background: linear-gradient(135deg, #4f7cff 0%, #2756d8 100%) !important; }
+        .summary-card-2 { background: linear-gradient(135deg, #20c997 0%, #0f9f8a 100%) !important; }
+        .summary-card-3 { background: linear-gradient(135deg, #ff5e7b 0%, #d7264c 100%) !important; }
+        .summary-card-4 { background: linear-gradient(135deg, #f7b801 0%, #e28a00 100%) !important; }
+        .summary-card-5 { background: linear-gradient(135deg, #20b7f5 0%, #0b84d8 100%) !important; }
+        .summary-card-6 { background: linear-gradient(135deg, #5f6bff 0%, #3a41d6 100%) !important; }
+        .summary-card .avatar-sm {
+            position: relative;
+            z-index: 1;
+            flex: 0 0 auto;
+        }
+
+        .billing-subhero {
+            border-radius: 24px;
+        }
+
+        .billing-subhero h1.h2 {
+            margin-bottom: 0;
+            color: #1e293b;
+            font-weight: 700;
+        }
+
+        [data-theme="dark"] .billing-subhero h1.h2 {
+            color: #f8fafc;
+        }
+        .summary-card .avatar-title {
+            width: 54px !important;
+            height: 54px !important;
+            min-width: 54px;
+            background: rgba(255,255,255,0.16) !important;
+            border: 1px solid rgba(255,255,255,0.28);
+            color: #ffffff !important;
+            border-radius: 999px !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
+            backdrop-filter: blur(6px);
+        }
+        .summary-card .avatar-title i {
+            font-size: 1.45rem !important;
+            color: #ffffff !important;
+        }
+        .summary-card .summary-content > * {
+            text-align: left !important;
+        }
+
+        .customer-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 999px;
+            object-fit: cover;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
+            flex: 0 0 38px;
+        }
+
+        .customer-name-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 180px;
+        }
+
+        .customer-name-meta {
+            min-width: 0;
+        }
+        
+        body[data-theme="dark"] .main-content {
+            color: #e5edf8;
+        }
+
+        body[data-theme="dark"] .summary-card {
+            box-shadow: 0 22px 44px rgba(2, 8, 23, 0.42) !important;
+        }
+
+        body[data-theme="dark"] .summary-card .avatar-title {
+            background: rgba(255,255,255,0.14) !important;
+            border-color: rgba(255,255,255,0.24) !important;
+        }
+
+        @media (max-width: 768px) {
+            .summary-card .card-body {
+                min-height: 96px;
+                padding: 0.95rem 1rem !important;
+            }
+
+            .summary-card .avatar-title {
+                width: 44px !important;
+                height: 44px !important;
+                min-width: 44px;
+            }
+
+            .summary-card .avatar-title i {
+                font-size: 1.2rem !important;
+            }
+
+            .summary-card .summary-label {
+                font-size: 0.68rem !important;
+            }
+
+            .summary-card .summary-value {
+                font-size: 1.35rem !important;
+            }
+
+            .summary-card .summary-note {
+                font-size: 0.76rem !important;
+            }
+        }
+
+        [data-theme="dark"] .table {
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+        
+        [data-theme="dark"] .table-hover tbody tr:hover {
+            color: var(--text-color);
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        [data-theme="dark"] .form-control, 
+        [data-theme="dark"] .form-select {
+            background-color: #2d2d2d;
+            border-color: #404040;
+            color: #e0e0e0;
+        }
+        
+        [data-theme="dark"] .text-muted {
+            color: #a0a0a0 !important;
+        }
+        [data-theme="dark"] .summary-card .text-muted,
+        [data-theme="dark"] .summary-card h3,
+        [data-theme="dark"] .summary-card h5,
+        [data-theme="dark"] .summary-card i,
+        [data-theme="dark"] .summary-card .small,
+        [data-theme="dark"] .summary-card .fw-bold {
+            color: #ffffff !important;
+        }
+        
+        [data-theme="dark"] .pppoe-dropdown {
+            background: #2d2d2d !important;
+            border-color: #404040 !important;
+        }
+        
+        [data-theme="dark"] .pppoe-dropdown-item {
+            border-bottom-color: #404040;
+            color: #e0e0e0;
+        }
+        
+        [data-theme="dark"] .pppoe-dropdown-item:hover {
+            background-color: #404040;
+        }
+        
+        [data-theme="dark"] .pppoe-dropdown-item .username {
+            color: #e0e0e0;
+        }
+
+        [data-theme="dark"] .card-header,
+        [data-theme="dark"] .card-footer,
+        [data-theme="dark"] .dataTables_wrapper,
+        [data-theme="dark"] .dataTables_wrapper .dataTables_length,
+        [data-theme="dark"] .dataTables_wrapper .dataTables_filter,
+        [data-theme="dark"] .dataTables_wrapper .dataTables_info,
+        [data-theme="dark"] .dataTables_wrapper .dataTables_paginate,
+        [data-theme="dark"] .dataTables_wrapper label,
+        [data-theme="dark"] .dataTables_wrapper .form-label,
+        [data-theme="dark"] .dataTables_wrapper .form-text,
+        [data-theme="dark"] .table,
+        [data-theme="dark"] .table thead th,
+        [data-theme="dark"] .table tbody td,
+        [data-theme="dark"] .table tbody td a,
+        [data-theme="dark"] .table tbody td small,
+        [data-theme="dark"] .table tbody td span,
+        [data-theme="dark"] .billing-section-card,
+        [data-theme="dark"] .billing-section-card .card-title,
+        [data-theme="dark"] .billing-section-card .card-header,
+        [data-theme="dark"] .billing-section-card .card-body {
+            color: #e5edf8 !important;
+        }
+
+        [data-theme="dark"] .billing-section-card .card-header {
+            background: rgba(17, 24, 39, 0.94) !important;
+            border-bottom-color: rgba(148, 163, 184, 0.14) !important;
+        }
+
+        [data-theme="dark"] .table {
+            --bs-table-bg: transparent;
+            --bs-table-color: #e5edf8;
+            --bs-table-border-color: rgba(148, 163, 184, 0.16);
+            --bs-table-striped-bg: rgba(15, 23, 42, 0.42);
+            --bs-table-striped-color: #e5edf8;
+            --bs-table-hover-bg: rgba(59, 130, 246, 0.08);
+            --bs-table-hover-color: #f8fbff;
+        }
+
+        [data-theme="dark"] .table thead th {
+            background: rgba(17, 24, 39, 0.96) !important;
+            color: #f8fbff !important;
+            border-bottom-color: rgba(148, 163, 184, 0.18) !important;
+        }
+
+        [data-theme="dark"] .table tbody tr {
+            background: rgba(17, 24, 39, 0.74) !important;
+        }
+
+        [data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
+            color: #e5edf8 !important;
+            background-color: rgba(30, 41, 59, 0.82) !important;
+        }
+
+        [data-theme="dark"] .table-striped > tbody > tr:nth-of-type(even) > * {
+            color: #e5edf8 !important;
+            background-color: rgba(17, 24, 39, 0.72) !important;
+        }
+
+        [data-theme="dark"] .table-hover > tbody > tr:hover > * {
+            color: #f8fbff !important;
+            background-color: rgba(59, 130, 246, 0.10) !important;
+        }
+
+        [data-theme="dark"] .table-responsive {
+            background: rgba(17, 24, 39, 0.78) !important;
+            border-radius: 16px;
+        }
+
+        [data-theme="dark"] .form-control,
+        [data-theme="dark"] .form-select,
+        [data-theme="dark"] .dataTables_wrapper .dataTables_filter input,
+        [data-theme="dark"] .dataTables_wrapper .dataTables_length select {
+            background-color: rgba(15, 23, 42, 0.88) !important;
+            border-color: rgba(148, 163, 184, 0.22) !important;
+            color: #f8fbff !important;
+        }
+
+        [data-theme="dark"] .form-control::placeholder,
+        [data-theme="dark"] .dataTables_wrapper .dataTables_filter input::placeholder {
+            color: #94a3b8 !important;
+        }
+
+        [data-theme="dark"] .form-control:focus,
+        [data-theme="dark"] .form-select:focus,
+        [data-theme="dark"] .dataTables_wrapper .dataTables_filter input:focus,
+        [data-theme="dark"] .dataTables_wrapper .dataTables_length select:focus {
+            border-color: rgba(59, 130, 246, 0.45) !important;
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.16) !important;
+        }
+
+        [data-theme="dark"] .dataTables_wrapper .paginate_button,
+        [data-theme="dark"] .dataTables_wrapper .paginate_button a,
+        [data-theme="dark"] .page-link {
+            color: #e5edf8 !important;
+        }
+
+        [data-theme="dark"] .page-link {
+            background-color: rgba(15, 23, 42, 0.88) !important;
+            border-color: rgba(148, 163, 184, 0.18) !important;
+        }
+
+        [data-theme="dark"] .page-item.active .page-link {
+            background: linear-gradient(135deg, #2563eb, #38bdf8) !important;
+            border-color: transparent !important;
+            color: #ffffff !important;
+        }
+
+        [data-theme="dark"] .btn-outline-secondary,
+        [data-theme="dark"] .btn-outline-primary,
+        [data-theme="dark"] .btn-outline-info,
+        [data-theme="dark"] .btn-outline-warning,
+        [data-theme="dark"] .btn-outline-success,
+        [data-theme="dark"] .btn-outline-danger {
+            color: #e5edf8 !important;
+            border-color: rgba(148, 163, 184, 0.22) !important;
+        }
+
+        [data-theme="dark"] .alert-info {
+            background: rgba(14, 165, 233, 0.12) !important;
+            color: #dbeafe !important;
+            border-color: rgba(14, 165, 233, 0.24) !important;
+        }
+
+        [data-theme="dark"] .modal-content,
+        [data-theme="dark"] .modal-header,
+        [data-theme="dark"] .modal-body,
+        [data-theme="dark"] .modal-footer {
+            color: #e5edf8 !important;
+            background-color: #0f172a !important;
+            border-color: rgba(148, 163, 184, 0.16) !important;
+        }
+
+        [data-theme="dark"] .modal-header.bg-warning,
+        [data-theme="dark"] .modal-header.bg-warning.text-dark {
+            background: #f59e0b !important;
+            color: #111827 !important;
+        }
+    </style>
+    <script>
+        // Theme Toggle Functionality
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            updateThemeButton(newTheme);
+        }
+
+        function updateThemeButton(theme) {
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+            const btn = document.getElementById('themeToggle');
+            
+            if (!icon || !text || !btn) return;
+
+            if (theme === 'dark') {
+                icon.className = 'bi bi-moon-stars-fill text-white me-1';
+                text.textContent = 'Dark';
+                btn.classList.remove('btn-white');
+                btn.classList.add('btn-dark');
+                // Apply dark mode styles dynamically
+                document.documentElement.style.setProperty('--bg-body', '#1a1a1a');
+                document.documentElement.style.setProperty('--bg-card', '#2d2d2d');
+                document.documentElement.style.setProperty('--text-color', '#ffffff');
+                document.documentElement.style.setProperty('--text-muted', '#a0a0a0');
+            } else {
+                icon.className = 'bi bi-sun-fill text-warning me-1';
+                text.textContent = 'Light';
+                btn.classList.remove('btn-dark');
+                btn.classList.add('btn-white');
+                // Apply light mode styles dynamically
+                document.documentElement.style.setProperty('--bg-body', '#f5f7fb');
+                document.documentElement.style.setProperty('--bg-card', '#ffffff');
+                document.documentElement.style.setProperty('--text-color', '#212529');
+                document.documentElement.style.setProperty('--text-muted', '#6c757d');
+            }
+        }
+
+        // Initialize Theme
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            updateThemeButton(savedTheme);
+        });
+    </script>
+    <style>
+        .toast-container {
+            z-index: 9999;
+        }
+
+        /* Summary cards: samakan nuansa gradient dashboard billing */
+        .row.mb-4 > .col-xl-2 .card:not(.summary-card) {
+            border: none !important;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+        }
+
+        .row.mb-4 > .col-xl-2:nth-child(5) .card:not(.summary-card) {
+            background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+        }
+
+        .row.mb-4 > .col-xl-2:nth-child(6) .card:not(.summary-card) {
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+        }
+
+        /* Rapikan jarak antar customer di tabel */
+        #customersTable tbody td,
+        #customersTable tbody td a {
+            font-size: 0.92rem;
+        }
+        #customersTable tbody td {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            vertical-align: middle;
+            line-height: 1.25;
+        }
+
+        #customersTable tbody tr {
+            height: auto;
+        }
+
+        #customersTable .btn-group-vertical .btn {
+            margin-bottom: 1px;
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+        }
+
+        /* PPPoE Username styling */
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #pppoe_username.border-success {
+            border-color: #198754 !important;
+            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+        }
+
+        #pppoe_username.border-warning {
+            border-color: #ffc107 !important;
+            box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+        }
+
+        /* Custom PPPoE Dropdown Styles */
+        .pppoe-dropdown {
+            position: fixed !important;
+            background: white !important;
+            border: 2px solid #007bff !important;
+            border-radius: 0.375rem !important;
+            max-height: 200px !important;
+            overflow-y: auto !important;
+            z-index: 99999 !important;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3) !important;
+            display: none !important;
+            width: 300px !important;
+            min-height: 40px !important;
+        }
+
+        .pppoe-dropdown.show {
+            display: block !important;
+        }
+
+        /* Ensure input group has relative positioning */
+        .input-group {
+            position: relative !important;
+        }
+
+        /* Modal z-index fix */
+        .modal {
+            z-index: 1050 !important;
+        }
+
+        .modal-backdrop {
+            z-index: 1040 !important;
+        }
+
+        .pppoe-dropdown-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pppoe-dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .pppoe-dropdown-item.active {
+            background-color: #e3f2fd;
+        }
+
+        .pppoe-dropdown-item .username {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .pppoe-dropdown-item .profile {
+            font-size: 0.875rem;
+            color: #6c757d;
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: none;
+            /* Hidden since profile is not needed */
+        }
+
+        .pppoe-dropdown-item .status {
+            font-size: 0.75rem;
+            padding: 1px 4px;
+            border-radius: 2px;
+        }
+
+        .pppoe-dropdown-item .status.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .pppoe-dropdown-item .status.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .pppoe-dropdown-no-results {
+            padding: 12px;
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* Input group relative positioning for dropdown */
+        .input-group {
+            position: relative;
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 10px !important;
+                margin-left: 0 !important;
+            }
+
+            /* Header responsive */
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .btn-group {
+                flex-wrap: wrap;
+                gap: 5px;
+                width: 100%;
+            }
+
+            .btn-group .btn {
+                font-size: 12px;
+                padding: 8px 12px;
+                flex: 1;
+                min-width: auto;
+            }
+
+            /* Summary cards responsive */
+            .row.mb-4 .col-xl-2 {
+                margin-bottom: 15px;
+            }
+
+            .card-body {
+                padding: 1rem 0.75rem;
+            }
+
+            .card-body h5 {
+                font-size: 0.85rem;
+            }
+
+            .card-body h3 {
+                font-size: 1.5rem;
+            }
+            .table th,
+            .table td {
+                padding: 8px 4px;
+                white-space: nowrap;
+            }
+            #customersTable tbody td {
+                padding-top: 0.4rem;
+                padding-bottom: 0.4rem;
+                line-height: 1.2;
+            }
+
+            .btn-sm {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+
+            /* Modal responsive */
+            .modal-dialog {
+                margin: 10px;
+                max-width: calc(100vw - 20px);
+            }
+
+            .modal-body {
+                padding: 1rem;
+            }
+
+            .form-label {
+                font-size: 0.9rem;
+                margin-bottom: 4px;
+            }
+
+            .form-control,
+            .form-select {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+
+            /* Action buttons in table */
+            .btn-group-vertical .btn {
+                padding: 6px 10px;
+                font-size: 11px;
+                margin-bottom: 2px;
+            }
+
+            /* Search and filter */
+            .dataTables_filter input {
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .dataTables_length select {
+                width: auto !important;
+            }
+
+            /* Pagination */
+            .dataTables_paginate {
+                text-align: center !important;
+            }
+
+            .dataTables_paginate .paginate_button {
+                padding: 6px 10px !important;
+                margin: 0 2px !important;
+            }
+
+            /* Touch friendly buttons */
+            .btn {
+                min-height: 42px;
+                touch-action: manipulation;
+            }
+
+            .btn-sm {
+                min-height: 36px;
+            }
+
+            /* Map responsive (jika ada) */
+            #customerMap {
+                height: 300px !important;
+            }
+
+            /* Checkbox and form controls */
+            .form-check-input {
+                width: 1.2em;
+                height: 1.2em;
+            }
+
+            /* Alert messages */
+            .alert {
+                font-size: 0.9rem;
+                padding: 0.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .h2 {
+                font-size: 1.3rem;
+            }
+
+            .card {
+                margin-bottom: 1rem;
+            }
+
+            .table-responsive {
+                font-size: 0.8rem;
+            }
+
+            .btn-group .btn {
+                font-size: 11px;
+                padding: 6px 8px;
+            }
+
+            /* Stack summary cards vertically on very small screens */
+            .col-xl-2.col-md-6 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+
+        /* GPS Button Enhancements */
+        #gpsButton,
+        #editGpsButton {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        #gpsButton:hover:not(:disabled),
+        #editGpsButton:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        #gpsButton:disabled,
+        #editGpsButton:disabled {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .bx-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Location help styling */
+        .accordion-button {
+            font-size: 0.9rem;
+        }
+
+        .accordion-body ol li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Mobile responsive adjustments for GPS buttons */
+        @media (max-width: 767.98px) {
+
+            #gpsButton,
+            #editGpsButton {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            .d-grid.gap-2.d-md-flex {
+                display: block !important;
+            }
+
+            .d-grid.gap-2.d-md-flex .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+            <!-- Sidebar -->
+            <% if (typeof isTechnicianView !=='undefined' && isTechnicianView) { %>
+                <%- include('../../partials/technician-responsive-sidebar', { page: 'customers' , technician: technician
+                    }) %>
+                    <% } else { %>
+                        <%- include('../../partials/billing-responsive-sidebar', { page: 'customers' }) %>
+                    <% } %>
+
+                                <!-- Main content -->
+                                <main class="main-content px-md-4">
+                                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 billing-toolbar">
+                                        <h3 class="h3 mb-0">Pelanggan & Paket</h3>
+                                        <button class="btn btn-white shadow-sm border rounded-pill px-3" id="themeToggle" onclick="toggleTheme()">
+                                            <i class="bi bi-sun-fill text-warning me-1" id="themeIcon"></i> <span class="small fw-bold" id="themeText">Light</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Tab Navigation -->
+                                    <div class="billing-tabs-wrap mb-4">
+                                    <ul class="nav nav-tabs billing-tabs">
+                                        <li class="nav-item">
+                                            <a class="nav-link active"
+                                                href="/admin/billing/customers">
+                                                <i class="bi bi-people"></i> Pelanggan
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link"
+                                                href="/admin/billing/packages">
+                                                <i class="bi bi-box"></i> Paket
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 mobile-header-visible billing-subhero">
+                                        <h1 class="h2">
+                                            <i class="bx bx-user"></i>
+                                            <%= title || 'Kelola Pelanggan' %>
+                                        </h1>
+
+                                        <!-- Desktop: Show all buttons -->
+                                        <div class="d-none d-lg-block">
+                                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                                data-bs-target="#addCustomerModal"
+                                                style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
+                                                <i class="bx bx-plus"></i> Tambah
+                                            </button>
+                                            <div class="btn-group ms-2" role="group"
+                                                aria-label="Backup Restore Pelanggan">
+                                                <button id="exportCustomersJsonBtn" type="button"
+                                                    class="btn btn-outline-success btn-sm"
+                                                    style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
+                                                    <i class="bi bi-cloud-download"></i> Backup JSON
+                                                </button>
+                                                <button id="exportCustomersXlsxBtn" type="button"
+                                                    class="btn btn-outline-success btn-sm"
+                                                    style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
+                                                    <i class="bi bi-file-earmark-spreadsheet"></i> Backup XLSX
+                                                </button>
+                                                <button id="openImportCustomersModalBtn" type="button"
+                                                    class="btn btn-outline-warning btn-sm" data-bs-toggle="modal"
+                                                    data-bs-target="#importCustomersModal"
+                                                    style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">
+                                                    <i class="bi bi-cloud-upload"></i> Restore
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Mobile: Hamburger dropdown menu -->
+                                        <div class="dropdown d-lg-none">
+                                            <button class="btn btn-primary dropdown-toggle" type="button"
+                                                id="actionMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="bx bx-menu"></i> Menu
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end"
+                                                aria-labelledby="actionMenuDropdown">
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                                        data-bs-target="#addCustomerModal">
+                                                        <i class="bx bx-plus"></i> Tambah Pelanggan
+                                                    </a></li>
+                                                <li>
+                                                    <hr class="dropdown-divider">
+                                                </li>
+                                                <li><a class="dropdown-item" href="#" id="exportCustomersJsonBtnMobile">
+                                                        <i class="bi bi-cloud-download"></i> Backup JSON
+                                                    </a></li>
+                                                <li><a class="dropdown-item" href="#" id="exportCustomersXlsxBtnMobile">
+                                                        <i class="bi bi-file-earmark-spreadsheet"></i> Backup XLSX
+                                                    </a></li>
+                                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                                        data-bs-target="#importCustomersModal">
+                                                        <i class="bi bi-cloud-upload"></i> Restore Pelanggan
+                                                    </a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <!-- Summary Cards -->
+                                    <div class="row mb-4 customer-stats">
+                                        <div class="col-xl-2 col-md-6">
+                                            <div class="card summary-card summary-card-1" style="background: linear-gradient(135deg, #3b82f6, #2563eb) !important;">
+                                                <div class="card-body">
+                                                    <div class="summary-body">
+                                                        <div class="avatar-sm">
+                                                            <span class="avatar-title bg-soft-primary rounded">
+                                                                <i class="bi bi-people-fill"></i>
+                                                            </span>
+                                                        </div>
+                                                        <div class="summary-content">
+                                                            <div class="summary-label"
+                                                                title="Total Customers">Total Pelanggan</div>
+                                                            <div class="summary-value">
+                                                                <%= customers ? customers.length : 0 %>
+                                                            </div>
+                                                            <div class="summary-note"><i class="bx bx-check-circle"></i> <%= customers ? customers.filter(c=> c.status === 'active').length : 0 %> Aktif</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xl-2 col-md-6">
+                                            <div class="card summary-card summary-card-2" style="background: linear-gradient(135deg, #10b981, #059669) !important;">
+                                                <div class="card-body">
+                                                    <div class="summary-body">
+                                                        <div class="avatar-sm">
+                                                            <span class="avatar-title bg-soft-success rounded">
+                                                                <i class="bi bi-cash-stack"></i>
+                                                            </span>
+                                                        </div>
+                                                        <div class="summary-content">
+                                                            <div class="summary-label"
+                                                                title="Paid Customers">Sudah Bayar</div>
+                                                            <div class="summary-value">
+                                                                <%= customers ? customers.filter(c=> c.payment_status
+                                                                    === 'paid').length : 0 %>
+                                                            </div>
+                                                            <div class="summary-note"><i class="bx bx-calendar"></i> Bulan Ini</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xl-2 col-md-6">
+                                            <div class="card summary-card summary-card-3" style="background: linear-gradient(135deg, #ef4444, #dc2626) !important;">
+                                                <div class="card-body">
+                                                    <div class="summary-body">
+                                                        <div class="avatar-sm">
+                                                            <span class="avatar-title bg-soft-warning rounded">
+                                                                <i class="bi bi-cash-coin"></i>
+                                                            </span>
+                                                        </div>
+                                                        <div class="summary-content">
+                                                            <div class="summary-label"
+                                                                title="Unpaid Customers">Belum Bayar</div>
+                                                            <div class="summary-value">
+                                                                <%= customers ? customers.filter(c=> c.payment_status
+                                                                    === 'unpaid').length : 0 %>
+                                                            </div>
+                                                            <div class="summary-note"><i class="bx bx-error-circle"></i> Butuh Tindak Lanjut</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xl-2 col-md-6">
+                                            <div class="card summary-card summary-card-4" style="background: linear-gradient(135deg, #f59e0b, #d97706) !important;">
+                                                <div class="card-body">
+                                                    <div class="summary-body">
+                                                        <div class="avatar-sm">
+                                                            <span class="avatar-title bg-soft-danger rounded">
+                                                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                                            </span>
+                                                        </div>
+                                                        <div class="summary-content">
+                                                            <div class="summary-label"
+                                                                title="Overdue Customers">Isolir</div>
+                                                            <div class="summary-value">
+                                                                <%= customers ? customers.filter(c=> c.payment_status
+                                                                    === 'overdue' || c.status === 'suspended').length :
+                                                                    0 %>
+                                                            </div>
+                                                            <div class="summary-note"><i class="bx bx-shield-quarter"></i> Perlu Pemulihan</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xl-2 col-md-6">
+                                            <div class="card summary-card summary-card-5" style="background: linear-gradient(135deg, #06b6d4, #0284c7) !important;">
+                                                <div class="card-body">
+                                                    <div class="summary-body">
+                                                        <div class="avatar-sm">
+                                                            <span class="avatar-title bg-soft-info rounded">
+                                                                <i class="bi bi-receipt-cutoff"></i>
+                                                            </span>
+                                                        </div>
+                                                        <div class="summary-content">
+                                                            <div class="summary-label"
+                                                                title="No Invoice Customers">Non Tagihan</div>
+                                                            <div class="summary-value">
+                                                                <%= customers ? customers.filter(c=> c.payment_status
+                                                                    === 'no_invoice').length : 0 %>
+                                                            </div>
+                                                            <div class="summary-note"><i class="bx bx-receipt"></i> Belum Ada Invoice</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-xl-2 col-md-6">
+                                            <div class="card summary-card summary-card-6" style="background: linear-gradient(135deg, #6366f1, #4338ca) !important;">
+                                                <div class="card-body">
+                                                    <div class="summary-body">
+                                                        <div class="avatar-sm">
+                                                            <span class="avatar-title bg-soft-success rounded">
+                                                                <i class="bi bi-person-check-fill"></i>
+                                                            </span>
+                                                        </div>
+                                                        <div class="summary-content">
+                                                            <div class="summary-label"
+                                                                title="Active Customers">Pelanggan Aktif</div>
+                                                            <div class="summary-value">
+                                                                <%= customers ? customers.filter(c=> c.status ===
+                                                                    'active').length : 0 %>
+                                                            </div>
+                                                            <div class="summary-note"><i class="bx bx-broadcast"></i> Layanan Berjalan</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Customer Table -->
+                                    <div class="card billing-section-card">
+                                        <div class="card-header">
+                                            <h5 class="card-title mb-0">
+                                                <i class="bx bx-list-ul"></i> Daftar Pelanggan
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox"
+                                                            id="selectAllCustomers">
+                                                        <label class="form-check-label" for="selectAllCustomers">
+                                                            Pilih Semua
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <button id="bulkDeleteBtn" class="btn btn-danger btn-sm" disabled>
+                                                        <i class="bx bx-trash"></i> Hapus Terpilih
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table id="customersTable" class="table table-striped table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width:32px">
+                                                                <!-- header checkbox already above -->
+                                                            </th>
+                                                            <th>Nama</th>
+                                                            <th>Username</th>
+                                                            <th>Telepon</th>
+                                                            <th>PPPoE Username</th>
+                                                            <th>Paket</th>
+                                                            <th>PPPoE Profile</th>
+                                                            <th>Auto Suspension</th>
+                                                            <th>Status Pelanggan</th>
+                                                            <th>Status Pembayaran</th>
+                                                            <th>Aksi</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <% if (customers && customers.length> 0) { %>
+                                                            <% customers.forEach(function(customer) { %>
+                                                                <tr data-phone="<%= customer.phone %>"
+                                                                    data-username="<%= customer.pppoe_username %>">
+                                                                    <td>
+                                                                        <input type="checkbox"
+                                                                            class="form-check-input customer-checkbox"
+                                                                            value="<%= customer.phone %>">
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="customer-name-cell">
+                                                                            <% if (customer.profile_photo) { %>
+                                                                                <img class="customer-avatar" src="/img/customer-profiles/<%= customer.profile_photo %>" alt="Foto <%= customer.name %>">
+                                                                            <% } else { %>
+                                                                                <span class="customer-avatar"><%= (customer.name || 'P').trim().charAt(0).toUpperCase() %></span>
+                                                                            <% } %>
+                                                                            <div class="customer-name-meta">
+                                                                                <a href="/admin/billing/customers/<%= customer.phone %>"
+                                                                                    class="text-decoration-none fw-bold">
+                                                                                    <%= customer.name %>
+                                                                                </a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%= customer.username || '-' %>
+                                                                    </td>
+                                                                    <td><a href="/admin/billing/customers/<%= customer.phone %>"
+                                                                            class="text-decoration-none text-primary">
+                                                                            <%= customer.phone %>
+                                                                        </a></td>
+                                                                    <td>
+                                                                        <%= customer.pppoe_username || '-' %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%= customer.package_name || '-' %>
+                                                                    </td>
+                                                                    <td class="pppoe-profile"><span
+                                                                            class="badge bg-info">
+                                                                            <%= customer.pppoe_profile || 'default' %>
+                                                                        </span></td>
+                                                                    <td>
+                                                                        <% if (customer.auto_suspension===1) { %>
+                                                                            <span class="badge bg-success">Ya</span>
+                                                                            <% } else { %>
+                                                                                <span
+                                                                                    class="badge bg-secondary">Tidak</span>
+                                                                                <% } %>
+                                                                    </td>
+                                                                    <td class="cust-status">
+                                                                        <% if (customer.status==='active' ) { %>
+                                                                            <span class="badge bg-success">Aktif</span>
+                                                                            <% } else if (customer.status==='suspended'
+                                                                                ) { %>
+                                                                                <span
+                                                                                    class="badge bg-danger">Isolir</span>
+                                                                                <% } else { %>
+                                                                                    <span
+                                                                                        class="badge bg-secondary">Nonaktif</span>
+                                                                                    <% } %>
+                                                                    </td>
+                                                                    <td class="pay-status">
+                                                                        <% if (customer.payment_status==='paid' ) { %>
+                                                                            <span class="badge bg-success">Lunas</span>
+                                                                            <% } else if
+                                                                                (customer.payment_status==='unpaid' ) {
+                                                                                %>
+                                                                                <span class="badge bg-warning">Belum
+                                                                                    Lunas</span>
+                                                                                <% } else if
+                                                                                    (customer.payment_status==='overdue'
+                                                                                    ) { %>
+                                                                                    <span
+                                                                                        class="badge bg-danger">Terlambat</span>
+                                                                                    <% } else { %>
+                                                                                        <span
+                                                                                            class="badge bg-info">Belum
+                                                                                            Ada Tagihan</span>
+                                                                                        <% } %>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="btn-group" role="group">
+                                                                            <button class="btn btn-sm btn-info"
+                                                                                onclick="viewCustomerDetail('<%= customer.phone %>')"
+                                                                                title="Lihat Detail">
+                                                                                <i class="bx bx-show"></i>
+                                                                            </button>
+                                                                            <button class="btn btn-sm btn-primary"
+                                                                                onclick="editCustomer('<%= customer.phone %>')">
+                                                                                <i class="bx bx-edit"></i>
+                                                                            </button>
+                                                                            <button class="btn btn-sm btn-danger"
+                                                                                onclick="deleteCustomer('<%= customer.phone %>')">
+                                                                                <i class="bx bx-trash"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                <% }); %>
+                                                                    <% } %>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </main>
+        </div>
+    </div>
+
+    <script>
+        // Update summary cards dynamically
+        function updateSummaryCards(data) {
+            try {
+                const mappings = [
+                    { selector: 'h3.mt-3.mb-3', index: 0, value: data.total }, // first card total customers
+                ];
+                // Because the structure is uniform, query all h3s inside summary row and set by order.
+                const row = document.querySelectorAll('.row.mb-4 .card .card-body h3.mt-3.mb-3');
+                if (row && row.length >= 6) {
+                    row[0].textContent = data.total;
+                    row[1].textContent = data.paid;
+                    row[2].textContent = data.unpaid;
+                    row[3].textContent = data.isolir;
+                    row[4].textContent = data.noInvoice;
+                    row[5].textContent = data.active;
+                }
+            } catch (e) {
+                console.warn('Failed to update summary cards:', e);
+            }
+        }
+
+        async function fetchSummary() {
+            try {
+                const resp = await fetch('/admin/billing/customers/summary');
+                const res = await resp.json();
+                if (res.success && res.data) {
+                    updateSummaryCards(res.data);
+                }
+            } catch (e) {
+                console.warn('Failed to fetch summary:', e);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchSummary();
+            setInterval(fetchSummary, 5000);
+        });
+    </script>
+
+    <!-- Add Customer Modal -->
+    <div class="modal fade" id="addCustomerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Pelanggan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="addCustomerForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Nama * <small class="text-muted">(username & email akan
+                                    auto-generate dari nama)</small></label>
+                            <input type="text" class="form-control" id="name" name="name" required
+                                onblur="generateCredentialsFromName()" oninput="generateCredentialsFromName()">
+                        </div>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username *</label>
+                            <input type="text" class="form-control" id="username" name="username" required
+                                placeholder="Akan otomatis terisi dari nama + tanggal (contoh: test_280825)">
+                            <small class="form-text text-muted">Username akan digunakan untuk login pelanggan dan
+                                payment gateway. Format otomatis: nama_DDMMYY</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Telepon *</label>
+                            <input type="text" class="form-control" id="phone" name="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                placeholder="Akan otomatis terisi dari nama (contoh: test@rpa.com)">
+                            <small class="form-text text-muted">Email akan digunakan untuk notifikasi. Format otomatis:
+                                nama@rpa.com</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="pppoe_username" class="form-label">PPPoE Username (opsional)</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="pppoe_username" name="pppoe_username"
+                                    placeholder="Ketik untuk mencari PPPoE username..." autocomplete="off">
+                                <button class="btn btn-outline-secondary" type="button" id="loadPppoeUsers"
+                                    title="Load PPPoE users from Mikrotik">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
+                            </div>
+                            <div id="pppoe_dropdown" class="pppoe-dropdown" style="display: none;">
+                                <!-- Custom dropdown will be loaded here -->
+                            </div>
+                            <small class="form-text text-muted">Klik tombol refresh untuk mengambil daftar PPPoE users
+                                dari Mikrotik</small>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="create_pppoe_user"
+                                name="create_pppoe_user">
+                            <label class="form-check-label" for="create_pppoe_user">
+                                Buat user PPPoE di Mikrotik sekarang (pakai profile dari paket)
+                            </label>
+                        </div>
+                        <div class="row g-2 align-items-end mb-3" id="pppoe_password_row" style="display:none;">
+                            <div class="col-8">
+                                <label for="pppoe_password" class="form-label">PPPoE Password</label>
+                                <input type="text" class="form-control" id="pppoe_password" name="pppoe_password"
+                                    placeholder="Minimal 6 karakter">
+                                <small class="text-muted">Jika tidak diisi, sistem akan generate otomatis.</small>
+                            </div>
+                            <div class="col-4">
+                                <button class="btn btn-outline-secondary w-100" type="button"
+                                    id="genPppoePassBtn">Generate</button>
+                            </div>
+                        </div>
+
+                        <!-- Static IP Configuration Section -->
+                        <div class="card border-info mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="bi bi-ethernet me-2"></i>Konfigurasi IP Statik (Opsional)
+                                </h6>
+                                <small class="text-white">Untuk pelanggan yang menggunakan IP statik atau DHCP dengan
+                                    MAC tetap</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="static_ip" class="form-label">Static IP Address</label>
+                                            <input type="text" class="form-control" id="static_ip" name="static_ip"
+                                                placeholder="192.168.1.100">
+                                            <small class="text-muted">IP address tetap untuk pelanggan (format:
+                                                192.168.1.100)</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="assigned_ip" class="form-label">Assigned IP Address</label>
+                                            <input type="text" class="form-control" id="assigned_ip" name="assigned_ip"
+                                                placeholder="192.168.1.100">
+                                            <small class="text-muted">IP yang di-assign ke pelanggan (bisa sama dengan
+                                                Static IP)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="mac_address" class="form-label">MAC Address</label>
+                                    <input type="text" class="form-control" id="mac_address" name="mac_address"
+                                        placeholder="00:11:22:33:44:55"
+                                        pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$">
+                                    <small class="text-muted">MAC address perangkat untuk DHCP blocking (format:
+                                        00:11:22:33:44:55)</small>
+                                </div>
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    <strong>Info Sistem Isolir:</strong><br>
+                                    • Jika ada PPPoE Username: Sistem akan gunakan isolir profile<br>
+                                    • Jika ada Static IP: Sistem akan gunakan method <strong>
+                                        <%= settings.static_ip_suspension_method || 'address_list' %>
+                                    </strong><br>
+                                    • Jika ada MAC Address: Bisa gunakan DHCP blocking<br>
+                                    • Priority: PPPoE → Static IP → DHCP
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cable Connection Section -->
+                        <div class="card border-success mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="bx bx-cable-car me-2"></i>Sambungkan Kabel (Opsional)</h6>
+                                <small class="text-muted">Konfigurasi jalur kabel dari ODP ke pelanggan</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="cable_type" class="form-label">Tipe Kabel</label>
+                                            <select class="form-select" id="cable_type" name="cable_type">
+                                                <option value="">Pilih Tipe Kabel</option>
+                                                <option value="fiber">Fiber Optic</option>
+                                                <option value="copper">Copper</option>
+                                                <option value="wireless">Wireless</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="cable_length" class="form-label">Panjang Kabel (meter)</label>
+                                            <input type="number" class="form-control" id="cable_length"
+                                                name="cable_length" placeholder="50" min="1">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="port_number" class="form-label">Nomor Port ODP</label>
+                                            <input type="number" class="form-control" id="port_number"
+                                                name="port_number" placeholder="1" min="1" max="24">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="cable_status" class="form-label">Status Kabel</label>
+                                            <select class="form-select" id="cable_status" name="cable_status">
+                                                <option value="connected">Terhubung</option>
+                                                <option value="disconnected">Terputus</option>
+                                                <option value="maintenance">Maintenance</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="cable_notes" class="form-label">Catatan Kabel</label>
+                                    <textarea class="form-control" id="cable_notes" name="cable_notes" rows="2"
+                                        placeholder="Catatan khusus tentang instalasi kabel..."></textarea>
+                                </div>
+                                <div class="alert alert-info">
+                                    <i class="bx bx-info-circle me-2"></i>
+                                    <strong>Info:</strong> Jika ODP sudah dipilih di atas, sistem akan otomatis membuat
+                                    jalur kabel. Pastikan ODP memiliki kapasitas port yang tersedia.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Alamat</label>
+                            <textarea class="form-control" id="address" name="address" rows="3"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="latitude" class="form-label">Latitude (Koordinat)</label>
+                                    <input type="number" class="form-control" id="latitude" name="latitude"
+                                        step="0.00000001" placeholder="-7.1599">
+                                    <small class="text-muted">Contoh: -7.1599 (Garut)</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="longitude" class="form-label">Longitude (Koordinat)</label>
+                                    <input type="number" class="form-control" id="longitude" name="longitude"
+                                        step="0.00000001" placeholder="108.0612">
+                                    <small class="text-muted">Contoh: 108.0612 (Garut)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                                <button type="button" class="btn btn-success" onclick="getCurrentLocation()"
+                                    id="gpsButton">
+                                    <i class="bx bx-location-plus me-1"></i> <span class="btn-text">Ambil Lokasi
+                                        GPS</span>
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" onclick="openMapPicker()">
+                                    <i class="bx bx-map me-1"></i> Pilih dari Peta
+                                </button>
+                            </div>
+                            <small class="text-muted mt-1 d-block">
+                                <i class="bi bi-info-circle me-1"></i>
+                                GPS: Pastikan perangkat di area terbuka untuk akurasi terbaik
+                            </small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="profile_photo" class="form-label">Foto Profil (Opsional)</label>
+                            <input type="file" class="form-control" id="profile_photo" name="profile_photo" accept="image/png,image/jpeg,image/jpg">
+                            <img id="profile_photo_preview" class="img-fluid rounded mt-2 d-none" style="max-height: 140px;" alt="Preview Foto Profil">
+                            <small class="form-text text-muted">Foto profil pelanggan untuk portal customer dan tampilan admin.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="house_photo" class="form-label">Foto Rumah (Opsional)</label>
+                            <input type="file" class="form-control" id="house_photo" name="house_photo" accept="image/png,image/jpeg,image/jpg">
+                            <img id="house_photo_preview" class="img-fluid rounded mt-2 d-none" style="max-height: 140px;" alt="Preview Foto Rumah">
+                            <small class="form-text text-muted">Upload foto depan rumah pelanggan agar teknisi tidak salah lokasi.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="package_id" class="form-label">Paket *</label>
+                            <select class="form-control" id="package_id" name="package_id"
+                                onchange="updateProfileField()" required>
+                                <option value="">Pilih Paket</option>
+                                <% if (packages && packages.length> 0) { %>
+                                    <% packages.forEach(function(package) { %>
+                                        <option value="<%= package.id %>"
+                                            data-profile="<%= package.pppoe_profile || 'default' %>">
+                                            <%= package.name %> - Rp <%=
+                                                    parseFloat(package.price).toLocaleString('id-ID') %>
+                                        </option>
+                                        <% }); %>
+                                            <% } %>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="odp_id" class="form-label">ODP (Optical Distribution Point)</label>
+                            <select class="form-control" id="odp_id" name="odp_id">
+                                <option value="">Pilih ODP (Opsional)</option>
+                                <% if (odps && odps.length> 0) { %>
+                                    <% odps.forEach(function(odp) { %>
+                                        <option value="<%= odp.id %>" data-capacity="<%= odp.capacity %>"
+                                            data-used="<%= odp.used_ports %>">
+                                            <% if (odp.parent_name) { %>
+                                                └─ <%= odp.name %> (<%= odp.code %>) - <%= odp.used_ports %>/<%=
+                                                                odp.capacity %> ports
+                                                                <% } else { %>
+                                                                    <%= odp.name %> (<%= odp.code %>) - <%=
+                                                                                odp.used_ports %>/<%= odp.capacity %>
+                                                                                    ports
+                                                                                    <% } %>
+                                        </option>
+                                        <% }); %>
+                                            <% } %>
+                            </select>
+                            <small class="form-text text-muted">Pilih ODP tempat pelanggan akan disambungkan (opsional,
+                                bisa ditambahkan nanti). Sub ODP ditandai dengan └─</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="pppoe_profile" class="form-label">PPPoE Profile</label>
+                            <input type="text" class="form-control" id="pppoe_profile" name="pppoe_profile"
+                                placeholder="Profile akan otomatis terisi sesuai paket">
+                            <small class="form-text text-muted">Profile PPPoE yang akan digunakan untuk pelanggan
+                                ini</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="auto_suspension" class="form-label">Auto Suspension</label>
+                            <select class="form-control" id="auto_suspension" name="auto_suspension">
+                                <option value="1">Ya - Isolir otomatis saat telat bayar</option>
+                                <option value="0">Tidak - Tidak diisolir otomatis</option>
+                            </select>
+                            <small class="form-text text-muted">Pilih apakah pelanggan akan diisolir otomatis saat telat
+                                bayar</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="billing_day" class="form-label">Tanggal Penagihan (1-28)</label>
+                            <input type="number" class="form-control" id="billing_day" name="billing_day" min="1"
+                                max="28" value="15">
+                            <small class="form-text text-muted">Tanggal jatuh tempo tagihan setiap bulan. Nilai di luar
+                                28 akan disesuaikan.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Customer Modal -->
+    <div class="modal fade" id="editCustomerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Pelanggan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editCustomerForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="edit_name" class="form-label">Nama *</label>
+                            <input type="text" class="form-control" id="edit_name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_username" class="form-label">Username *</label>
+                            <input type="text" class="form-control" id="edit_username" name="username" required
+                                placeholder="username untuk login dan payment gateway">
+                            <small class="form-text text-muted">Username akan digunakan untuk login pelanggan dan
+                                payment gateway. Harus unik dan tanpa spasi.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_phone" class="form-label">Telepon *</label>
+                            <input type="text" class="form-control" id="edit_phone" name="phone" required>
+                            <small class="form-text text-muted">Pastikan nomor telepon unik dan benar</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="edit_email" name="email"
+                                placeholder="customer@example.com">
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_pppoe_username" class="form-label">PPPoE Username</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="edit_pppoe_username" name="pppoe_username"
+                                    autocomplete="off" placeholder="Ketik untuk mencari PPPoE username...">
+                                <button class="btn btn-outline-secondary" type="button" id="loadEditPppoeUsers"
+                                    title="Load PPPoE users from Mikrotik">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
+                            </div>
+                            <div id="edit_pppoe_dropdown" class="pppoe-dropdown" style="display: none;">
+                                <!-- Custom dropdown will be loaded here -->
+                            </div>
+                            <small class="form-text text-muted">Klik tombol refresh untuk mengambil daftar PPPoE users
+                                dari Mikrotik</small>
+                        </div>
+
+                        <!-- Static IP Configuration Section for Edit -->
+                        <div class="card border-info mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="bi bi-ethernet me-2"></i>Konfigurasi IP Statik (Opsional)
+                                </h6>
+                                <small class="text-white">Untuk pelanggan yang menggunakan IP statik atau DHCP dengan
+                                    MAC tetap</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="edit_static_ip" class="form-label">Static IP Address</label>
+                                            <input type="text" class="form-control" id="edit_static_ip" name="static_ip"
+                                                placeholder="192.168.1.100">
+                                            <small class="text-muted">IP address tetap untuk pelanggan (format:
+                                                192.168.1.100)</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="edit_assigned_ip" class="form-label">Assigned IP Address</label>
+                                            <input type="text" class="form-control" id="edit_assigned_ip"
+                                                name="assigned_ip" placeholder="192.168.1.100">
+                                            <small class="text-muted">IP yang di-assign ke pelanggan (bisa sama dengan
+                                                Static IP)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit_mac_address" class="form-label">MAC Address</label>
+                                    <input type="text" class="form-control" id="edit_mac_address" name="mac_address"
+                                        placeholder="00:11:22:33:44:55"
+                                        pattern="^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$">
+                                    <small class="text-muted">MAC address perangkat untuk DHCP blocking (format:
+                                        00:11:22:33:44:55)</small>
+                                </div>
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    <strong>Info Sistem Isolir:</strong><br>
+                                    • Jika ada PPPoE Username: Sistem akan gunakan isolir profile<br>
+                                    • Jika ada Static IP: Sistem akan gunakan method <strong>
+                                        <%= settings.static_ip_suspension_method || 'address_list' %>
+                                    </strong><br>
+                                    • Jika ada MAC Address: Bisa gunakan DHCP blocking<br>
+                                    • Priority: PPPoE → Static IP → DHCP
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_address" class="form-label">Alamat</label>
+                            <textarea class="form-control" id="edit_address" name="address" rows="3"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="edit_latitude" class="form-label">Latitude (Koordinat)</label>
+                                    <input type="number" class="form-control" id="edit_latitude" name="latitude"
+                                        step="0.00000001" placeholder="-7.1599">
+                                    <small class="text-muted">Contoh: -7.1599 (Garut)</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="edit_longitude" class="form-label">Longitude (Koordinat)</label>
+                                    <input type="number" class="form-control" id="edit_longitude" name="longitude"
+                                        step="0.00000001" placeholder="108.0612">
+                                    <small class="text-muted">Contoh: 108.0612 (Garut)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                                <button type="button" class="btn btn-success" onclick="getCurrentLocation()"
+                                    id="editGpsButton">
+                                    <i class="bx bx-location-plus me-1"></i> <span class="btn-text">Ambil Lokasi
+                                        GPS</span>
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" onclick="openMapPicker()">
+                                    <i class="bx bx-map me-1"></i> Pilih dari Peta
+                                </button>
+                            </div>
+                            <small class="text-muted mt-1 d-block">
+                                <i class="bi bi-info-circle me-1"></i>
+                                GPS: Pastikan perangkat di area terbuka untuk akurasi terbaik
+                            </small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_profile_photo" class="form-label">Foto Profil (Opsional)</label>
+                            <input type="file" class="form-control" id="edit_profile_photo" name="profile_photo" accept="image/png,image/jpeg,image/jpg">
+                            <img id="edit_profile_photo_preview" class="img-fluid rounded mt-2 d-none" style="max-height: 140px;" alt="Preview Foto Profil">
+                            <small class="form-text text-muted">Kosongkan jika tidak ingin mengganti foto profil.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_house_photo" class="form-label">Foto Rumah (Opsional)</label>
+                            <input type="file" class="form-control" id="edit_house_photo" name="house_photo" accept="image/png,image/jpeg,image/jpg">
+                            <img id="edit_house_photo_preview" class="img-fluid rounded mt-2 d-none" style="max-height: 140px;" alt="Preview Foto Rumah">
+                            <small class="form-text text-muted">Kosongkan jika tidak ingin mengganti foto rumah.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit_package_id" class="form-label">Paket *</label>
+                            <select class="form-control" id="edit_package_id" name="package_id"
+                                onchange="updateEditProfileField()" required>
+                                <option value="">Pilih Paket</option>
+                                <% if (packages && packages.length> 0) { %>
+                                    <% packages.forEach(function(package) { %>
+                                        <option value="<%= package.id %>"
+                                            data-profile="<%= package.pppoe_profile || 'default' %>">
+                                            <%= package.name %> - Rp <%=
+                                                    parseFloat(package.price).toLocaleString('id-ID') %>
+                                        </option>
+                                        <% }); %>
+                                            <% } %>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_odp_id" class="form-label">ODP (Optical Distribution Point)</label>
+                            <select class="form-control" id="edit_odp_id" name="odp_id">
+                                <option value="">Pilih ODP (Opsional)</option>
+                                <% if (odps && odps.length> 0) { %>
+                                    <% odps.forEach(function(odp) { %>
+                                        <option value="<%= odp.id %>" data-capacity="<%= odp.capacity %>"
+                                            data-used="<%= odp.used_ports %>">
+                                            <% if (odp.parent_name) { %>
+                                                └─ <%= odp.name %> (<%= odp.code %>) - <%= odp.used_ports %>/<%=
+                                                                odp.capacity %> ports
+                                                                <% } else { %>
+                                                                    <%= odp.name %> (<%= odp.code %>) - <%=
+                                                                                odp.used_ports %>/<%= odp.capacity %>
+                                                                                    ports
+                                                                                    <% } %>
+                                        </option>
+                                        <% }); %>
+                                            <% } %>
+                            </select>
+                            <small class="form-text text-muted">Pilih ODP tempat pelanggan akan disambungkan (opsional).
+                                Sub ODP ditandai dengan └─</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_pppoe_profile" class="form-label">PPPoE Profile</label>
+                            <input type="text" class="form-control" id="edit_pppoe_profile" name="pppoe_profile"
+                                placeholder="Profile akan otomatis terisi sesuai paket">
+                            <small class="form-text text-muted">Profile PPPoE yang akan digunakan untuk pelanggan
+                                ini</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_auto_suspension" class="form-label">Auto Suspension</label>
+                            <select class="form-control" id="edit_auto_suspension" name="auto_suspension">
+                                <option value="1">Ya - Isolir otomatis saat telat bayar</option>
+                                <option value="0">Tidak - Tidak diisolir otomatis</option>
+                            </select>
+                            <small class="form-text text-muted">Pilih apakah pelanggan akan diisolir otomatis saat telat
+                                bayar</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_billing_day" class="form-label">Tanggal Penagihan (1-28)</label>
+                            <input type="number" class="form-control" id="edit_billing_day" name="billing_day" min="1"
+                                max="28" value="15">
+                            <small class="form-text text-muted">Tanggal jatuh tempo tagihan setiap bulan. Nilai di luar
+                                28 akan disesuaikan.</small>
+                        </div>
+
+                        <!-- Cable Connection Section for Edit -->
+                        <div class="card border-success mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="bx bx-cable-car me-2"></i>Sambungkan Kabel (Opsional)</h6>
+                                <small class="text-muted">Konfigurasi jalur kabel dari ODP ke pelanggan</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="edit_cable_type" class="form-label">Tipe Kabel</label>
+                                            <select class="form-select" id="edit_cable_type" name="cable_type">
+                                                <option value="">Pilih Tipe Kabel</option>
+                                                <option value="fiber">Fiber Optic</option>
+                                                <option value="copper">Copper</option>
+                                                <option value="wireless">Wireless</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="edit_cable_length" class="form-label">Panjang Kabel
+                                                (meter)</label>
+                                            <input type="number" class="form-control" id="edit_cable_length"
+                                                name="cable_length" placeholder="50" min="1">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="edit_port_number" class="form-label">Nomor Port ODP</label>
+                                            <input type="number" class="form-control" id="edit_port_number"
+                                                name="port_number" placeholder="1" min="1" max="24">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="edit_cable_status" class="form-label">Status Kabel</label>
+                                            <select class="form-select" id="edit_cable_status" name="cable_status">
+                                                <option value="connected">Terhubung</option>
+                                                <option value="disconnected">Terputus</option>
+                                                <option value="maintenance">Maintenance</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit_cable_notes" class="form-label">Catatan Kabel</label>
+                                    <textarea class="form-control" id="edit_cable_notes" name="cable_notes" rows="2"
+                                        placeholder="Catatan khusus tentang instalasi kabel..."></textarea>
+                                </div>
+                                <div class="alert alert-info">
+                                    <i class="bx bx-info-circle me-2"></i>
+                                    <strong>Info:</strong> Jika ODP sudah dipilih di atas, sistem akan otomatis membuat
+                                    jalur kabel. Pastikan ODP memiliki kapasitas port yang tersedia.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit_status" class="form-label">Status</label>
+                            <select class="form-control" id="edit_status" name="status">
+                                <option value="active">Aktif</option>
+                                <option value="suspended">Isolir</option>
+                                <option value="inactive">Nonaktif</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Customers Modal -->
+    <div class="modal fade" id="importCustomersModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Restore Data Pelanggan (Import)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="importCustomersForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Pilih File (JSON atau XLSX)</label>
+                            <input type="file" id="customersFile" name="file"
+                                accept="application/json,.json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx"
+                                class="form-control" required>
+                            <small class="form-text text-muted">Dukungan: JSON (disarankan) atau Excel XLSX. JSON bisa
+                                berupa array atau { customers: [...] }.</small>
+                        </div>
+                        <div class="alert alert-info" role="alert">
+                            Catatan: Data dengan nomor telepon yang sama akan diupdate. Data baru akan dibuat otomatis.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-cloud-upload"></i> Import
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        $(document).ready(function () {
+            const dt = $('#customersTable').DataTable({
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json',
+                    emptyTable: "Tidak ada data yang tersedia",
+                    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+                    infoEmpty: "Menampilkan 0 sampai 0 dari 0 entri",
+                    infoFiltered: "(disaring dari _MAX_ entri keseluruhan)",
+                    lengthMenu: "Tampilkan _MENU_ entri",
+                    loadingRecords: "Sedang memuat...",
+                    processing: "Sedang memproses...",
+                    search: "Cari:",
+                    zeroRecords: "Tidak ditemukan data yang sesuai",
+                    paginate: {
+                        first: "Pertama",
+                        last: "Terakhir",
+                        next: "Selanjutnya",
+                        previous: "Sebelumnya"
+                    }
+                },
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]]
+            });
+
+            // Update bulk delete button state
+            function updateBulkState() {
+                const anyChecked = $('.customer-checkbox:checked').length > 0;
+                $('#bulkDeleteBtn').prop('disabled', !anyChecked);
+                const total = $('.customer-checkbox').length;
+                const checked = $('.customer-checkbox:checked').length;
+                const selectAll = document.getElementById('selectAllCustomers');
+                selectAll.indeterminate = checked > 0 && checked < total;
+                selectAll.checked = checked > 0 && checked === total;
+            }
+
+            // Select all handler
+            $('#selectAllCustomers').on('change', function () {
+                const checked = this.checked;
+                $('.customer-checkbox').prop('checked', checked);
+                updateBulkState();
+            });
+
+            // Row checkbox handler
+            $(document).on('change', '.customer-checkbox', updateBulkState);
+
+            // Re-bind after table draw (pagination/search)
+            dt.on('draw', function () {
+                updateBulkState();
+            });
+
+            // Bulk delete click
+            $('#bulkDeleteBtn').on('click', function () {
+                const phones = $('.customer-checkbox:checked').map(function () { return this.value; }).get();
+                if (phones.length === 0) return;
+                if (!confirm(`Hapus ${phones.length} pelanggan terpilih?`)) return;
+
+                const btn = $(this);
+                const original = btn.html();
+                btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Menghapus...');
+
+                fetch('/admin/billing/customers/bulk-delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phones })
+                })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            const s = data.summary || {};
+                            showToast('success', `Hapus massal selesai. Berhasil: ${s.success || 0}, Gagal: ${s.failed || 0}`);
+                            setTimeout(() => location.reload(), 1000);
+                        } else {
+                            showToast('error', data.message || 'Gagal hapus massal');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        showToast('error', 'Terjadi kesalahan saat hapus massal');
+                    })
+                    .finally(() => {
+                        btn.prop('disabled', false).html(original);
+                    });
+            });
+
+            // Reset form when modal is hidden
+            $('#addCustomerModal').on('hidden.bs.modal', function () {
+                $('#addCustomerForm')[0].reset();
+                $('#profile_photo_preview').addClass('d-none').attr('src', '');
+                $('#house_photo_preview').addClass('d-none').attr('src', '');
+            });
+
+        $('#editCustomerModal').on('hidden.bs.modal', function () {
+            $('#editCustomerForm')[0].reset();
+            $('#edit_profile_photo_preview').addClass('d-none').attr('src', '');
+            $('#edit_house_photo_preview').addClass('d-none').attr('src', '');
+        });
+
+            // Export customers JSON (Desktop & Mobile)
+            $('#exportCustomersJsonBtn, #exportCustomersJsonBtnMobile').on('click', function () {
+                window.location.href = '/admin/billing/export/customers.json';
+            });
+
+            // Export customers XLSX (Desktop & Mobile)
+            $('#exportCustomersXlsxBtn, #exportCustomersXlsxBtnMobile').on('click', function () {
+                window.location.href = '/admin/billing/export/customers.xlsx';
+            });
+
+            // Import customers JSON
+            $('#importCustomersForm').on('submit', function (e) {
+                e.preventDefault();
+                const fileInput = document.getElementById('customersFile');
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    showToast('error', 'Silakan pilih file JSON terlebih dahulu');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+
+                const submitBtn = $(this).find('button[type="submit"]');
+                const originalText = submitBtn.html();
+                submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Mengunggah...');
+
+                const isXlsx = /\.xlsx$/i.test(fileInput.files[0].name);
+                const url = isXlsx ? '/admin/billing/import/customers/xlsx' : '/admin/billing/import/customers/json';
+                fetch(url, {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            const s = data.summary || {};
+                            showToast('success', `Import selesai. Dibuat: ${s.created || 0}, Diupdate: ${s.updated || 0}, Gagal: ${s.failed || 0}`);
+                            $('#importCustomersModal').modal('hide');
+                            setTimeout(() => location.reload(), 1200);
+                        } else {
+                            showToast('error', data.message || 'Gagal import data pelanggan');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        showToast('error', 'Terjadi kesalahan saat import');
+                    })
+                    .finally(() => {
+                        submitBtn.prop('disabled', false).html(originalText);
+                    });
+            });
+        });
+
+        // Test function to manually set credentials
+        function testGenerateCredentials() {
+            const nameField = document.getElementById('name');
+            const usernameField = document.getElementById('username');
+            const emailField = document.getElementById('email');
+
+            if (nameField && usernameField && emailField) {
+                const testValue = "jajaltest";
+                usernameField.value = testValue + "_280825";
+                emailField.value = testValue + "@rpa.com";
+                console.log("Manually set test values");
+            }
+        }
+
+        // Final clean function to generate both username and email from name
+        function generateCredentialsFromName() {
+            try {
+                const nameField = document.getElementById('name');
+                const usernameField = document.getElementById('username');
+                const emailField = document.getElementById('email');
+
+                // Only proceed if name field has value
+                if (nameField && nameField.value) {
+                    const fullName = nameField.value;
+
+                    // Generate username if field is empty
+                    if (usernameField && !usernameField.value) {
+                        // Process character by character for username
+                        let cleanUsername = '';
+                        for (let i = 0; i < fullName.length && i < 15; i++) {
+                            const char = fullName[i].toLowerCase();
+                            if (char >= 'a' && char <= 'z') {
+                                cleanUsername += char;
+                            } else if (char >= '0' && char <= '9') {
+                                cleanUsername += char;
+                            } else if (char === ' ') {
+                                cleanUsername += '_';
+                            } else if (char === '_' && cleanUsername.length > 0 && cleanUsername[cleanUsername.length - 1] !== '_') {
+                                cleanUsername += char;
+                            }
+                            // Skip all other characters
+                        }
+
+                        // Remove trailing underscores
+                        cleanUsername = cleanUsername.replace(/_+$/, '');
+
+                        // If result is empty, use default
+                        if (!cleanUsername) {
+                            cleanUsername = 'user';
+                        }
+
+                        // Add date
+                        const now = new Date();
+                        const dateStr = String(now.getDate()).padStart(2, '0') +
+                            String(now.getMonth() + 1).padStart(2, '0') +
+                            String(now.getFullYear()).slice(-2);
+                        const finalUsername = cleanUsername + '_' + dateStr;
+
+                        usernameField.value = finalUsername;
+                    }
+
+                    // Generate email if field is empty
+                    if (emailField && !emailField.value) {
+                        // Process character by character for email
+                        let cleanEmail = '';
+                        for (let i = 0; i < fullName.length && i < 30; i++) {
+                            const char = fullName[i].toLowerCase();
+                            if (char >= 'a' && char <= 'z') {
+                                cleanEmail += char;
+                            } else if (char >= '0' && char <= '9') {
+                                cleanEmail += char;
+                            } else if (char === ' ') {
+                                cleanEmail += '.';
+                            } else if (char === '.' && cleanEmail.length > 0 && cleanEmail[cleanEmail.length - 1] !== '.') {
+                                cleanEmail += char;
+                            }
+                            // Skip all other characters
+                        }
+
+                        // Remove trailing dots
+                        cleanEmail = cleanEmail.replace(/\.+$/, '');
+
+                        // If result is empty, use default
+                        if (!cleanEmail) {
+                            cleanEmail = 'user';
+                        }
+
+                        const finalEmail = cleanEmail + '@rpa.com';
+                        emailField.value = finalEmail;
+                    }
+                }
+            } catch (error) {
+                console.error('Error in generateCredentialsFromName:', error);
+            }
+        }
+
+        function generateUsernameFromName() {
+            generateCredentialsFromName();
+        }
+
+        function generateEmailFromName() {
+            generateCredentialsFromName();
+        }
+
+        // Debug function to test name value retrieval
+        function debugNameValue() {
+            const nameField = document.getElementById('name');
+            if (nameField) {
+                console.log('=== DEBUG NAME VALUE ===');
+                console.log('Raw value:', '"' + nameField.value + '"');
+                console.log('Length:', nameField.value.length);
+                console.log('Trimmed:', '"' + nameField.value.trim() + '"');
+                console.log('Char codes:', Array.from(nameField.value).map(c => c.charCodeAt(0)));
+                console.log('========================');
+            }
+        }
+
+        // Function to update profile field when package is selected
+        function updateProfileField() {
+            const packageSelect = document.getElementById('package_id');
+            const profileInput = document.getElementById('pppoe_profile');
+            const selectedOption = packageSelect.options[packageSelect.selectedIndex];
+
+            if (selectedOption && selectedOption.dataset.profile) {
+                profileInput.value = selectedOption.dataset.profile;
+            }
+        }
+
+        // Function to update profile field in edit modal
+        function updateEditProfileField() {
+            const packageSelect = document.getElementById('edit_package_id');
+            const profileInput = document.getElementById('edit_pppoe_profile');
+            const selectedOption = packageSelect.options[packageSelect.selectedIndex];
+
+            if (selectedOption && selectedOption.dataset.profile) {
+                profileInput.value = selectedOption.dataset.profile;
+            }
+        }
+
+        // Global variables for PPPoE users
+        let pppoeUsers = [];
+        let filteredPppoeUsers = [];
+
+        // Load PPPoE users from Mikrotik
+        function loadPppoeUsers() {
+            const loadBtn = $('#loadPppoeUsers');
+            const originalIcon = loadBtn.html();
+
+            // Show loading state
+            loadBtn.prop('disabled', true).html('<i class="bi bi-arrow-clockwise spin"></i>');
+
+            console.log('🔄 Loading PPPoE users from Mikrotik...');
+
+            fetch('/admin/billing/api/pppoe-users')
+                .then(response => {
+                    console.log('📡 API Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('📊 API Response data:', data);
+
+                    if (data.success && data.data && data.data.length > 0) {
+                        pppoeUsers = data.data;
+                        filteredPppoeUsers = [...pppoeUsers];
+
+                        console.log(`📝 Loaded ${pppoeUsers.length} users to memory`);
+                        showToast('success', `Loaded ${pppoeUsers.length} PPPoE users from Mikrotik`);
+                    } else {
+                        console.warn('⚠️ No data from API, using test data');
+                        loadTestPppoeUsers();
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Fetch Error:', error);
+                    console.warn('⚠️ API Error, using test data');
+                    loadTestPppoeUsers();
+                })
+                .finally(() => {
+                    // Restore button state
+                    loadBtn.prop('disabled', false).html(originalIcon);
+                });
+        }
+
+        // Load test PPPoE users for testing
+        function loadTestPppoeUsers() {
+            const testUsers = [
+                { username: 'test1@rpa.com', profile: 'default', active: true },
+                { username: 'test2@rpa.com', profile: 'premium', active: false },
+                { username: 'test3@rpa.com', profile: 'basic', active: true },
+                { username: 'admin@rpa.com', profile: 'admin', active: true },
+                { username: 'user1@rpa.com', profile: 'default', active: false }
+            ];
+
+            pppoeUsers = testUsers;
+            filteredPppoeUsers = [...pppoeUsers];
+
+            console.log('🧪 Loading test PPPoE users...');
+            showToast('info', `Loaded ${testUsers.length} test PPPoE users (API unavailable)`);
+            console.log('🧪 Test users loaded:', pppoeUsers.length);
+        }
+
+        // Show custom dropdown
+        function showPppoeDropdown(inputId, dropdownId) {
+            console.log(`🔍 showPppoeDropdown called: ${inputId}, ${dropdownId}`);
+
+            const input = $(`#${inputId}`);
+            const dropdown = $(`#${dropdownId}`);
+            const searchTerm = input.val().toLowerCase();
+
+            console.log(`📋 Input element found:`, input.length);
+            console.log(`📋 Dropdown element found:`, dropdown.length);
+            console.log(`📋 Search term:`, searchTerm);
+            console.log(`📋 PPPoE users available:`, pppoeUsers.length);
+
+            // Filter users based on search term
+            filteredPppoeUsers = pppoeUsers.filter(user =>
+                user.username.toLowerCase().includes(searchTerm)
+            );
+
+            console.log(`📋 Filtered users:`, filteredPppoeUsers.length);
+
+            // Clear dropdown
+            dropdown.empty();
+
+            if (filteredPppoeUsers.length === 0) {
+                dropdown.html('<div class="pppoe-dropdown-no-results">Tidak ada PPPoE user yang cocok</div>');
+                console.log('📋 No results message added');
+            } else {
+                // Show max 10 results
+                const displayUsers = filteredPppoeUsers.slice(0, 10);
+                console.log(`📋 Displaying ${displayUsers.length} users`);
+
+                displayUsers.forEach((user, index) => {
+                    const item = $(`
+                        <div class="pppoe-dropdown-item" data-username="${user.username}" data-active="${user.active}">
+                            <span class="username">${user.username}</span>
+                            <div>
+                                <span class="status ${user.active ? 'active' : 'inactive'}">${user.active ? 'Aktif' : 'Tidak Aktif'}</span>
+                            </div>
+                        </div>
+                    `);
+
+                    dropdown.append(item);
+                    if (index < 3) { // Log first 3 for debugging
+                        console.log(`✅ Added item ${index}: ${user.username} (${user.active ? 'active' : 'inactive'})`);
+                    }
+                });
+            }
+
+            // Calculate position relative to input
+            const inputOffset = input.offset();
+            const inputHeight = input.outerHeight();
+
+            // Position dropdown below input
+            dropdown.css({
+                'position': 'fixed',
+                'top': (inputOffset.top + inputHeight + 5) + 'px',
+                'left': inputOffset.left + 'px',
+                'width': input.outerWidth() + 'px',
+                'display': 'block',
+                'z-index': '99999',
+                'background': 'white',
+                'border': '2px solid #007bff',
+                'box-shadow': '0 4px 12px rgba(0,0,0,0.3)'
+            });
+
+            // Show dropdown
+            dropdown.addClass('show');
+
+            console.log(`📋 Dropdown positioned at:`, {
+                top: inputOffset.top + inputHeight + 5,
+                left: inputOffset.left,
+                width: input.outerWidth()
+            });
+            console.log(`📋 Dropdown shown, visible:`, dropdown.is(':visible'));
+            console.log(`📋 Dropdown height:`, dropdown.height());
+            console.log(`📋 Dropdown items count:`, dropdown.find('.pppoe-dropdown-item').length);
+        }
+
+        // Hide custom dropdown
+        function hidePppoeDropdown(dropdownId) {
+            const dropdown = $(`#${dropdownId}`);
+            dropdown.removeClass('show').css('display', 'none');
+            console.log(`📋 Dropdown hidden: ${dropdownId}`);
+        }
+
+        // Handle dropdown item selection
+        function selectPppoeUser(inputId, dropdownId) {
+            const input = $(`#${inputId}`);
+            const username = input.data('selected-username');
+            const isActive = input.data('selected-active');
+
+            if (username) {
+                // Show status indicator
+                if (isActive) {
+                    input.addClass('border-success').removeClass('border-warning');
+                } else {
+                    input.addClass('border-warning').removeClass('border-success');
+                }
+
+                console.log(`✅ Selected PPPoE user: ${username} (active: ${isActive})`);
+            }
+        }
+
+        // Load PPPoE users button click
+        $('#loadPppoeUsers').on('click', function () {
+            loadPppoeUsers();
+        });
+
+        // Auto-load PPPoE users when modal opens
+        $('#addCustomerModal').on('shown.bs.modal', function () {
+            console.log('🔄 Add customer modal opened, loading PPPoE users...');
+            loadPppoeUsers();
+        });
+
+        // Load PPPoE users for edit form
+        function loadEditPppoeUsers() {
+            const loadBtn = $('#loadEditPppoeUsers');
+            const originalIcon = loadBtn.html();
+
+            // Show loading state
+            loadBtn.prop('disabled', true).html('<i class="bi bi-arrow-clockwise spin"></i>');
+
+            console.log('🔄 Loading PPPoE users for edit form...');
+
+            fetch('/admin/billing/api/pppoe-users')
+                .then(response => {
+                    console.log('📡 Edit API Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('📊 Edit API Response data:', data);
+
+                    if (data.success && data.data && data.data.length > 0) {
+                        pppoeUsers = data.data;
+                        filteredPppoeUsers = [...pppoeUsers];
+
+                        console.log(`📝 Loaded ${pppoeUsers.length} users to memory for edit`);
+                        showToast('success', `Loaded ${pppoeUsers.length} PPPoE users from Mikrotik`);
+                    } else {
+                        console.warn('⚠️ No data from API, using test data for edit');
+                        loadTestEditPppoeUsers();
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Edit Fetch Error:', error);
+                    console.warn('⚠️ API Error, using test data for edit');
+                    loadTestEditPppoeUsers();
+                })
+                .finally(() => {
+                    // Restore button state
+                    loadBtn.prop('disabled', false).html(originalIcon);
+                });
+        }
+
+        // Load test PPPoE users for edit form
+        function loadTestEditPppoeUsers() {
+            const testUsers = [
+                { username: 'test1@rpa.com', profile: 'default', active: true },
+                { username: 'test2@rpa.com', profile: 'premium', active: false },
+                { username: 'test3@rpa.com', profile: 'basic', active: true },
+                { username: 'admin@rpa.com', profile: 'admin', active: true },
+                { username: 'user1@rpa.com', profile: 'default', active: false }
+            ];
+
+            pppoeUsers = testUsers;
+            filteredPppoeUsers = [...pppoeUsers];
+
+            console.log('🧪 Loading test PPPoE users for edit...');
+            showToast('info', `Loaded ${testUsers.length} test PPPoE users for edit (API unavailable)`);
+            console.log('🧪 Test edit users loaded:', pppoeUsers.length);
+        }
+
+        // Test function for edit form (can be called from console)
+        window.testEditForm = function () {
+            console.log('🧪 Testing edit form...');
+
+            // Test 1: Check if elements exist
+            console.log('📋 Edit PPPoE username field exists:', $('#edit_pppoe_username').length);
+            console.log('📋 Edit PPPoE profile field exists:', $('#edit_pppoe_profile').length);
+            console.log('📋 Edit dropdown exists:', $('#edit_pppoe_dropdown').length);
+
+            // Test 2: Load test data
+            loadTestEditPppoeUsers();
+
+            // Test 3: Test dropdown
+            setTimeout(() => {
+                console.log('🧪 Testing dropdown...');
+                $('#edit_pppoe_username').val('test1@rpa.com').trigger('input');
+                console.log('📋 Username should be filled with: test1@rpa.com');
+            }, 1000);
+        };
+
+        // Test custom dropdown functionality
+        window.testDropdown = function () {
+            console.log('🧪 Testing custom dropdown functionality...');
+
+            // Test 1: Check users loaded
+            console.log('📋 PPPoE users loaded:', pppoeUsers.length);
+            console.log('📋 Filtered users:', filteredPppoeUsers.length);
+
+            // Test 2: Check first few users
+            pppoeUsers.slice(0, 3).forEach((user, i) => {
+                console.log(`User ${i}:`, user.username, user.active);
+            });
+
+            // Test 3: Test input focus
+            $('#edit_pppoe_username').focus();
+            console.log('📋 Input focused, check if dropdown appears');
+
+            // Test 4: Test typing
+            $('#edit_pppoe_username').val('aang').trigger('input');
+            console.log('📋 Typed "aang", check if suggestions appear');
+        };
+
+        // Test add form dropdown functionality
+        window.testAddForm = function () {
+            console.log('🧪 Testing add form dropdown functionality...');
+
+            // Test 1: Check users loaded
+            console.log('📋 PPPoE users loaded:', pppoeUsers.length);
+            console.log('📋 Filtered users:', filteredPppoeUsers.length);
+
+            // Test 2: Check first few users
+            pppoeUsers.slice(0, 3).forEach((user, i) => {
+                console.log(`User ${i}:`, user.username, user.active);
+            });
+
+            // Test 3: Check elements
+            console.log('📋 Input element exists:', $('#pppoe_username').length);
+            console.log('📋 Dropdown element exists:', $('#pppoe_dropdown').length);
+            console.log('📋 Input group exists:', $('.input-group').length);
+
+            // Test 4: Test input focus
+            $('#pppoe_username').focus();
+            console.log('📋 Add form input focused, check if dropdown appears');
+
+            // Test 5: Test typing
+            $('#pppoe_username').val('aang').trigger('input');
+            console.log('📋 Add form typed "aang", check if suggestions appear');
+
+            // Test 6: Manual show dropdown
+            console.log('📋 Manually showing dropdown...');
+            showPppoeDropdown('pppoe_username', 'pppoe_dropdown');
+        };
+
+        // Test dropdown visibility
+        window.testDropdownVisibility = function () {
+            console.log('🧪 Testing dropdown visibility...');
+
+            const dropdown = $('#pppoe_dropdown');
+            console.log('📋 Dropdown element:', dropdown.length);
+            console.log('📋 Dropdown visible:', dropdown.is(':visible'));
+            console.log('📋 Dropdown display:', dropdown.css('display'));
+            console.log('📋 Dropdown classes:', dropdown.attr('class'));
+            console.log('📋 Dropdown height:', dropdown.height());
+            console.log('📋 Dropdown width:', dropdown.width());
+            console.log('📋 Dropdown position:', dropdown.position());
+            console.log('📋 Dropdown offset:', dropdown.offset());
+        };
+
+        // Force show dropdown for debugging
+        window.forceShowDropdown = function () {
+            console.log('🧪 Force showing dropdown...');
+
+            const dropdown = $('#pppoe_dropdown');
+            const input = $('#pppoe_username');
+
+            // Add some test content
+            dropdown.html(`
+                <div class="pppoe-dropdown-item" style="background: yellow; padding: 10px;">
+                    <strong>TEST DROPDOWN - SHOULD BE VISIBLE</strong>
+                </div>
+                <div class="pppoe-dropdown-item" style="background: lightgreen; padding: 10px;">
+                    <span class="username">test-user-1</span>
+                    <span class="status active">Aktif</span>
+                </div>
+                <div class="pppoe-dropdown-item" style="background: lightblue; padding: 10px;">
+                    <span class="username">test-user-2</span>
+                    <span class="status inactive">Tidak Aktif</span>
+                </div>
+            `);
+
+            // Calculate position
+            const inputOffset = input.offset();
+            const inputHeight = input.outerHeight();
+
+            // Force show with fixed positioning
+            dropdown.css({
+                'position': 'fixed',
+                'top': (inputOffset.top + inputHeight + 5) + 'px',
+                'left': inputOffset.left + 'px',
+                'width': input.outerWidth() + 'px',
+                'display': 'block',
+                'z-index': '99999',
+                'background': 'red',
+                'border': '5px solid blue',
+                'height': '200px'
+            });
+
+            console.log('📋 Dropdown forced visible with test content');
+            console.log('📋 Position:', {
+                top: inputOffset.top + inputHeight + 5,
+                left: inputOffset.left,
+                width: input.outerWidth()
+            });
+            console.log('📋 Check if you can see a red box with blue border below the input field');
+        };
+
+        // Load PPPoE users button click for edit form
+        $('#loadEditPppoeUsers').on('click', function () {
+            loadEditPppoeUsers();
+        });
+
+        // Auto-load PPPoE users when edit modal opens
+        $('#editCustomerModal').on('shown.bs.modal', function () {
+            console.log('🔄 Edit modal opened, loading PPPoE users...');
+            loadEditPppoeUsers();
+        });
+
+        // Edit Customer Form - PPPoE Username Input Events
+        $('#edit_pppoe_username').on('input focus', function () {
+            if (pppoeUsers.length > 0) {
+                showPppoeDropdown('edit_pppoe_username', 'edit_pppoe_dropdown');
+            }
+        });
+
+        $('#edit_pppoe_username').on('blur', function () {
+            // Delay hide to allow click on dropdown items
+            setTimeout(() => {
+                hidePppoeDropdown('edit_pppoe_dropdown');
+            }, 200);
+        });
+
+        // Edit Customer Form - Dropdown Item Click
+        $(document).on('click', '#edit_pppoe_dropdown .pppoe-dropdown-item', function () {
+            const username = $(this).data('username');
+            const isActive = $(this).data('active');
+
+            // Set input value
+            $('#edit_pppoe_username').val(username);
+
+            // Store selection data
+            $('#edit_pppoe_username').data('selected-username', username);
+            $('#edit_pppoe_username').data('selected-active', isActive);
+
+            // Show status indicator
+            if (isActive) {
+                $('#edit_pppoe_username').addClass('border-success').removeClass('border-warning');
+            } else {
+                $('#edit_pppoe_username').addClass('border-warning').removeClass('border-success');
+            }
+
+            // Hide dropdown
+            hidePppoeDropdown('edit_pppoe_dropdown');
+
+            console.log(`✅ Selected edit PPPoE user: ${username} (active: ${isActive})`);
+        });
+
+        async function uploadCustomerHousePhoto(phone, file) {
+            if (!phone || !file) return { success: false, message: 'Data upload tidak lengkap' };
+            const formData = new FormData();
+            formData.append('house_photo', file);
+
+            const response = await fetch(`/admin/billing/customers/${encodeURIComponent(phone)}/house-photo`, {
+                method: 'POST',
+                body: formData
+            });
+
+            return await response.json();
+        }
+
+        async function uploadCustomerProfilePhoto(phone, file) {
+            if (!phone || !file) return { success: false, message: 'Data upload tidak lengkap' };
+            const formData = new FormData();
+            formData.append('profile_photo', file);
+
+            const response = await fetch(`/admin/billing/customers/${encodeURIComponent(phone)}/profile-photo`, {
+                method: 'POST',
+                body: formData
+            });
+
+            return await response.json();
+        }
+
+        function bindImagePreview(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            if (!input || !preview) return;
+
+            input.addEventListener('change', function () {
+                const file = input.files && input.files[0];
+                if (!file) {
+                    preview.classList.add('d-none');
+                    preview.setAttribute('src', '');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    preview.setAttribute('src', event.target.result);
+                    preview.classList.remove('d-none');
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        // Add Customer Form - PPPoE Username Input Events
+        $('#pppoe_username').on('input focus', function () {
+            console.log('🔍 Add form PPPoE username input/focus triggered');
+            console.log('📋 PPPoE users available:', pppoeUsers.length);
+
+            if (pppoeUsers.length > 0) {
+                console.log('✅ Showing dropdown for add form');
+                showPppoeDropdown('pppoe_username', 'pppoe_dropdown');
+            } else {
+                console.log('❌ No PPPoE users available, loading data...');
+                loadPppoeUsers();
+            }
+        });
+
+        $('#pppoe_username').on('blur', function () {
+            // Delay hide to allow click on dropdown items
+            setTimeout(() => {
+                hidePppoeDropdown('pppoe_dropdown');
+            }, 200);
+        });
+
+        // Add Customer Form - Dropdown Item Click
+        $(document).on('click', '#pppoe_dropdown .pppoe-dropdown-item', function () {
+            const username = $(this).data('username');
+            const isActive = $(this).data('active');
+
+            // Set input value
+            $('#pppoe_username').val(username);
+
+            // Store selection data
+            $('#pppoe_username').data('selected-username', username);
+            $('#pppoe_username').data('selected-active', isActive);
+
+            // Show status indicator
+            if (isActive) {
+                $('#pppoe_username').addClass('border-success').removeClass('border-warning');
+            } else {
+                $('#pppoe_username').addClass('border-warning').removeClass('border-success');
+            }
+
+            // Hide dropdown
+            hidePppoeDropdown('pppoe_dropdown');
+
+            console.log(`✅ Selected PPPoE user: ${username} (active: ${isActive})`);
+        });
+        bindImagePreview('profile_photo', 'profile_photo_preview');
+        bindImagePreview('house_photo', 'house_photo_preview');
+        bindImagePreview('edit_profile_photo', 'edit_profile_photo_preview');
+        bindImagePreview('edit_house_photo', 'edit_house_photo_preview');
+
+        // Add Customer Form
+        $('#addCustomerForm').on('submit', function (e) {
+            e.preventDefault();
+
+            // Client-side validation
+            const name = $('#name').val().trim();
+            const username = $('#username').val().trim();
+            const phone = $('#phone').val().trim();
+            const package_id = $('#package_id').val();
+            const createPppoe = $('#create_pppoe_user').is(':checked');
+            const pppoeUser = $('#pppoe_username').val().trim();
+
+            if (!name || !username || !phone || !package_id) {
+                showToast('error', 'Nama, username, telepon, dan paket wajib diisi');
+                return;
+            }
+
+            // Validate username format
+            if (!/^[a-z0-9_]+$/.test(username)) {
+                showToast('error', 'Username hanya boleh berisi huruf kecil, angka, dan underscore');
+                return;
+            }
+            if (createPppoe && !pppoeUser) {
+                showToast('error', 'Isi PPPoE Username jika ingin membuat user di Mikrotik');
+                return;
+            }
+
+            // Show loading state
+            const submitBtn = $(this).find('button[type="submit"]');
+            const originalText = submitBtn.text();
+            submitBtn.prop('disabled', true).text('Menyimpan...');
+
+            const formData = {
+                name: name,
+                username: username,
+                phone: phone,
+                email: $('#email').val().trim(),
+                pppoe_username: pppoeUser,
+                address: $('#address').val().trim(),
+                package_id: package_id,
+                odp_id: $('#odp_id').val() || null,
+                pppoe_profile: $('#pppoe_profile').val().trim() || 'default',
+                auto_suspension: $('#auto_suspension').val(),
+                create_pppoe_user: createPppoe ? 1 : 0,
+                pppoe_password: $('#pppoe_password').val().trim(),
+                billing_day: (function () {
+                    const v = parseInt($('#billing_day').val(), 10);
+                    if (Number.isFinite(v)) return Math.min(Math.max(v, 1), 28);
+                    return 15;
+                })(),
+                latitude: $('#latitude').val().trim(),
+                longitude: $('#longitude').val().trim(),
+                static_ip: $('#static_ip').val().trim(),
+                assigned_ip: $('#assigned_ip').val().trim(),
+                mac_address: $('#mac_address').val().trim(),
+                // Cable connection data
+                cable_type: $('#cable_type').val().trim(),
+                cable_length: $('#cable_length').val() ? parseInt($('#cable_length').val()) : null,
+                port_number: $('#port_number').val() ? parseInt($('#port_number').val()) : null,
+                cable_status: $('#cable_status').val().trim() || 'connected',
+                cable_notes: $('#cable_notes').val().trim()
+            };
+
+            fetch('/admin/billing/customers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(response => response.json())
+                .then(async data => {
+                    if (data.success) {
+                        const addProfileInput = document.getElementById('profile_photo');
+                        const addProfileFile = addProfileInput && addProfileInput.files ? addProfileInput.files[0] : null;
+                        const addPhotoInput = document.getElementById('house_photo');
+                        const addPhotoFile = addPhotoInput && addPhotoInput.files ? addPhotoInput.files[0] : null;
+                        const targetPhone = (data.customer && data.customer.phone) || formData.phone;
+
+                        if (addProfileFile && targetPhone) {
+                            const uploadProfileResult = await uploadCustomerProfilePhoto(targetPhone, addProfileFile);
+                            if (!uploadProfileResult.success) {
+                                showToast('error', uploadProfileResult.message || 'Foto profil gagal diupload');
+                            }
+                        }
+
+                        if (addPhotoFile && targetPhone) {
+                            const uploadResult = await uploadCustomerHousePhoto(targetPhone, addPhotoFile);
+                            if (!uploadResult.success) {
+                                showToast('error', uploadResult.message || 'Foto rumah gagal diupload');
+                            }
+                        }
+
+                        setTimeout(() => {
+                            showToast('success', 'Pelanggan berhasil ditambahkan');
+                            setTimeout(() => location.reload(), 1000);
+                        }, 300);
+                    } else {
+                        showToast('error', data.message || 'Gagal menambahkan pelanggan');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Terjadi kesalahan');
+                })
+                .finally(() => {
+                    submitBtn.prop('disabled', false).text(originalText);
+                });
+        });
+
+        // Toggle PPPoE password row visibility
+        $('#create_pppoe_user').on('change', function () {
+            const show = $(this).is(':checked');
+            $('#pppoe_password_row').css('display', show ? '' : 'none');
+        });
+
+        // Generate password button
+        $('#genPppoePassBtn').on('click', function () {
+            const pass = Math.random().toString(36).slice(-8) + Math.floor(Math.random() * 10);
+            $('#pppoe_password').val(pass);
+        });
+
+        // Edit Customer
+        function editCustomer(phone) {
+            fetch(`/admin/billing/api/customers/${phone}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const customer = data.customer;
+                        $('#edit_name').val(customer.name);
+                        $('#edit_username').val(customer.username || '');
+                        $('#edit_phone').val(customer.phone).data('original-phone', customer.phone);
+                        $('#edit_email').val(customer.email || '');
+                        $('#edit_pppoe_username').val(customer.pppoe_username || '');
+                        $('#edit_address').val(customer.address || '');
+                        $('#edit_latitude').val(customer.latitude || '');
+                        $('#edit_longitude').val(customer.longitude || '');
+                        $('#edit_package_id').val(customer.package_id || '');
+                        $('#edit_odp_id').val(customer.odp_id || '');
+                        $('#edit_pppoe_profile').val(customer.pppoe_profile || '');
+                        $('#edit_auto_suspension').val(customer.auto_suspension !== undefined ? customer.auto_suspension : 1);
+                        $('#edit_status').val(customer.status);
+                        $('#edit_billing_day').val((function () {
+                            const v = parseInt(customer.billing_day, 10);
+                            if (Number.isFinite(v)) return Math.min(Math.max(v, 1), 28);
+                            return 15;
+                        })());
+                        // Fill static IP fields
+                        $('#edit_static_ip').val(customer.static_ip || '');
+                        $('#edit_assigned_ip').val(customer.assigned_ip || '');
+                        $('#edit_mac_address').val(customer.mac_address || '');
+                        // Fill cable connection fields
+                        $('#edit_cable_type').val(customer.cable_type || '');
+                        $('#edit_cable_length').val(customer.cable_length || '');
+                        $('#edit_port_number').val(customer.port_number || '');
+                        $('#edit_cable_status').val(customer.cable_status || 'connected');
+                        $('#edit_cable_notes').val(customer.cable_notes || '');
+                        if (customer.profile_photo) {
+                            $('#edit_profile_photo_preview').attr('src', `/img/customer-profiles/${customer.profile_photo}`).removeClass('d-none');
+                        } else {
+                            $('#edit_profile_photo_preview').addClass('d-none').attr('src', '');
+                        }
+                        if (customer.house_photo) {
+                            $('#edit_house_photo_preview').attr('src', `/img/customer-houses/${customer.house_photo}`).removeClass('d-none');
+                        } else {
+                            $('#edit_house_photo_preview').addClass('d-none').attr('src', '');
+                        }
+                        $('#editCustomerModal').modal('show');
+                    } else {
+                        showToast('error', data.message || 'Gagal mengambil data pelanggan');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Terjadi kesalahan');
+                });
+        }
+
+
+        // Auto-open full edit modal when redirected with ?edit_phone=
+        document.addEventListener('DOMContentLoaded', function () {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const editPhone = params.get('edit_phone');
+                if (editPhone && typeof editCustomer === 'function') {
+                    editCustomer(editPhone);
+                    params.delete('edit_phone');
+                    const nextQuery = params.toString();
+                    const nextUrl = window.location.pathname + (nextQuery ? ('?' + nextQuery) : '');
+                    window.history.replaceState({}, '', nextUrl);
+                }
+            } catch (e) {
+                console.warn('Failed to auto-open edit customer modal:', e);
+            }
+        });
+        // Update Customer Form
+        $('#editCustomerForm').on('submit', function (e) {
+            e.preventDefault();
+
+            // Helper aman untuk ambil nilai
+            const safeVal = (sel) => {
+                const $el = $(sel);
+                if (!$el.length) return '';
+                const v = $el.val();
+                return (v == null ? '' : String(v)).trim();
+            };
+            const safeInt = (sel) => {
+                const $el = $(sel);
+                if (!$el.length) return null;
+                const v = parseInt($el.val(), 10);
+                return Number.isFinite(v) ? v : null;
+            };
+
+            // Client-side validation
+            const name = safeVal('#edit_name');
+            const username = safeVal('#edit_username');
+            const phone = safeVal('#edit_phone');
+            const package_id = $('#edit_package_id').val();
+
+            if (!name || !username || !phone || !package_id) {
+                showToast('error', 'Nama, username, telepon, dan paket wajib diisi');
+                return;
+            }
+
+            // Validate username format
+            if (!/^[a-z0-9_]+$/.test(username)) {
+                showToast('error', 'Username hanya boleh berisi huruf kecil, angka, dan underscore');
+                return;
+            }
+
+            // Show loading state
+            const submitBtn = $(this).find('button[type="submit"]');
+            const originalText = submitBtn.text();
+            submitBtn.prop('disabled', true).text('Mengupdate...');
+
+            const originalPhone = $('#edit_phone').data('original-phone'); // Store original phone for API call
+            const formData = {
+                name: name,
+                username: username,
+                phone: phone,
+                email: safeVal('#edit_email'),
+                pppoe_username: safeVal('#edit_pppoe_username'),
+                address: safeVal('#edit_address'),
+                package_id: package_id,
+                odp_id: $('#edit_odp_id').length ? ($('#edit_odp_id').val() || null) : null,
+                pppoe_profile: safeVal('#edit_pppoe_profile') || 'default',
+                auto_suspension: $('#edit_auto_suspension').length ? $('#edit_auto_suspension').val() : undefined,
+                status: $('#edit_status').length ? $('#edit_status').val() : undefined,
+                billing_day: (function () {
+                    const v = parseInt($('#edit_billing_day').val(), 10);
+                    if (Number.isFinite(v)) return Math.min(Math.max(v, 1), 28);
+                    return 15;
+                })(),
+                latitude: safeVal('#edit_latitude'),
+                longitude: safeVal('#edit_longitude'),
+                static_ip: safeVal('#edit_static_ip'),
+                assigned_ip: safeVal('#edit_assigned_ip'),
+                mac_address: safeVal('#edit_mac_address'),
+                // Cable connection data
+                cable_type: safeVal('#edit_cable_type'),
+                cable_length: safeInt('#edit_cable_length'),
+                port_number: safeInt('#edit_port_number'),
+                cable_status: safeVal('#edit_cable_status') || 'connected',
+                cable_notes: safeVal('#edit_cable_notes')
+            };
+
+            fetch(`/admin/billing/customers/${originalPhone || phone}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(response => response.json())
+                .then(async data => {
+                    if (data.success) {
+                        const editProfileInput = document.getElementById('edit_profile_photo');
+                        const editProfileFile = editProfileInput && editProfileInput.files ? editProfileInput.files[0] : null;
+                        const editPhotoInput = document.getElementById('edit_house_photo');
+                        const editPhotoFile = editPhotoInput && editPhotoInput.files ? editPhotoInput.files[0] : null;
+                        const targetPhone = formData.phone || originalPhone || phone;
+
+                        if (editProfileFile && targetPhone) {
+                            const uploadProfileResult = await uploadCustomerProfilePhoto(targetPhone, editProfileFile);
+                            if (!uploadProfileResult.success) {
+                                showToast('error', uploadProfileResult.message || 'Foto profil gagal diupload');
+                            }
+                        }
+
+                        if (editPhotoFile && targetPhone) {
+                            const uploadResult = await uploadCustomerHousePhoto(targetPhone, editPhotoFile);
+                            if (!uploadResult.success) {
+                                showToast('error', uploadResult.message || 'Foto rumah gagal diupload');
+                            }
+                        }
+
+                        setTimeout(() => {
+                            showToast('success', 'Pelanggan berhasil diupdate');
+                            setTimeout(() => location.reload(), 1000);
+                        }, 300);
+                    } else {
+                        showToast('error', data.message || 'Gagal mengupdate pelanggan');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Terjadi kesalahan');
+                })
+                .finally(() => {
+                    submitBtn.prop('disabled', false).text(originalText);
+                });
+        });
+
+        // View customer detail
+        function viewCustomerDetail(phone) {
+            // Navigate to customer detail page
+            window.location.href = `/admin/billing/customers/${phone}`;
+        }
+
+        // Delete customer
+        async function deleteCustomer(phone) {
+            if (!confirm('Apakah Anda yakin ingin menghapus pelanggan ini?')) return;
+
+            try {
+                const response = await fetch(`/admin/billing/customers/${phone}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch (error) {
+                showToast('Terjadi kesalahan saat menghapus data', 'error');
+            }
+        }
+
+        // Get current location using GPS with improved permission handling
+        async function getCurrentLocation() {
+            // Find the GPS button that was clicked
+            const gpsButton = document.getElementById('gpsButton') || document.getElementById('editGpsButton');
+            const originalButtonHtml = gpsButton ? gpsButton.innerHTML : '';
+
+            // Update button to show loading state
+            if (gpsButton) {
+                gpsButton.disabled = true;
+                gpsButton.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> <span class="btn-text">Mengambil Lokasi...</span>';
+                gpsButton.className = 'btn btn-warning';
+            }
+
+            // Check if geolocation is supported
+            if (!navigator.geolocation) {
+                showToast('Geolocation tidak didukung di browser ini', 'error');
+                showLocationHelp();
+                resetGPSButton(gpsButton, originalButtonHtml);
+                return;
+            }
+
+            // Check permission first (modern browsers)
+            if ('permissions' in navigator) {
+                try {
+                    const permission = await navigator.permissions.query({ name: 'geolocation' });
+
+                    if (permission.state === 'denied') {
+                        showLocationPermissionDeniedDialog();
+                        resetGPSButton(gpsButton, originalButtonHtml);
+                        return;
+                    }
+
+                    if (permission.state === 'prompt') {
+                        showLocationPermissionPromptDialog();
+                    }
+                } catch (error) {
+                    console.log('Permission API not supported, continuing with geolocation request');
+                }
+            }
+
+            // Show loading state
+            showToast('Mengambil lokasi GPS...', 'info');
+
+            // Request location with enhanced options
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const accuracy = position.coords.accuracy;
+
+                    // Update form fields
+                    $('#latitude').val(lat.toFixed(8));
+                    $('#longitude').val(lng.toFixed(8));
+
+                    // Update edit form if open
+                    if ($('#edit_latitude').length) {
+                        $('#edit_latitude').val(lat.toFixed(8));
+                        $('#edit_longitude').val(lng.toFixed(8));
+                    }
+
+                    let message = 'Lokasi berhasil diambil dari GPS!';
+                    if (accuracy > 100) {
+                        message += ` (Akurasi: ${Math.round(accuracy)}m - coba di area terbuka untuk akurasi lebih baik)`;
+                    } else {
+                        message += ` (Akurasi: ${Math.round(accuracy)}m)`;
+                    }
+
+                    showToast(message, 'success');
+
+                    // Update button to show success state briefly
+                    if (gpsButton) {
+                        gpsButton.className = 'btn btn-success';
+                        gpsButton.innerHTML = '<i class="bx bx-check me-1"></i> <span class="btn-text">Lokasi Berhasil!</span>';
+
+                        setTimeout(() => {
+                            resetGPSButton(gpsButton, originalButtonHtml);
+                        }, 2000);
+                    }
+                },
+                function (error) {
+                    handleLocationError(error);
+                    resetGPSButton(gpsButton, originalButtonHtml);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 15000, // Increased timeout
+                    maximumAge: 60000
+                }
+            );
+        }
+
+        // Reset GPS button to original state
+        function resetGPSButton(button, originalHtml) {
+            if (button && originalHtml) {
+                button.disabled = false;
+                button.className = 'btn btn-success';
+                button.innerHTML = originalHtml;
+            }
+        }
+
+        // Handle location errors with detailed guidance
+        function handleLocationError(error) {
+            let errorMessage = 'Gagal mengambil lokasi: ';
+            let showHelp = false;
+
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage = 'Izin lokasi ditolak';
+                    showLocationPermissionDeniedDialog();
+                    return;
+
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage += 'Sinyal GPS tidak tersedia. Pastikan Anda berada di area terbuka.';
+                    showHelp = true;
+                    break;
+
+                case error.TIMEOUT:
+                    errorMessage += 'Timeout mengambil lokasi. Coba lagi atau pindah ke area dengan sinyal GPS lebih baik.';
+                    showHelp = true;
+                    break;
+
+                default:
+                    errorMessage += 'Error tidak diketahui. Coba lagi atau gunakan input manual.';
+                    showHelp = true;
+            }
+
+            showToast(errorMessage, 'error');
+
+            if (showHelp) {
+                setTimeout(() => showLocationHelp(), 2000);
+            }
+        }
+
+        // Show dialog when permission is denied
+        function showLocationPermissionDeniedDialog() {
+            const modalHtml = `
+                <div class="modal fade" id="locationPermissionModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-warning text-dark">
+                                <h5 class="modal-title">
+                                    <i class="bi bi-geo-alt-fill me-2"></i>Izin Lokasi Ditolak
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    <strong>Untuk menggunakan fitur GPS, ikuti langkah berikut:</strong>
+                                </div>
+                                
+                                <div class="accordion" id="locationHelpAccordion">
+                                    <!-- Chrome/Android -->
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#chromeHelp">
+                                                <i class="bi bi-google me-2"></i>Chrome / Android
+                                            </button>
+                                        </h2>
+                                        <div id="chromeHelp" class="accordion-collapse collapse show">
+                                            <div class="accordion-body">
+                                                <ol>
+                                                    <li>Klik ikon <strong>🔒</strong> di sebelah kiri URL</li>
+                                                    <li>Pilih <strong>"Izinkan"</strong> untuk Lokasi</li>
+                                                    <li>Refresh halaman dan coba lagi</li>
+                                                    <li>Atau masuk ke <strong>Pengaturan > Situs > Izin > Lokasi</strong></li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Safari/iOS -->
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#safariHelp">
+                                                <i class="bi bi-phone me-2"></i>Safari / iPhone
+                                            </button>
+                                        </h2>
+                                        <div id="safariHelp" class="accordion-collapse collapse">
+                                            <div class="accordion-body">
+                                                <ol>
+                                                    <li>Buka <strong>Pengaturan iPhone</strong></li>
+                                                    <li>Scroll ke <strong>Safari</strong></li>
+                                                    <li>Pilih <strong>Lokasi</strong></li>
+                                                    <li>Pilih <strong>"Tanya" atau "Izinkan"</strong></li>
+                                                    <li>Kembali ke browser dan refresh halaman</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <strong>Alternatif:</strong>
+                                    <ul>
+                                        <li>Gunakan <strong>"Pilih dari Peta"</strong> untuk memilih lokasi manual</li>
+                                        <li>Input koordinat langsung jika Anda mengetahuinya</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                                <button type="button" class="btn btn-primary" onclick="openMapPicker(); $('#locationPermissionModal').modal('hide');">Pilih dari Peta</button>
+                                <button type="button" class="btn btn-success" onclick="location.reload()">Coba Lagi</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Remove existing modal
+            $('#locationPermissionModal').remove();
+            $('body').append(modalHtml);
+
+            // Show modal
+            new bootstrap.Modal(document.getElementById('locationPermissionModal')).show();
+        }
+
+        // Show dialog when permission prompt will appear
+        function showLocationPermissionPromptDialog() {
+            const modalHtml = `
+                <div class="modal fade" id="locationPromptModal" tabindex="-1">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-header bg-info text-white">
+                                <h5 class="modal-title">
+                                    <i class="bi bi-geo-alt me-2"></i>Izin Lokasi Diperlukan
+                                </h5>
+                            </div>
+                            <div class="modal-body text-center">
+                                <i class="bi bi-geo-alt-fill text-info" style="font-size: 3rem;"></i>
+                                <p class="mt-3">Browser akan meminta izin akses lokasi.</p>
+                                <p><strong>Silakan klik "Izinkan" atau "Allow"</strong> untuk melanjutkan.</p>
+                            </div>
+                            <div class="modal-footer justify-content-center">
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Mengerti</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            $('#locationPromptModal').remove();
+            $('body').append(modalHtml);
+
+            const modal = new bootstrap.Modal(document.getElementById('locationPromptModal'));
+            modal.show();
+
+            // Auto close after 3 seconds
+            setTimeout(() => modal.hide(), 3000);
+        }
+
+        // Show general location help
+        function showLocationHelp() {
+            const modalHtml = `
+                <div class="modal fade" id="locationHelpModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">
+                                    <i class="bi bi-question-circle me-2"></i>Tips Menggunakan GPS
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6><i class="bi bi-check-circle text-success me-2"></i>Untuk GPS Akurat:</h6>
+                                        <ul>
+                                            <li>Berada di area terbuka</li>
+                                            <li>Jauh dari gedung tinggi</li>
+                                            <li>GPS di perangkat sudah aktif</li>
+                                            <li>Koneksi internet stabil</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6><i class="bi bi-x-circle text-danger me-2"></i>Hindari:</h6>
+                                        <ul>
+                                            <li>Di dalam ruangan tertutup</li>
+                                            <li>Di bawah jembatan</li>
+                                            <li>Area dengan gangguan sinyal</li>
+                                            <li>Cuaca buruk (hujan deras)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-info mt-3">
+                                    <i class="bi bi-lightbulb me-2"></i>
+                                    <strong>Alternatif:</strong> Jika GPS tidak berhasil, gunakan "Pilih dari Peta" untuk memilih lokasi secara manual.
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                                <button type="button" class="btn btn-primary" onclick="openMapPicker(); $('#locationHelpModal').modal('hide');">Pilih dari Peta</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            $('#locationHelpModal').remove();
+            $('body').append(modalHtml);
+            new bootstrap.Modal(document.getElementById('locationHelpModal')).show();
+        }
+
+        // Open map picker modal
+        function openMapPicker() {
+            // Create map picker modal with enhanced styling
+            const modalHtml = `
+                <div class="modal fade" id="mapPickerModal" tabindex="-1">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-map-marked-alt me-2"></i>Pilih Lokasi dari Peta
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body p-0">
+                                <div class="row g-0">
+                                    <div class="col-12">
+                                        <div class="p-3 border-bottom">
+                                            <div class="row">
+                                                <div class="col-md-8">
+                                                    <input type="text" class="form-control" id="mapSearch" placeholder="Cari lokasi (contoh: Garut, Bandung, Jl. Sudirman)">
+                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="d-flex gap-2">
+                                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="getCurrentLocation()">
+                                                            <i class="fas fa-crosshairs me-1"></i>GPS
+                                                        </button>
+                                                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetMapLocation()">
+                                                            <i class="fas fa-undo me-1"></i>Reset
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="map" style="height: 500px; width: 100%; position: relative;"></div>
+                                        <div class="p-3 border-top bg-light">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <strong class="text-primary">Koordinat yang dipilih:</strong><br>
+                                                    <div class="mt-2">
+                                                        <span class="badge bg-primary me-2">Latitude</span>
+                                                        <code id="selectedLat">-7.1599</code><br>
+                                                        <span class="badge bg-primary me-2">Longitude</span>
+                                                        <code id="selectedLng">108.0612</code>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="alert alert-info mb-0">
+                                                        <i class="fas fa-info-circle me-2"></i>
+                                                        <strong>Petunjuk:</strong><br>
+                                                        • Klik di peta untuk memilih lokasi<br>
+                                                        • Gunakan GPS untuk lokasi saat ini<br>
+                                                        • Pilih layer peta sesuai kebutuhan
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-1"></i>Batal
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="applyMapLocation()">
+                                    <i class="fas fa-check me-1"></i>Gunakan Lokasi Ini
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Remove existing modal if any
+            $('#mapPickerModal').remove();
+
+            // Add modal to body
+            $('body').append(modalHtml);
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('mapPickerModal'));
+            modal.show();
+
+            // Initialize map after modal is shown
+            setTimeout(() => {
+                initMapPicker();
+            }, 500);
+        }
+
+        // Initialize map picker with enhanced features
+        function initMapPicker() {
+            // Default location (Garut)
+            const defaultLat = -7.1599;
+            const defaultLng = 108.0612;
+
+            // Create map using Leaflet and store globally
+            window.mapPickerMap = L.map('map').setView([defaultLat, defaultLng], 12);
+
+            // Define tile layers (same as mapping-new.ejs)
+            const lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            });
+
+            const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            });
+
+            const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '© Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+                maxZoom: 20
+            });
+            
+            const gmapslayer = L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: '© Google Maps'
+            });
+            
+            // Add default satellite layer
+            gmapslayer.addTo(window.mapPickerMap);
+
+            // Create layer control
+            const baseMaps = {
+                "Gmaps": gmapslayer,
+                "Light": lightLayer,
+                "Dark": darkLayer,
+                "Satellite": satelliteLayer
+            };
+
+            L.control.layers(baseMaps).addTo(window.mapPickerMap);
+
+            // Create custom marker icon
+            const createCustomMarker = (lat, lng) => {
+                return L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        className: 'custom-marker',
+                        html: '<div style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"><i class="fas fa-map-marker-alt"></i></div>',
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 30]
+                    })
+                });
+            };
+
+            // Add initial marker and store globally
+            window.mapPickerMarker = createCustomMarker(defaultLat, defaultLng).addTo(window.mapPickerMap);
+
+            // Update coordinates display
+            document.getElementById('selectedLat').textContent = defaultLat.toFixed(8);
+            document.getElementById('selectedLng').textContent = defaultLng.toFixed(8);
+
+            // Handle map click
+            window.mapPickerMap.on('click', function (e) {
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+
+                // Remove existing marker
+                window.mapPickerMap.removeLayer(window.mapPickerMarker);
+
+                // Add new marker
+                window.mapPickerMarker = createCustomMarker(lat, lng).addTo(window.mapPickerMap);
+
+                // Update coordinates display
+                document.getElementById('selectedLat').textContent = lat.toFixed(8);
+                document.getElementById('selectedLng').textContent = lng.toFixed(8);
+            });
+
+            // Handle search with enhanced geocoding
+            document.getElementById('mapSearch').addEventListener('input', function (e) {
+                const query = e.target.value;
+                if (query.length > 3) {
+                    // Enhanced geocoding using OpenStreetMap Nominatim
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&countrycodes=id&addressdetails=1`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.length > 0) {
+                                const lat = parseFloat(data[0].lat);
+                                const lng = parseFloat(data[0].lon);
+
+                                window.mapPickerMap.setView([lat, lng], 15);
+
+                                // Remove existing marker
+                                window.mapPickerMap.removeLayer(window.mapPickerMarker);
+
+                                // Add new marker
+                                window.mapPickerMarker = createCustomMarker(lat, lng).addTo(window.mapPickerMap);
+
+                                document.getElementById('selectedLat').textContent = lat.toFixed(8);
+                                document.getElementById('selectedLng').textContent = lng.toFixed(8);
+
+                                // Show success message
+                                showToast(`Lokasi ditemukan: ${data[0].display_name}`, 'success');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Geocoding error:', error);
+                            showToast('Gagal mencari lokasi', 'error');
+                        });
+                }
+            });
+
+        }
+
+        // Get current GPS location
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    // Update map view
+                    if (window.mapPickerMap) {
+                        window.mapPickerMap.setView([lat, lng], 15);
+
+                        // Remove existing marker
+                        if (window.mapPickerMarker) {
+                            window.mapPickerMap.removeLayer(window.mapPickerMarker);
+                        }
+
+                        // Add new marker
+                        window.mapPickerMarker = createCustomMarker(lat, lng).addTo(window.mapPickerMap);
+
+                        document.getElementById('selectedLat').textContent = lat.toFixed(8);
+                        document.getElementById('selectedLng').textContent = lng.toFixed(8);
+
+                        showToast('Lokasi GPS berhasil diambil', 'success');
+                    }
+                }, function (error) {
+                    showToast('Gagal mengambil lokasi GPS', 'error');
+                });
+            } else {
+                showToast('GPS tidak tersedia di browser ini', 'error');
+            }
+        }
+
+        // Reset map to default location
+        function resetMapLocation() {
+            const defaultLat = -7.1599;
+            const defaultLng = 108.0612;
+
+            if (window.mapPickerMap) {
+                window.mapPickerMap.setView([defaultLat, defaultLng], 12);
+
+                // Remove existing marker
+                if (window.mapPickerMarker) {
+                    window.mapPickerMap.removeLayer(window.mapPickerMarker);
+                }
+
+                // Add new marker
+                window.mapPickerMarker = createCustomMarker(defaultLat, defaultLng).addTo(window.mapPickerMap);
+
+                document.getElementById('selectedLat').textContent = defaultLat.toFixed(8);
+                document.getElementById('selectedLng').textContent = defaultLng.toFixed(8);
+
+                showToast('Peta direset ke lokasi default', 'info');
+            }
+        }
+
+        // Create custom marker function (global)
+        function createCustomMarker(lat, lng) {
+            return L.marker([lat, lng], {
+                icon: L.divIcon({
+                    className: 'custom-marker',
+                    html: '<div style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"><i class="fas fa-map-marker-alt"></i></div>',
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 30]
+                })
+            });
+        }
+
+        // Apply selected map location to form
+        function applyMapLocation() {
+            const lat = document.getElementById('selectedLat').textContent;
+            const lng = document.getElementById('selectedLng').textContent;
+
+            if (lat !== '-' && lng !== '-') {
+                // Update add form
+                $('#latitude').val(lat);
+                $('#longitude').val(lng);
+
+                // Update edit form if open
+                if ($('#edit_latitude').length) {
+                    $('#edit_latitude').val(lat);
+                    $('#edit_longitude').val(lng);
+                }
+
+                showToast('Lokasi berhasil diterapkan!', 'success');
+
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('mapPickerModal')).hide();
+            } else {
+                showToast('Pilih lokasi terlebih dahulu', 'error');
+            }
+        }
+
+        // Toast notification function
+        function showToast(message, type) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const toastHtml = `
+                <div class="toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+
+            toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+            const toastElement = toastContainer.lastElementChild;
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+
+            // Remove toast element after it's hidden
+            toastElement.addEventListener('hidden.bs.toast', () => {
+                toastElement.remove();
+            });
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container position-fixed top-0 end-0 p-3';
+            container.style.zIndex = '9999';
+            document.body.appendChild(container);
+            return container;
+        }
+
+        // Function to generate username and email from name
+        function generateCredentialsFromName() {
+            const nameInput = document.getElementById('name');
+            const usernameInput = document.getElementById('username');
+            const emailInput = document.getElementById('email');
+
+            if (!nameInput || !usernameInput) return;
+
+            const name = nameInput.value.trim();
+            if (!name) {
+                usernameInput.value = '';
+                if (emailInput) emailInput.value = '';
+                return;
+            }
+
+            // Get current date in DDMMYY format
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = String(now.getFullYear()).slice(-2);
+            const dateStr = day + month + year;
+
+            // Process name: remove special characters, replace spaces with underscores
+            let processedName = name.toLowerCase()
+                .replace(/[^a-z0-9\s]/g, '')  // Remove special characters
+                .replace(/\s+/g, '_')         // Replace spaces with underscores
+                .replace(/_+/g, '_')          // Replace multiple underscores with single
+                .replace(/^_|_$/g, '');       // Remove leading/trailing underscores
+
+            // If processed name is empty, use 'user'
+            if (!processedName) processedName = 'user';
+
+            // Generate username
+            const baseUsername = processedName + '_' + dateStr;
+            usernameInput.value = baseUsername;
+
+            // Generate email if email field exists
+            if (emailInput) {
+                emailInput.value = processedName + '@rpa.com';
+            }
+        }
+    </script>
+
+
+
+
+    <!-- Mobile Bottom Navbar -->
+    <%- include('../../partials/admin-mobile-navbar', { currentPage: 'customers' }) %>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

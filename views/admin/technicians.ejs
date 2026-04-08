@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Kelola Teknisi - Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/responsive-admin.css" rel="stylesheet">
+    <!-- Admin Mobile Optimizations -->
+    <link href="/css/admin-mobile.css" rel="stylesheet">
+    <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');</script>
+    <style>
+        body { background: #f5f6fa; }
+        [data-theme="dark"] body { background: #0f172a; }
+        .dashboard-hero { position: relative; overflow: hidden; border: 1px solid rgba(148,163,184,.22); border-radius: 24px; padding: 16px 20px; background: linear-gradient(145deg, rgba(255,255,255,.88), rgba(244,247,255,.82)), radial-gradient(circle at top left, rgba(96,165,250,.22), transparent 38%); backdrop-filter: blur(18px); box-shadow: 0 18px 44px rgba(37,99,235,.08); margin-bottom: 1.5rem; }
+        .dashboard-hero::before { content: ""; position: absolute; inset: auto -60px -110px auto; width: 220px; height: 220px; border-radius: 999px; background: radial-gradient(circle, rgba(96,165,250,.16), transparent 70%); pointer-events: none; }
+        .dashboard-hero h4 { font-size: 2rem; font-weight: 800; letter-spacing: -.03em; color: #1e293b; margin-bottom: .4rem; }
+        .dashboard-hero p { color: #64748b; margin-bottom: 0; }
+        [data-theme="dark"] .dashboard-hero { background: linear-gradient(145deg, rgba(15,23,42,.88), rgba(17,24,39,.9)), radial-gradient(circle at top left, rgba(56,189,248,.14), transparent 42%); border-color: rgba(148,163,184,.22); box-shadow: 0 20px 42px rgba(2,8,23,.32); }
+        [data-theme="dark"] .dashboard-hero h4 { color: #f8fafc !important; }
+        [data-theme="dark"] .dashboard-hero p { color: #cbd5e1 !important; }
+        .theme-toggle-btn { width: 42px; height: 42px; border-radius: 999px; border: 1px solid rgba(148,163,184,.22); background: rgba(255,255,255,.92); color: #1e293b; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+        [data-theme="dark"] .theme-toggle-btn { background: rgba(15,23,42,.88); color: #e6eefc; border-color: rgba(148,163,184,.24); }
+        body .main-content .nav.nav-tabs { border-bottom: 1px solid rgba(148,163,184,.24) !important; gap: 1.2rem !important; }
+        body .main-content .nav.nav-tabs .nav-item { margin-bottom: 0 !important; }
+        body .main-content .nav.nav-tabs .nav-link { border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; color: #64748b !important; font-weight: 700 !important; padding: .7rem .1rem .85rem !important; display: inline-flex !important; align-items: center !important; gap: .45rem !important; border-bottom: 3px solid transparent !important; }
+        body .main-content .nav.nav-tabs .nav-link:hover { color: #2563eb !important; }
+        body .main-content .nav.nav-tabs .nav-link.active, body .main-content .nav.nav-tabs .show > .nav-link { background: transparent !important; color: #2563eb !important; border-bottom-color: #2563eb !important; box-shadow: none !important; }
+        [data-theme="dark"] body .main-content .nav.nav-tabs { border-bottom-color: rgba(71,85,105,.8) !important; }
+        [data-theme="dark"] body .main-content .nav.nav-tabs .nav-link { color: #cbd5e1 !important; }
+        [data-theme="dark"] body .main-content .nav.nav-tabs .nav-link.active, [data-theme="dark"] body .main-content .nav.nav-tabs .show > .nav-link { color: #60a5fa !important; border-bottom-color: #60a5fa !important; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <%- include('../partials/admin-responsive-sidebar', { page: 'technicians', settings: settings, versionInfo: versionInfo, versionBadge: versionBadge }) %>
+
+            <main class="col-md-10 ms-sm-auto main-content">
+                <div class="dashboard-hero d-flex justify-content-between align-items-start gap-3">
+                    <div>
+                        <h4 class="mb-2">Kelola Teknisi</h4>
+                        <p>Kelola dan pantau data teknisi.
+                            <% if ((totalUnreadChats || 0) > 0) { %>
+                                <span class="badge bg-danger-subtle text-danger ms-2"><%= totalUnreadChats %> chat belum dibaca</span>
+                            <% } %>
+                        </p>
+                    </div>
+                    <button class="theme-toggle-btn" id="themeToggle" type="button" title="Ganti tema"><i class="bi bi-sun-fill text-warning" id="themeIcon"></i></button>
+                </div>
+
+                <!-- Tab Navigation -->
+                <ul class="nav nav-tabs mb-4">
+                    <li class="nav-item">
+                        <a class="nav-link <%= page === 'installations' ? 'active' : '' %>" href="/admin/installations">
+                            <i class="bi bi-tools"></i> Instalasi
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%= page === 'technicians' ? 'active' : '' %>" href="/admin/technicians">
+                            <i class="bi bi-people-fill"></i> Kelola Teknisi
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="bi bi-people-fill me-2"></i>Kelola Teknisi
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTechnicianModal">
+                            <i class="bi bi-plus-circle me-2"></i>Tambah Teknisi
+                        </button>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center gap-3">
+                        <div>
+                            <input type="checkbox" id="selectAll" class="form-check-input me-2">
+                            <label for="selectAll" class="form-check-label">Pilih semua</label>
+                        </div>
+                        <div class="input-group input-group-sm" style="width: auto;">
+                            <label class="input-group-text" for="filterStatus">Filter</label>
+                            <select id="filterStatus" class="form-select">
+                                <option value="active" <%= (typeof filterStatus !== 'undefined' && filterStatus === 'active') ? 'selected' : '' %>>Aktif saja</option>
+                                <option value="all" <%= (typeof filterStatus !== 'undefined' && filterStatus === 'all') ? 'selected' : '' %>>Semua</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Bulk actions">
+                        <button class="btn btn-outline-success" id="bulkActivate" disabled>Aktifkan</button>
+                        <button class="btn btn-outline-secondary" id="bulkDeactivate" disabled>Nonaktifkan</button>
+                        <button class="btn btn-outline-danger" id="bulkDelete" disabled>Hapus</button>
+                    </div>
+                </div>
+
+                <div class="row" id="techniciansList">
+                    <% if (typeof technicians !== 'undefined' && technicians.length > 0) { %>
+                        <% technicians.forEach(function(technician) { %>
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input tech-checkbox" type="checkbox" value="<%- technician.id %>" onchange="onAnySelectionChange()">
+                                        </div>
+                                        <h6 class="card-title"><%= technician.name %></h6>
+                                        <p class="card-text">
+                                            <i class="bi bi-telephone me-1"></i><%= technician.phone %><br>
+                                            <span class="badge bg-primary"><%= technician.role %></span>
+                                            <span class="badge <%= technician.is_active ? 'bg-success' : 'bg-secondary' %>">
+                                                <%= technician.is_active ? 'Aktif' : 'Nonaktif' %>
+                                            </span><br>
+                                            <small class="text-muted">
+                                                <i class="bi bi-chat-dots me-1"></i>
+                                                Group: <%= technician.whatsapp_group_id || 'Tidak ada' %>
+                                            </small>
+                                        </p>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="openEditModal('<%- technician.id %>')">Edit</button>
+                                            <a class="btn btn-outline-dark position-relative" href="/admin/technicians/<%- technician.id %>/chat">
+                                                Chat
+                                                <% if ((technician.unread_chat_count || 0) > 0) { %>
+                                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                                        <%= technician.unread_chat_count > 9 ? '9+' : technician.unread_chat_count %>
+                                                    </span>
+                                                <% } %>
+                                            </a>
+                                            <button class="btn btn-outline-secondary" onclick="toggleStatus('<%- technician.id %>', '<%- technician.is_active ? 1 : 0 %>')">
+                                                <%= technician.is_active ? 'Nonaktifkan' : 'Aktifkan' %>
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="deleteTechnician('<%- technician.id %>')">Hapus</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="col-12 text-center py-5">
+                            <h5 class="text-muted">Belum ada teknisi</h5>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTechnicianModal">
+                                Tambah Teknisi Pertama
+                            </button>
+                        </div>
+                    <% } %>
+                </div>
+            </main>
+    </div>
+
+    <!-- Add Technician Modal -->
+    <div class="modal fade" id="addTechnicianModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Teknisi Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="addTechnicianForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Nama Lengkap *</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nomor Telepon *</label>
+                            <input type="tel" class="form-control" name="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Role *</label>
+                            <select class="form-select" name="role" required>
+                                <option value="technician">Teknisi</option>
+                                <option value="field_officer">Field Officer</option>
+                                <option value="collector">Kolektor</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">WhatsApp Group ID</label>
+                            <input type="text" class="form-control" name="whatsapp_group_id" placeholder="120363xxxxxxxxx@g.us">
+                            <div class="form-text">
+                                <small>Opsional. Kosongkan jika menggunakan group default dari settings</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Tambah</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Technician Modal -->
+    <div class="modal fade" id="editTechnicianModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Teknisi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editTechnicianForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="editTechId">
+                        <div class="mb-3">
+                            <label class="form-label">Nama Lengkap *</label>
+                            <input type="text" class="form-control" id="editTechName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nomor Telepon *</label>
+                            <input type="tel" class="form-control" id="editTechPhone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Role *</label>
+                            <select class="form-select" id="editTechRole" required>
+                                <option value="technician">Teknisi</option>
+                                <option value="field_officer">Field Officer</option>
+                                <option value="collector">Kolektor</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">WhatsApp Group ID</label>
+                            <input type="text" class="form-control" id="editTechWhatsAppGroup" placeholder="120363xxxxxxxxx@g.us">
+                            <div class="form-text">
+                                <small>Opsional. Kosongkan jika menggunakan group default dari settings</small>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Catatan/Area</label>
+                            <input type="text" class="form-control" id="editTechNotes" placeholder="Area liputan / catatan">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            function updateThemeButton() {
+                const icon = document.getElementById('themeIcon');
+                if (!icon) return;
+                const theme = (document.documentElement.getAttribute('data-theme') || 'light').toLowerCase();
+                icon.className = theme === 'dark' ? 'bi bi-moon-stars-fill text-white' : 'bi bi-sun-fill text-warning';
+            }
+            function toggleTheme() {
+                const root = document.documentElement;
+                const currentTheme = (root.getAttribute('data-theme') || 'light').toLowerCase();
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                root.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeButton();
+            }
+            updateThemeButton();
+            const btn = document.getElementById('themeToggle');
+            if (btn) btn.addEventListener('click', toggleTheme);
+        })();
+
+        document.getElementById('addTechnicianForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch('/admin/technicians/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('Teknisi berhasil ditambahkan');
+                    location.reload();
+                } else {
+                    alert('Gagal: ' + result.message);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        document.getElementById('filterStatus').addEventListener('change', function(){
+            const v = this.value === 'all' ? 'all' : 'active';
+            const url = new URL(window.location.href);
+            url.searchParams.set('status', v);
+            window.location.href = url.toString();
+        });
+
+        function getSelectedIds() {
+            return Array.from(document.querySelectorAll('.tech-checkbox:checked')).map(c => c.value);
+        }
+
+        function onAnySelectionChange() {
+            const any = getSelectedIds().length > 0;
+            document.getElementById('bulkActivate').disabled = !any;
+            document.getElementById('bulkDeactivate').disabled = !any;
+            document.getElementById('bulkDelete').disabled = !any;
+        }
+
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checked = this.checked;
+            document.querySelectorAll('.tech-checkbox').forEach(c => c.checked = checked);
+            onAnySelectionChange();
+        });
+
+        async function bulkCall(url, payload, confirmText) {
+            if (!getSelectedIds().length) return;
+            if (confirmText && !confirm(confirmText)) return;
+            try {
+                const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const data = await resp.json();
+                if (data.success) {
+                    alert(data.message || 'Berhasil');
+                    location.reload();
+                } else {
+                    alert('Gagal: ' + (data.message || 'Tidak diketahui'));
+                }
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        }
+
+        document.getElementById('bulkActivate').addEventListener('click', () => bulkCall('/admin/technicians/bulk/activate', { ids: getSelectedIds() }));
+        document.getElementById('bulkDeactivate').addEventListener('click', () => bulkCall('/admin/technicians/bulk/deactivate', { ids: getSelectedIds() }));
+        document.getElementById('bulkDelete').addEventListener('click', () => bulkCall('/admin/technicians/bulk/delete', { ids: getSelectedIds() }, 'Yakin ingin menghapus teknisi terpilih?'));
+
+        async function openEditModal(id) {
+            try {
+                const resp = await fetch(`/admin/technicians/${id}`);
+                const data = await resp.json();
+                if (!data.success) return alert(data.message || 'Gagal mengambil data teknisi');
+                const t = data.technician;
+                document.getElementById('editTechId').value = t.id;
+                document.getElementById('editTechName').value = t.name || '';
+                document.getElementById('editTechPhone').value = t.phone || '';
+                document.getElementById('editTechRole').value = t.role || 'technician';
+                document.getElementById('editTechWhatsAppGroup').value = t.whatsapp_group_id || '';
+                document.getElementById('editTechNotes').value = t.area_coverage || '';
+                new bootstrap.Modal(document.getElementById('editTechnicianModal')).show();
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        }
+
+        document.getElementById('editTechnicianForm').addEventListener('submit', async function(e){
+            e.preventDefault();
+            const id = document.getElementById('editTechId').value;
+            const body = {
+                name: document.getElementById('editTechName').value.trim(),
+                phone: document.getElementById('editTechPhone').value.trim(),
+                role: document.getElementById('editTechRole').value,
+                whatsapp_group_id: document.getElementById('editTechWhatsAppGroup').value.trim(),
+                notes: document.getElementById('editTechNotes').value.trim()
+            };
+            if (!body.name || !body.phone || !body.role) return alert('Nama, Telepon, dan Role wajib diisi');
+            try {
+                const resp = await fetch(`/admin/technicians/${id}/update`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    alert('Teknisi berhasil diperbarui');
+                    location.reload();
+                } else {
+                    alert('Gagal: ' + (data.message || 'Tidak diketahui'));
+                }
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        });
+
+        async function deleteTechnician(id) {
+            if (!confirm('Yakin ingin menghapus teknisi ini?')) return;
+            try {
+                const resp = await fetch(`/admin/technicians/${id}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } });
+                const data = await resp.json();
+                if (data.success) {
+                    alert('Teknisi berhasil dihapus');
+                    location.reload();
+                } else {
+                    alert('Gagal: ' + (data.message || 'Tidak diketahui'));
+                }
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        }
+
+        function toggleStatus(id, currentStatus) {
+            if (confirm('Yakin ingin mengubah status teknisi ini?')) {
+                fetch(`/admin/technicians/${id}/toggle-status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_active: !currentStatus })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert('Gagal: ' + result.message);
+                    }
+                });
+            }
+        }
+
+    </script>
+</body>
+</html>
