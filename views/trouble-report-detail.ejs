@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Laporan Gangguan - <%= companyHeader %></title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#0B1437">
+    <link rel="apple-touch-icon" href="/img/icons/icon-192.png">
+    <link rel="stylesheet" href="/css/pwa.css">
+    <link rel="stylesheet" href="/css/customer-responsive.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/customer-portal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #6b7280;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            --light-bg: #f8fafc;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            margin: 2rem auto;
+            overflow: hidden;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, var(--primary-color), #6366f1);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .header-section h2 {
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-section h4 {
+            font-weight: 400;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content-section {
+            padding: 2rem;
+            color: #0f172a;
+        }
+
+        .content-section h3,
+        .content-section h5,
+        .content-section h6,
+        .content-section p,
+        .content-section span,
+        .content-section strong,
+        .content-section small,
+        .info-card,
+        .info-card h6,
+        .description-box,
+        .description-box h6,
+        .description-box p {
+            color: #0f172a !important;
+        }
+
+        .status-badge {
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: var(--shadow);
+        }
+
+        .status-open {
+            background: linear-gradient(135deg, var(--danger-color), #dc2626);
+            color: white;
+        }
+
+        .status-in_progress {
+            background: linear-gradient(135deg, var(--warning-color), #d97706);
+            color: white;
+        }
+
+        .status-resolved {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+        }
+
+        .status-closed {
+            background: linear-gradient(135deg, var(--secondary-color), #4b5563);
+            color: white;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .info-card h6 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--secondary-color);
+            min-width: 120px;
+        }
+
+        .info-value {
+            color: #1f2937;
+            text-align: right;
+            flex: 1;
+        }
+
+        .description-box {
+            background: var(--light-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary-color);
+            margin: 1rem 0;
+        }
+
+        .description-box p {
+            margin-bottom: 0;
+            color: #1f2937 !important;
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin: 2rem 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            width: 100%;
+        }
+
+        .timeline-content {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            max-width: 86%;
+        }
+
+        .timeline-content:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .timeline-item--customer {
+            justify-content: flex-end;
+        }
+
+        .timeline-item--customer .timeline-content {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(99, 102, 241, 0.08));
+            border-color: rgba(79, 70, 229, 0.18);
+        }
+
+        .timeline-item--support {
+            justify-content: flex-start;
+        }
+
+        .timeline-content,
+        .timeline-content p,
+        .timeline-content span,
+        .timeline-content div,
+        .timeline-content small {
+            color: #0f172a;
+        }
+
+        .timeline-time {
+            color: #64748b !important;
+            font-size: 0.82rem;
+            margin-bottom: 0.65rem;
+        }
+
+        .timeline-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 0.65rem;
+            flex-wrap: wrap;
+        }
+
+        .timeline-author {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .timeline-author__badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            color: #fff;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .timeline-author__badge--customer {
+            background: linear-gradient(135deg, #7c3aed, #ec4899);
+        }
+
+        .timeline-author__badge--support {
+            background: linear-gradient(135deg, #0ea5e9, #1d4ed8);
+        }
+
+        .timeline-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .timeline-status-pill--open { background: rgba(239, 68, 68, 0.12); color: #dc2626; }
+        .timeline-status-pill--in_progress { background: rgba(245, 158, 11, 0.15); color: #b45309; }
+        .timeline-status-pill--resolved { background: rgba(16, 185, 129, 0.14); color: #047857; }
+        .timeline-status-pill--closed { background: rgba(100, 116, 139, 0.14); color: #475569; }
+
+        .timeline-time {
+            font-size: 0.875rem;
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .comment-form {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .form-control {
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .btn {
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #6366f1);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-outline-secondary {
+            border: 2px solid var(--secondary-color);
+            color: var(--secondary-color);
+            background: transparent;
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0;
+            gap: 1rem;
+        }
+
+        .info-button {
+            background: none;
+            border: none;
+            color: var(--info-color);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-button:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info-color);
+            transform: translateY(-1px);
+        }
+
+        .info-button i {
+            font-size: 1rem;
+        }
+
+        .footer-section {
+            background: var(--light-bg);
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--secondary-color);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 1rem 1.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 1rem;
+                border-radius: 16px;
+            }
+            
+            .header-section {
+                padding: 1.5rem;
+            }
+            
+            .header-section h2 {
+                font-size: 2rem;
+            }
+            
+            .content-section {
+                padding: 1.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .info-value {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body data-trouble-report-id="<%= report.id %>" data-trouble-updated-at="<%= report.updatedAt || report.createdAt %>">
+    <div class="container">
+        <%- include('partials/customer-mobile-profile-header') %>
+        <div class="main-container">
+            <!-- Header Section -->
+            <div class="header-section">
+                <h2><i class="fas fa-exclamation-triangle me-3"></i><%= companyHeader %></h2>
+                <h4>Detail Laporan Gangguan</h4>
+            </div>
+            
+            <!-- Content Section -->
+            <div class="content-section">
+                <!-- Status Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="mb-2">Tiket #<%= report.id %></h3>
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="status-badge status-<%= report.status %>">
+                                <i class="fas fa-<%= report.status === 'open' ? 'exclamation-circle' : 
+                                                   report.status === 'in_progress' ? 'clock' : 
+                                                   report.status === 'resolved' ? 'check-circle' : 'times-circle' %>"></i>
+                                <%= report.status === 'open' ? 'Dibuka' : 
+                                   report.status === 'in_progress' ? 'Sedang Ditangani' : 
+                                   report.status === 'resolved' ? 'Terselesaikan' : 'Ditutup' %>
+                            </span>
+                            
+                            <!-- Info Buttons -->
+                            <button class="info-button" title="Status: <%= report.status %>">
+                                <i class="fas fa-info-circle"></i>
+                                Status
+                            </button>
+                            <button class="info-button" title="Prioritas: <%= report.priority || 'Normal' %>">
+                                <i class="fas fa-flag"></i>
+                                Prioritas
+                            </button>
+                            <button class="info-button" title="Estimasi: <%= report.estimated_time || 'Tidak ditentukan' %>">
+                                <i class="fas fa-clock"></i>
+                                Estimasi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Customer Information -->
+                <div class="info-card">
+                    <h6><i class="fas fa-user me-2"></i>Informasi Pelanggan</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <span class="info-label">Nama:</span>
+                                <span class="info-value"><%= report.name %></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Nomor HP:</span>
+                                <span class="info-value"><%= report.phone %></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <span class="info-label">Lokasi:</span>
+                                <span class="info-value"><%= report.location %></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Kategori:</span>
+                                <span class="info-value"><%= report.category %></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Report Details -->
+                <div class="info-card">
+                    <h6><i class="fas fa-file-alt me-2"></i>Detail Laporan</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <span class="info-label">Tanggal Laporan:</span>
+                                <span class="info-value"><%= new Date(report.createdAt).toLocaleString('id-ID') %></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <span class="info-label">Terakhir Diupdate:</span>
+                                <span class="info-value"><%= new Date(report.updatedAt).toLocaleString('id-ID') %></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="description-box">
+                        <h6 class="mb-3"><i class="fas fa-comment me-2"></i>Deskripsi Masalah:</h6>
+                        <p class="mb-0"><%= report.description %></p>
+                    </div>
+                    <% if (report.device_photo) { %>
+                        <div class="description-box">
+                            <h6 class="mb-3"><i class="fas fa-camera me-2"></i>Foto Modem / ONT</h6>
+                            <a href="/img/trouble-attachments/<%= report.device_photo %>" target="_blank" class="d-inline-block">
+                                <img src="/img/trouble-attachments/<%= report.device_photo %>" alt="Foto perangkat" class="img-fluid rounded-4 border" style="max-height: 260px; object-fit: cover;">
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+                
+                <!-- Timeline Activity -->
+                <div class="info-card">
+                    <h6><i class="fas fa-history me-2"></i>Riwayat Aktivitas</h6>
+                    <%
+                        const timelineItems = [{
+                            timestamp: report.createdAt,
+                            authorType: 'customer',
+                            authorLabel: report.name || 'Pelanggan',
+                            status: 'open',
+                            content: report.description,
+                            isCreated: true
+                        }];
+
+                        (report.notes || []).forEach((note) => {
+                            const rawContent = String(note.content || '').trim();
+                            let authorType = 'support';
+                            let authorLabel = 'Admin';
+                            let content = rawContent;
+
+                            const adminMatch = rawContent.match(/^\[Admin:([^\]]+)\]\s*/i);
+                            if (adminMatch) {
+                                authorLabel = adminMatch[1].trim() || 'Admin';
+                                content = rawContent.replace(/^\[Admin:[^\]]+\]\s*/i, '');
+                            } else if (/^\[Teknisi\]:/i.test(rawContent)) {
+                                authorLabel = 'Teknisi';
+                                content = rawContent.replace(/^\[Teknisi\]:\s*/i, '');
+                            } else if (/^\[Pelanggan\]:/i.test(rawContent)) {
+                                authorType = 'customer';
+                                authorLabel = report.name || 'Pelanggan';
+                                content = rawContent.replace(/^\[Pelanggan\]:\s*/i, '');
+                            }
+
+                            timelineItems.push({
+                                timestamp: note.timestamp,
+                                authorType,
+                                authorLabel,
+                                status: note.status || report.status,
+                                content,
+                                notificationSent: note.notificationSent
+                            });
+                        });
+
+                        timelineItems.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                    %>
+                    <div class="timeline">
+                        <% timelineItems.forEach((item) => { %>
+                            <div class="timeline-item timeline-item--<%= item.authorType === 'customer' ? 'customer' : 'support' %>">
+                                <div class="timeline-content">
+                                    <div class="timeline-meta">
+                                        <div class="timeline-author">
+                                            <span class="timeline-author__badge timeline-author__badge--<%= item.authorType === 'customer' ? 'customer' : 'support' %>">
+                                                <%= String(item.authorLabel || '?').trim().charAt(0).toUpperCase() %>
+                                            </span>
+                                            <span><%= item.authorLabel %></span>
+                                        </div>
+                                        <span class="timeline-status-pill timeline-status-pill--<%= item.status %>">
+                                            <i class="fas fa-<%= item.status === 'open' ? 'exclamation-circle' : item.status === 'in_progress' ? 'clock' : item.status === 'resolved' ? 'check-circle' : 'times-circle' %>"></i>
+                                            <%= item.status === 'open' ? 'Dibuka' : item.status === 'in_progress' ? 'Diproses' : item.status === 'resolved' ? 'Terselesaikan' : 'Ditutup' %>
+                                        </span>
+                                    </div>
+                                    <div class="timeline-time">
+                                        <i class="fas fa-clock me-2"></i>
+                                        <%= new Date(item.timestamp).toLocaleString('id-ID') %>
+                                    </div>
+                                    <p class="mb-0"><%= item.isCreated ? 'Laporan dibuat: ' : '' %><%= item.content %></p>
+                                    <% if (item.notificationSent) { %>
+                                        <div class="mt-2 text-success small">
+                                            <i class="fas fa-check-circle me-1"></i>Notifikasi terkirim
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+                
+                <!-- Form Komentar (hanya jika tiket belum ditutup) -->
+                <% if (report.status !== 'closed') { %>
+                    <div class="comment-form">
+                        <h6><i class="fas fa-reply me-2"></i>Balas Percakapan</h6>
+                        <form id="commentForm">
+                            <div class="mb-3">
+                                <textarea class="form-control" id="comment" name="comment" rows="4" 
+                                    placeholder="Tulis balasan Anda di sini..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Kirim Balasan
+                            </button>
+                        </form>
+                    </div>
+                <% } %>
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <a href="/customer/trouble/list" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Kembali ke Daftar Laporan
+                    </a>
+                    
+                    <% if (report.status === 'resolved') { %>
+                        <button id="closeReportBtn" type="button" class="btn btn-success">
+                            <i class="fas fa-check-circle me-2"></i>Tutup Laporan
+                        </button>
+                    <% } %>
+                </div>
+            </div>
+            
+            <!-- Footer Section -->
+            <div class="footer-section">
+                <p class="mb-0"><%= footerInfo %></p>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav d-md-none">
+        <a class="nav-item" href="/customer/billing/dashboard">
+            <i class="bi bi-columns-gap"></i>
+            <span>Billing</span>
+        </a>
+        <a class="nav-item active has-badge" href="/customer/trouble/list">
+            <i class="bi bi-life-preserver"></i>
+            <span>Laporan</span>
+            <span class="customer-trouble-badge customer-trouble-update-badge" style="display:none;">0</span>
+        </a>
+        <a class="nav-item home-button" href="/customer/dashboard">
+            <i class="bi bi-house-heart-fill"></i>
+            <span>Home</span>
+        </a>
+        <a class="nav-item" href="/customer/billing/invoices">
+            <i class="bi bi-receipt"></i>
+            <span>Invoice</span>
+        </a>
+        <a class="nav-item" href="/customer/billing/profile">
+            <i class="bi bi-person-vcard"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/customer-mobile.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form komentar
+            const commentForm = document.getElementById('commentForm');
+            if (commentForm) {
+                commentForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const comment = document.getElementById('comment').value.trim();
+                    if (!comment) {
+                        return;
+                    }
+                    
+                    fetch('/customer/trouble/comment/<%= report.id %>', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ comment })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            commentForm.reset();
+                            alert(data.message);
+                            window.location.reload();
+                        } else {
+                            alert(data.message || 'Gagal mengirim balasan');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Terjadi kesalahan saat mengirim balasan. Silakan coba lagi.');
+                    });
+                });
+            }
+            
+            // Tombol tutup laporan
+            const closeReportBtn = document.getElementById('closeReportBtn');
+            if (closeReportBtn && !closeReportBtn.disabled) {
+                closeReportBtn.addEventListener('click', function() {
+                    fetch('/customer/trouble/close/<%= report.id %>', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                            window.location.reload();
+                        } else {
+                            alert(data.message || 'Gagal menutup laporan');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Terjadi kesalahan saat menutup laporan. Silakan coba lagi.');
+                    });
+                });
+            }
+        });
+    </script>
+    <style>
+        .bottom-nav .nav-item.has-badge { position: relative; }
+        .bottom-nav .customer-trouble-badge {
+            position: absolute;
+            top: 4px;
+            right: 14px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            border-radius: 999px;
+            background: #ef4444;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.35);
+        }
+    </style>
+    <%- include('partials/customer-trouble-notification-script') %>
+</body>
+</html>

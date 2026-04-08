@@ -1,0 +1,783 @@
+<!-- Halaman Tab Mikrotik: List User PPPoE -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin PPPoE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/dataTables.responsive.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    <link href="/css/responsive-admin.css" rel="stylesheet">
+    <script>
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+    </script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            --success-gradient: linear-gradient(135deg, #198754 0%, #146c43 100%);
+            --info-gradient: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);
+            --warning-gradient: linear-gradient(135deg, #ffc107 0%, #cc9a06 100%);
+            --danger-gradient: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+            --card-shadow: 0 16px 38px rgba(15, 23, 42, 0.08);
+            --card-hover-shadow: 0 24px 46px rgba(15, 23, 42, 0.14);
+        }
+        body { background: #f5f6fa; }
+        [data-theme="dark"] body { background: #0f172a; }
+        .form-label { font-weight: 600; }
+        .dashboard-hero {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            border-radius: 24px;
+            padding: 16px 20px;
+            background:
+                linear-gradient(145deg, rgba(255,255,255,0.88), rgba(244,247,255,0.82)),
+                radial-gradient(circle at top left, rgba(96, 165, 250, 0.22), transparent 38%);
+            backdrop-filter: blur(18px);
+            box-shadow: 0 18px 44px rgba(37, 99, 235, 0.08);
+            margin-bottom: 1.5rem;
+        }
+        .dashboard-hero::before {
+            content: "";
+            position: absolute;
+            inset: auto -60px -110px auto;
+            width: 220px;
+            height: 220px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(96, 165, 250, 0.16), transparent 70%);
+            pointer-events: none;
+        }
+        .dashboard-hero h4 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #1e293b;
+            margin-bottom: 0.4rem;
+        }
+        .dashboard-hero p {
+            color: #64748b;
+            margin-bottom: 0;
+        }
+        [data-theme="dark"] .dashboard-hero {
+            background:
+                linear-gradient(145deg, rgba(15,23,42,0.88), rgba(17,24,39,0.9)),
+                radial-gradient(circle at top left, rgba(56, 189, 248, 0.14), transparent 42%);
+            border-color: rgba(148, 163, 184, 0.22);
+            box-shadow: 0 20px 42px rgba(2, 8, 23, 0.32);
+        }
+        [data-theme="dark"] .dashboard-hero h4 { color: #f8fafc !important; }
+        [data-theme="dark"] .dashboard-hero p { color: #cbd5e1 !important; }
+        .theme-toggle-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            background: rgba(255, 255, 255, 0.92);
+            color: #1e293b;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+        }
+        [data-theme="dark"] .theme-toggle-btn {
+            background: rgba(15, 23, 42, 0.88);
+            color: #e6eefc;
+            border-color: rgba(148, 163, 184, 0.24);
+        }
+        body .main-content .nav.nav-tabs {
+            border-bottom: 1px solid rgba(148, 163, 184, 0.24) !important;
+            gap: 1.2rem !important;
+        }
+        body .main-content .nav.nav-tabs .nav-item { margin-bottom: 0 !important; }
+        body .main-content .nav.nav-tabs .nav-link {
+            border: 0 !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            color: #64748b !important;
+            font-weight: 700 !important;
+            padding: 0.7rem 0.1rem 0.85rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.45rem !important;
+            border-bottom: 3px solid transparent !important;
+        }
+        body .main-content .nav.nav-tabs .nav-link:hover { color: #2563eb !important; }
+        body .main-content .nav.nav-tabs .nav-link.active,
+        body .main-content .nav.nav-tabs .show > .nav-link {
+            background: transparent !important;
+            color: #2563eb !important;
+            border-bottom-color: #2563eb !important;
+            box-shadow: none !important;
+        }
+        [data-theme="dark"] body .main-content .nav.nav-tabs { border-bottom-color: rgba(71, 85, 105, 0.8) !important; }
+        [data-theme="dark"] body .main-content .nav.nav-tabs .nav-link { color: #cbd5e1 !important; }
+        [data-theme="dark"] body .main-content .nav.nav-tabs .nav-link.active,
+        [data-theme="dark"] body .main-content .nav.nav-tabs .show > .nav-link {
+            color: #60a5fa !important;
+            border-bottom-color: #60a5fa !important;
+        }
+        [data-theme="dark"] .modal-content {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            border: 1px solid #334155 !important;
+        }
+        [data-theme="dark"] .modal-header,
+        [data-theme="dark"] .modal-footer {
+            border-color: #334155 !important;
+            background-color: #111827 !important;
+        }
+        [data-theme="dark"] .modal-title,
+        [data-theme="dark"] .modal-body,
+        [data-theme="dark"] .modal-body p,
+        [data-theme="dark"] .modal-body label,
+        [data-theme="dark"] .modal-body small,
+        [data-theme="dark"] .modal-body strong {
+            color: #f8fafc !important;
+        }
+        [data-theme="dark"] .modal .btn-close {
+            filter: invert(1) brightness(1.3);
+        }
+        [data-theme="dark"] .modal .form-control,
+        [data-theme="dark"] .modal .form-select {
+            background-color: #1e293b !important;
+            color: #f8fafc !important;
+            border-color: #334155 !important;
+        }
+
+        /* Layout Adjustments */
+        .main-content {
+            transition: margin-left 0.3s ease;
+            padding-top: 20px !important;
+            padding: 32px 24px;
+        }
+        
+        @media (min-width: 992px) {
+            .sidebar.collapsed + .main-content {
+                margin-left: 80px;
+                width: calc(100% - 80px);
+            }
+        }
+
+        .card {
+            border: none;
+            border-radius: 24px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-hover-shadow);
+        }
+        
+        /* Modern Gradient Cards */
+        .card.bg-primary {
+            background: var(--primary-gradient) !important;
+            border: none;
+            box-shadow: var(--card-shadow) !important;
+        }
+        .card.bg-success {
+            background: var(--success-gradient) !important;
+            border: none;
+            box-shadow: var(--card-shadow) !important;
+        }
+        .card.bg-info {
+            background: var(--info-gradient) !important;
+            border: none;
+            color: #fff !important;
+            box-shadow: var(--card-shadow) !important;
+        }
+        .card.bg-warning {
+            background: var(--warning-gradient) !important;
+            border: none;
+            color: #fff !important;
+            box-shadow: var(--card-shadow) !important;
+        }
+        .card.bg-danger {
+            background: var(--danger-gradient) !important;
+            border: none;
+            box-shadow: var(--card-shadow) !important;
+        }
+        
+        .stats-card {
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            border: 1px solid rgba(255,255,255,0.28) !important;
+            border-radius: 22px;
+            box-shadow: 0 22px 42px rgba(15, 23, 42, 0.12) !important;
+        }
+        .stats-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at top right, rgba(255,255,255,0.24), transparent 42%),
+                linear-gradient(180deg, rgba(255,255,255,0.08), transparent 55%);
+            pointer-events: none;
+        }
+        .stats-card::after {
+            content: "";
+            position: absolute;
+            inset: auto -52px -52px auto;
+            width: 170px;
+            height: 170px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.09);
+            pointer-events: none;
+        }
+        .stats-card .card-body {
+            position: relative;
+            z-index: 1;
+            min-height: 110px;
+            padding: 1.05rem 1.2rem !important;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 1rem;
+        }
+        .stats-card-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.96);
+            margin-bottom: 0.25rem;
+            line-height: 1.2;
+        }
+        .stats-card-value {
+            font-size: 1.95rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.08;
+            letter-spacing: -0.03em;
+            text-shadow: 0 10px 24px rgba(0,0,0,0.18);
+            margin: 0;
+        }
+        .stats-card-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.16) !important;
+            color: #fff !important;
+            border: 1px solid rgba(255,255,255,0.28);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
+            backdrop-filter: blur(6px);
+        }
+        .stats-card-icon i {
+            font-size: 1.35rem;
+            color: #fff !important;
+        }
+        .card.bg-primary {
+            background: linear-gradient(135deg, #1f6feb 0%, #1d4ed8 100%) !important;
+        }
+        .card.bg-success {
+            background: linear-gradient(135deg, #1fbf8f 0%, #0f9f8a 100%) !important;
+        }
+        .card.bg-danger {
+            background: linear-gradient(135deg, #ef476f 0%, #c1121f 100%) !important;
+        }
+        .card.bg-info {
+            background: linear-gradient(135deg, #20b7f5 0%, #0b84d8 100%) !important;
+        }
+        .card.bg-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+        }
+        .bg-light-primary,
+        .bg-light-success,
+        .bg-light-danger,
+        .bg-light-info,
+        .bg-light-warning {
+            background: rgba(255,255,255,0.16) !important;
+            border: 1px solid rgba(255,255,255,0.28);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
+        }
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        /* Mobile responsive fixes */
+        @media (max-width: 767.98px) {
+            .main-content {
+                margin-top: 70px !important; /* Extra space for mobile navbar */
+                padding-top: 10px !important;
+                z-index: 1;
+            }
+            .card {
+                z-index: 1;
+            }
+            /* Pastikan cards tidak overlap dengan mobile navbar */
+            .row.mb-4:first-of-type {
+                margin-top: 10px;
+            }
+            /* Responsive notification positioning */
+            #restartNotif {
+                top: 80px !important; /* Below mobile navbar */
+                right: 10px !important;
+                left: 10px !important;
+                width: auto !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+        <!-- Include Responsive Admin Sidebar -->
+        <%- include('partials/admin-responsive-sidebar', { page: 'mikrotik', settings: settings }) %>
+        
+        <main class="main-content">
+            <div class="container-fluid">
+
+            <div class="dashboard-hero d-flex justify-content-between align-items-start gap-3">
+                <div>
+                    <h4 class="mb-2">User PPPoE</h4>
+                    <p>Kelola dan pantau user PPPoE Mikrotik.</p>
+                </div>
+                <button class="theme-toggle-btn" id="themeToggle" type="button" title="Ganti tema">
+                    <i class="bi bi-sun-fill text-warning" id="themeIcon"></i>
+                </button>
+            </div>
+
+            <!-- Tab Navigation -->
+            <ul class="nav nav-tabs mb-4">
+                <li class="nav-item">
+                    <a class="nav-link <%= page === 'mikrotik' ? 'active' : '' %>" href="/admin/mikrotik">
+                        <i class="bi bi-person"></i> User PPPoE
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <%= page === 'mikrotik-profiles' ? 'active' : '' %>" href="/admin/mikrotik/profiles">
+                        <i class="bi bi-person-vcard"></i> Profile PPPoE
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <%= page === 'hotspot-profiles' ? 'active' : '' %>" href="/admin/mikrotik/hotspot-profiles">
+                        <i class="bi bi-broadcast-pin"></i> Profile Hotspot
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <%= page === 'hotspot' ? 'active' : '' %>" href="/admin/hotspot">
+                        <i class="bi bi-person-bounding-box"></i> User Hotspot
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <%= page === 'voucher' ? 'active' : '' %>" href="/admin/hotspot/voucher">
+                        <i class="bi bi-ticket-detailed"></i> Voucher Hotspot
+                    </a>
+                </li>
+            </ul>
+
+            <h4 class="mb-3">Daftar User PPPoE</h4>
+            
+            <!-- Statistik User PPPoE -->
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-primary text-white stats-card stat-card-modern">
+                        <div class="card-body">
+                            <div class="stats-card-icon bg-light-primary">
+                                <i class="bi bi-person-badge-fill"></i>
+                            </div>
+                            <div>
+                                <div class="stats-card-label">Total User PPPoE</div>
+                                <div class="stats-card-value" id="totalUsers">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-success text-white stats-card stat-card-modern">
+                        <div class="card-body">
+                            <div class="stats-card-icon bg-light-success">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                            <div>
+                                <div class="stats-card-label">User Aktif</div>
+                                <div class="stats-card-value" id="activeUsers">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-danger text-white stats-card stat-card-modern">
+                        <div class="card-body">
+                            <div class="stats-card-icon bg-light-danger">
+                                <i class="bi bi-wifi-off"></i>
+                            </div>
+                            <div>
+                                <div class="stats-card-label">User Offline</div>
+                                <div class="stats-card-value" id="offlineUsers">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-info text-white stats-card stat-card-modern">
+                        <div class="card-body">
+                            <div class="stats-card-icon bg-light-info">
+                                <i class="bi bi-person-badge-fill"></i>
+                            </div>
+                            <div>
+                                <div class="stats-card-label">Total Profile</div>
+                                <div class="stats-card-value" id="profileCount">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <button class="btn btn-primary" id="btnTambahUser">Tambah User PPPoE</button>
+                    <button class="btn btn-outline-secondary ms-2" id="btnRefreshStats">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh Stats
+                    </button>
+                </div>
+            </div>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover" id="pppoeTable" style="width:100%">
+      <thead class="table-light">
+        <tr>
+          <th>No</th>
+          <th>Username</th>
+          <th>Password</th>
+          <th>Profile</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.forEach(function(user, i) { %>
+        <tr>
+          <td><%= i+1 %></td>
+          <td><%= user.name %></td>
+          <td><%= user.password %></td>
+          <td><%= user.profile %></td>
+          <td><%= user.active ? 'Aktif' : 'Offline' %></td>
+          <td>
+            <button class="btn btn-sm btn-warning edit-user-btn" data-id="<%= user.id %>" data-username="<%= user.name %>" data-password="<%= user.password %>" data-profile="<%= user.profile %>"><i class="bi bi-pencil"></i> Edit</button>
+<button class="btn btn-sm btn-danger delete-user-btn" data-id="<%= user.id %>" data-username="<%= user.name %>"><i class="bi bi-trash"></i> Hapus</button>
+            <% if (user.active) { %>
+            <button class="btn btn-sm btn-info disconnect-session-btn" data-username="<%= user.name %>"><i class="bi bi-x-circle"></i> Putuskan Sesi</button>
+            <% } %>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<!-- Modal Tambah/Edit User PPPoE -->
+<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="userForm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="userModalLabel">Tambah/Edit User PPPoE</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="userId" name="id">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="text" class="form-control" id="password" name="password" required>
+          </div>
+          <div class="mb-3">
+  <label for="profile" class="form-label">Profile</label>
+  <select class="form-select" id="profile" name="profile" required>
+    <option value="">Pilih Profile</option>
+  </select>
+</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Konfirmasi Restart Mikrotik -->
+<div class="modal fade" id="restartMikrotikModal" tabindex="-1" aria-labelledby="restartMikrotikModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="restartMikrotikModalLabel"><i class="bi bi-arrow-repeat"></i> Konfirmasi Restart Mikrotik</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Apakah Anda yakin ingin <b>restart Mikrotik</b>?<br>Router akan reboot dan koneksi internet pelanggan akan terputus sementara.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button type="button" class="btn btn-danger" id="confirmRestartMikrotik">Restart</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Notifikasi -->
+<div id="restartNotif" class="alert d-none position-fixed top-0 end-0 m-4" style="z-index:1055; min-width:300px;"></div>
+<!-- Wajib: jQuery & Bootstrap JS agar fitur tombol aktif -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+<script src="/js/adminMikrotikTable.js"></script>
+<script>
+$(function() {
+  // Load profiles ke select
+  function loadProfiles(selectedProfile) {
+    $.get('/admin/mikrotik/profiles/api', function(res) {
+      if(res.success) {
+        var $profile = $('#profile');
+        $profile.empty();
+        $profile.append('<option value="">Pilih Profile</option>');
+        res.profiles.forEach(function(p) {
+          var val = p.name || p['.name'] || p['.id'] || '';
+          var label = p.name || p['.name'] || p['.id'] || '-';
+          $profile.append('<option value="'+val+'">'+label+'</option>');
+        });
+        if(selectedProfile) $profile.val(selectedProfile);
+        
+        // Update profile count in statistics card
+        $('#profileCount').text(res.profiles.length);
+      } else {
+        alert('Gagal ambil daftar profile PPPoE: ' + (res.message || 'Unknown error'));
+      }
+    });
+  }
+  // Tambah User
+  $('#btnTambahUser').on('click', function() {
+    $('#userId').val('');
+    $('#username').val('');
+    $('#password').val('');
+    loadProfiles();
+    $('#userModalLabel').text('Tambah User PPPoE');
+    $('#userModal').modal('show');
+  });
+  // Edit User PPPoE
+  $(document).on('click', '.edit-user-btn', function() {
+    $('#userId').val($(this).data('id'));
+    $('#username').val($(this).data('username'));
+    $('#password').val($(this).data('password'));
+    loadProfiles($(this).data('profile'));
+    $('#userModalLabel').text('Edit User PPPoE');
+    $('#userModal').modal('show');
+  });
+  // Submit Tambah/Edit
+  $('#userForm').submit(function(e) {
+    e.preventDefault();
+    const id = $('#userId').val();
+    const username = $('#username').val();
+    const password = $('#password').val();
+    const profile = $('#profile').val();
+    const url = id ? '/admin/mikrotik/edit-user' : '/admin/mikrotik/add-user';
+    $.post(url, { id, username, password, profile }, function(res) {
+      if(res.success) {
+        alert('User berhasil disimpan!');
+        location.reload();
+      } else {
+        alert('Gagal menyimpan user: ' + (res.message || 'Unknown error'));
+      }
+    });
+  });
+  // Hapus User PPPoE
+  $(document).on('click', '.delete-user-btn', function() {
+    const username = $(this).data('username');
+    if(confirm('Yakin ingin menghapus user PPPoE "' + username + '"?')) {
+      const id = $(this).data('id');
+      $.post('/admin/mikrotik/delete-user', { id }, function(res) {
+        if(res.success) {
+          alert('User berhasil dihapus!');
+          location.reload();
+        } else {
+          alert('Gagal menghapus user: ' + (res.message || 'Unknown error'));
+        }
+      });
+    }
+  });
+  
+  // Load profiles on page load to update statistics
+  loadProfiles();
+  
+  // Update user statistics with real data
+  function updateUserStats() {
+    $.get('/admin/mikrotik/user-stats', function(res) {
+      if(res.success) {
+        // Update the statistics cards with real data
+        $('#totalUsers').text(res.totalUsers || 0);
+        $('#activeUsers').text(res.activeUsers || 0);
+        $('#offlineUsers').text(res.offlineUsers || 0);
+      } else {
+        console.error('Failed to get user stats:', res.message);
+      }
+    }).fail(function(error) {
+      console.error('Error fetching user stats:', error);
+    });
+  }
+  
+  // Update user statistics on page load
+  updateUserStats();
+  
+  // Refresh statistics every 30 seconds
+  setInterval(function() {
+    loadProfiles();
+    updateUserStats();
+  }, 30000);
+  
+  // Refresh stats button
+  $('#btnRefreshStats').on('click', function() {
+    loadProfiles();
+    updateUserStats();
+    $(this).prop('disabled', true).html('<i class="bi bi-arrow-clockwise spin"></i> Loading...');
+    setTimeout(() => {
+      $(this).prop('disabled', false).html('<i class="bi bi-arrow-clockwise"></i> Refresh Stats');
+    }, 2000);
+  });
+});
+</script>
+<script>
+// Hamburger & sidebar logic
+const hamburger = document.getElementById('hamburgerBtn');
+const sidebar = document.getElementById('adminSidebar');
+const overlay = document.getElementById('sidebarOverlay');
+if (hamburger && sidebar && overlay) {
+  hamburger.addEventListener('click', function() {
+    sidebar.classList.toggle('show');
+    overlay.classList.toggle('show');
+  });
+  overlay.addEventListener('click', function() {
+    sidebar.classList.remove('show');
+    overlay.classList.remove('show');
+  });
+}
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Handler tombol putuskan sesi
+  document.querySelectorAll('.disconnect-session-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const username = this.getAttribute('data-username');
+      if (confirm('Yakin ingin memutuskan sesi aktif user ' + username + '?')) {
+        fetch('/admin/mikrotik/disconnect-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username })
+        })
+        .then(async res => {
+          const contentType = res.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            return res.json();
+          } else {
+            const text = await res.text();
+            throw new Error('Session expired atau server error. Silakan login ulang.');
+          }
+        })
+        .then(data => {
+          if (data.success) {
+            alert('Sesi user ' + username + ' berhasil diputuskan!');
+            location.reload();
+          } else {
+            alert('Gagal memutuskan sesi: ' + data.message);
+          }
+        })
+        .catch(err => {
+          alert('Terjadi error: ' + err.message);
+        });
+      }
+    });
+  });
+});
+</script>
+<script>
+$(function() {
+  $(document).on('click', '#restartMikrotikBtn', function(e) {
+    e.preventDefault();
+    $('#restartMikrotikModal').modal('show');
+  });
+  $('#confirmRestartMikrotik').on('click', function() {
+    $('#restartMikrotikModal').modal('hide');
+    $.ajax({
+      url: '/admin/mikrotik/restart',
+      method: 'POST',
+      success: function(res) {
+        let notif = $('#restartNotif');
+        if(res.success) {
+          notif.removeClass('d-none alert-danger').addClass('alert-success').text(res.message || 'Mikrotik berhasil direstart!');
+        } else {
+          notif.removeClass('d-none alert-success').addClass('alert-danger').text(res.message || 'Gagal restart Mikrotik!');
+        }
+        setTimeout(function() { notif.addClass('d-none'); }, 4000);
+      },
+      error: function() {
+        let notif = $('#restartNotif');
+        notif.removeClass('d-none alert-success').addClass('alert-danger').text('Gagal menghubungi server!');
+        setTimeout(function() { notif.addClass('d-none'); }, 4000);
+      }
+    });
+  });
+});
+</script>
+<script>
+    (function () {
+        function updateThemeButton() {
+            const icon = document.getElementById('themeIcon');
+            if (!icon) return;
+            const theme = (document.documentElement.getAttribute('data-theme') || 'light').toLowerCase();
+            icon.className = theme === 'dark' ? 'bi bi-moon-stars-fill text-white' : 'bi bi-sun-fill text-warning';
+        }
+
+        function toggleTheme() {
+            const root = document.documentElement;
+            const currentTheme = (root.getAttribute('data-theme') || 'light').toLowerCase();
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButton();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            updateThemeButton();
+            const btn = document.getElementById('themeToggle');
+            if (btn) btn.addEventListener('click', toggleTheme);
+        });
+    })();
+</script>
+
+<!-- Mobile Bottom Navigation -->
+<% if (typeof isTechnicianView !== 'undefined' && isTechnicianView) { %>
+    <%- include('partials/mobile-navbar', { currentPage: 'dashboard' }) %>
+<% } else { %>
+    <%- include('partials/main-admin-mobile-navbar', { page: 'mikrotik' }) %>
+<% } %>
+
+<!-- Add bottom padding for mobile -->
+<style>
+    @media (max-width: 768px) {
+        body {
+            padding-bottom: 80px !important;
+        }
+        
+        .main-content {
+            padding-bottom: 80px !important;
+        }
+    }
+</style>
+<%- include('partials/footer') %>

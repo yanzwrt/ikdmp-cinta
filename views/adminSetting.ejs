@@ -1,0 +1,1010 @@
+<!-- Halaman Tab Setting Admin -->
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Setting</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/responsive-admin.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --info-color: #4895ef;
+            --warning-color: #f72585;
+            --light-bg: #f8f9fa;
+            --card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            --sidebar-width: 260px;
+        }
+
+        body {
+            background: #f5f6fa;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        .main-content {
+            padding: 15px 20px;
+        }
+
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            background: white;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            background: white;
+            border-bottom: 1px solid #edf2f7;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .settings-container {
+            display: flex;
+            min-height: auto;
+            /* Biarkan tinggi mengikuti konten */
+            align-items: flex-start;
+            /* Pastikan content mulai dari atas */
+        }
+
+        .settings-sidebar {
+            width: var(--sidebar-width);
+            background: #fff;
+            border-right: 1px solid #edf2f7;
+            padding: 0.5rem 0;
+            flex-shrink: 0;
+        }
+
+        .settings-nav .nav-link {
+            color: #718096;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            border-radius: 0;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+            margin-bottom: 0.25rem;
+            text-align: left;
+        }
+
+        .settings-nav .nav-link i {
+            margin-right: 12px;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .settings-nav .nav-link:hover {
+            color: var(--primary-color);
+            background: #f8faff;
+        }
+
+        .settings-nav .nav-link.active {
+            color: var(--primary-color);
+            background: #f0f4ff;
+            border-left-color: var(--primary-color);
+        }
+
+        .settings-content {
+            flex-grow: 1;
+            padding: 1.25rem 1.5rem;
+            background: #fff;
+            /* overflow-y: auto; removed */
+            height: auto;
+            /* Pastikan tinggi otomatis */
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.35rem;
+            font-size: 0.9rem;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 8px;
+            padding: 0.5rem 0.8rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-section-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #f0f4ff;
+            padding-bottom: 8px;
+        }
+
+        .qr-wrapper {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px dashed #cbd5e0;
+            text-align: center;
+        }
+
+        .command-group {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #edf2f7;
+        }
+
+        .command-group-title {
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            color: #718096;
+        }
+
+        .settings-footer {
+            background: white;
+            border-top: 1px solid #edf2f7;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        @media (max-width: 991.98px) {
+            .settings-container {
+                flex-direction: column;
+            }
+
+            .settings-sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #edf2f7;
+                padding: 1rem;
+            }
+
+            .settings-nav {
+                display: flex;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+
+            .settings-nav .nav-link {
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                white-space: nowrap;
+            }
+
+            .settings-nav .nav-link.active {
+                border-bottom-color: var(--primary-color);
+                background: #fff;
+            }
+
+            .settings-sidebar {
+                position: sticky;
+                top: 60px;
+                /* Below mobile navbar */
+                z-index: 100;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .main-content {
+                margin-top: 60px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Include Responsive Admin Sidebar -->
+            <%- include('partials/admin-responsive-sidebar', { page: 'setting' , settings: settings }) %>
+
+                <main class="col-md-10 main-content ms-sm-auto">
+                    <div class="card overflow-hidden border-0 shadow-sm">
+                        <div class="settings-container">
+                            <!-- Sidebar Navigation -->
+                            <div class="settings-sidebar">
+                                <nav class="nav flex-column settings-nav" id="settingsTabs">
+                                    <a class="nav-link <%= activeSection === 'umum' ? 'active' : '' %>"
+                                        href="/admin/settings?section=umum">
+                                        <i class="bi bi-info-circle"></i> Umum
+                                    </a>
+                                    <a class="nav-link <%= activeSection === 'mikrotik' ? 'active' : '' %>"
+                                        href="/admin/settings?section=mikrotik">
+                                        <i class="bi bi-router"></i> Mikrotik
+                                    </a>
+                                    <a class="nav-link <%= activeSection === 'genieacs' ? 'active' : '' %>"
+                                        href="/admin/settings?section=genieacs">
+                                        <i class="bi bi-hdd-network"></i> GenieACS
+                                    </a>
+                                    <a class="nav-link <%= activeSection === 'whatsapp' ? 'active' : '' %>"
+                                        href="/admin/settings?section=whatsapp">
+                                        <i class="bi bi-whatsapp"></i> WhatsApp
+                                    </a>
+                                    <a class="nav-link <%= activeSection === 'notifikasi' ? 'active' : '' %>"
+                                        href="/admin/settings?section=notifikasi">
+                                        <i class="bi bi-bell"></i> Notifikasi
+                                    </a>
+                                    <a class="nav-link <%= activeSection === 'otomasi' ? 'active' : '' %>"
+                                        href="/admin/settings?section=otomasi">
+                                        <i class="bi bi-robot"></i> Otomasi
+                                    </a>
+                                    <a class="nav-link <%= activeSection === 'trouble' ? 'active' : '' %>"
+                                        href="/admin/settings?section=trouble">
+                                        <i class="bi bi-exclamation-triangle"></i> Trouble Report
+                                    </a>
+                                    <a class="nav-link <%= activeSection === 'telegram' ? 'active' : '' %>"
+                                        href="/admin/settings?section=telegram">
+                                        <i class="bi bi-telegram"></i> Telegram
+                                    </a>
+                                    <a class="nav-link <%= activeSection === 'database' ? 'active' : '' %>"
+                                        href="/admin/settings?section=database">
+                                        <i class="bi bi-database"></i> Database
+                                    </a>
+                                </nav>
+                            </div>
+
+                            <!-- Content Area -->
+                            <div class="settings-content tab-content">
+                                <form id="settingsForm">
+                                    <!-- Section: Umum -->
+                                    <% if (activeSection==='umum' ) { %>
+                                        <div class="tab-pane show active" id="content-umum">
+                                            <div class="form-section-title"><i class="bi bi-info-circle"></i> Pengaturan
+                                                Umum
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-8">
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="timezone">Zona Waktu</label>
+                                                        <input type="text" class="form-control" list="timezone-options-static" name="timezone" id="timezone" value="<%= (settings && settings.timezone) ? settings.timezone : 'Asia/Jakarta' %>" placeholder="Contoh: Asia/Jakarta">
+                                                        <datalist id="timezone-options-static">
+                                                            <option value="Asia/Jakarta">WIB (Asia/Jakarta)</option>
+                                                            <option value="Asia/Makassar">WITA (Asia/Makassar)</option>
+                                                            <option value="Asia/Jayapura">WIT (Asia/Jayapura)</option>
+                                                            <option value="Asia/Singapore">Asia/Singapore</option>
+                                                            <option value="UTC">UTC</option>
+                                                        </datalist>
+                                                        <div class="form-text">Zona waktu ini dipakai untuk tampilan jam di dashboard admin.</div>
+                                                    </div>
+                                                    <div id="fields-umum"></div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="card p-3 bg-light border-0">
+                                                        <h6 class="mb-3">Logo Aplikasi</h6>
+                                                        <div class="text-center mb-3">
+                                                            <img id="logoPreview"
+                                                                src="/img/<%= typeof settings !== 'undefined' && settings.logo_filename ? settings.logo_filename : 'logo.png' %>?ts=<%= Date.now() %>"
+                                                                alt="Logo" class="img-fluid rounded mb-3"
+                                                                style="max-height: 120px; border: 1px solid #ddd; padding: 5px; background: white;">
+                                                        </div>
+                                                        <div class="input-group input-group-sm">
+                                                            <input type="file" id="logoInput" class="form-control"
+                                                                accept="image/*,.svg">
+                                                            <button class="btn btn-primary" type="button"
+                                                                id="btnUploadLogo"><i class="bi bi-upload"></i></button>
+                                                        </div>
+                                                        <div class="form-text small mt-2">PNG, JPG, SVG (Max 2MB)</div>
+                                                    </div>
+
+                                                    <div class="card p-3 bg-light border-0 mt-3">
+                                                        <h6 class="mb-3">Foto Profil Admin</h6>
+                                                        <div class="text-center mb-3">
+                                                            <% const adminProfilePhoto = settings && settings.admin_profile_photo ? `/img/admin-profiles/${settings.admin_profile_photo}` : ''; %>
+                                                            <div class="mx-auto mb-3 d-flex align-items-center justify-content-center rounded-4 overflow-hidden"
+                                                                id="adminProfilePreviewWrap"
+                                                                style="width:96px;height:96px;background:linear-gradient(135deg,#4361ee,#764ba2);color:#fff;font-size:2rem;font-weight:700;box-shadow:0 12px 30px rgba(67,97,238,.22);">
+                                                                <% if (adminProfilePhoto) { %>
+                                                                    <img id="adminProfilePreview" src="<%= adminProfilePhoto %>?ts=<%= Date.now() %>" alt="Foto Profil Admin" style="width:100%;height:100%;object-fit:cover;">
+                                                                <% } else { %>
+                                                                    <span id="adminProfileFallback">A</span>
+                                                                    <img id="adminProfilePreview" src="" alt="Foto Profil Admin" style="display:none;width:100%;height:100%;object-fit:cover;">
+                                                                <% } %>
+                                                            </div>
+                                                        </div>
+                                                        <div class="input-group input-group-sm">
+                                                            <input type="file" id="adminProfileInput" class="form-control" accept="image/png,image/jpeg,image/jpg">
+                                                            <button class="btn btn-primary" type="button" id="btnUploadAdminProfile"><i class="bi bi-upload"></i></button>
+                                                        </div>
+                                                        <div class="form-text small mt-2">PNG, JPG, JPEG (Max 2MB)</div>
+                                                    </div>
+
+                                                    <!-- Keterangan Donasi Masjid -->
+                                                    <div class="alert alert-info mt-3 small">
+                                                        <strong>Rekening Pengembangan</strong><br>
+                                                        <span class="fw-bold">1770023579201</span> (Mandiri)<br>
+                                                        a.n. RIAN ANDRIAN
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <% } %>
+                                            <!-- Section: Database -->
+                                            <% if (activeSection==='database' ) { %>
+                                                <div class="tab-pane show active" id="content-database">
+                                                    <div class="form-section-title"><i class="bi bi-database"></i>
+                                                        Backup & Restore Database</div>
+
+                                                    <div class="card mb-4 border shadow-sm">
+                                                        <div class="card-body">
+                                                            <h6 class="card-title fw-bold text-primary mb-3"><i
+                                                                    class="bi bi-download"></i> Backup Database</h6>
+                                                            <p class="card-text text-muted small">Unduh salinan database
+                                                                saat ini untuk keamanan data Anda. File akan berformat
+                                                                <code>.sqlite</code>.</p>
+                                                            <a href="/admin/settings/database/backup"
+                                                                class="btn btn-primary" target="_blank">
+                                                                <i class="bi bi-cloud-download"></i> Download Backup
+                                                            </a>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="card border shadow-sm border-danger">
+                                                        <div class="card-header bg-danger text-white">
+                                                            <i class="bi bi-exclamation-triangle-fill"></i> Restore
+                                                            Database (Bahaya)
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <p class="card-text text-danger small fw-bold">PERINGATAN:
+                                                                Tindakan ini akan menimpa seluruh data database saat ini
+                                                                dengan file yang Anda upload. Data yang hilang tidak
+                                                                dapat dikembalikan!</p>
+
+                                                            <div class="mb-3">
+                                                                <label for="restoreFile" class="form-label">Pilih File
+                                                                    Backup (.sqlite)</label>
+                                                                <input class="form-control" type="file" id="restoreFile"
+                                                                    accept=".sqlite,.db">
+                                                            </div>
+                                                            <button type="button" class="btn btn-danger"
+                                                                id="btnRestoreDb">
+                                                                <i class="bi bi-cloud-upload"></i> Upload & Restore
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <% } %>
+
+                                                    <!-- Section: Mikrotik -->
+                                                    <% if (activeSection==='mikrotik' ) { %>
+                                                        <div class="tab-pane show active" id="content-mikrotik">
+                                                            <div class="form-section-title"><i class="bi bi-router"></i>
+                                                                Pengaturan
+                                                                Mikrotik
+                                                            </div>
+                                                            <div id="fields-mikrotik"></div>
+                                                            <div class="mt-4 pt-3 border-top">
+                                                                <button type="button"
+                                                                    class="btn btn-outline-danger btn-sm"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#restartMikrotikModal">
+                                                                    <i class="bi bi-arrow-repeat"></i> Restart Mikrotik
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <% } %>
+
+                                                            <!-- Section: GenieACS -->
+                                                            <% if (activeSection==='genieacs' ) { %>
+                                                                <div class="tab-pane show active" id="content-genieacs">
+                                                                    <div class="form-section-title"><i
+                                                                            class="bi bi-hdd-network"></i> Pengaturan
+                                                                        GenieACS</div>
+                                                                    <div id="fields-genieacs"></div>
+                                                                </div>
+                                                                <% } %>
+
+                                                                    <!-- Section: WhatsApp -->
+                                                                    <% if (activeSection==='whatsapp' ) { %>
+                                                                        <div class="tab-pane show active"
+                                                                            id="content-whatsapp">
+                                                                            <div class="form-section-title"><i
+                                                                                    class="bi bi-whatsapp"></i> WhatsApp
+                                                                                Gateway
+                                                                            </div>
+                                                                            <div class="row">
+                                                                                <div class="col-md-6">
+                                                                                    <div id="wa-status-card"
+                                                                                        class="card p-3 mb-4 bg-light border-0">
+                                                                                        <h6 class="mb-3">Status Koneksi
+                                                                                        </h6>
+                                                                                        <div id="wa-status"
+                                                                                            class="mb-3">
+                                                                                            Memuat
+                                                                                            status...</div>
+                                                                                        <div id="wa-qr-container"
+                                                                                            class="qr-wrapper d-none mb-3">
+                                                                                            <div id="wa-qr-div"></div>
+                                                                                            <small
+                                                                                                class="text-muted d-block mt-2">Scan
+                                                                                                QR untuk
+                                                                                                menghubungkan</small>
+                                                                                        </div>
+                                                                                        <div class="d-flex gap-2">
+                                                                                            <button type="button"
+                                                                                                class="btn btn-success btn-sm flex-grow-1"
+                                                                                                id="btnRefreshQR"><i
+                                                                                                    class="bi bi-arrow-clockwise"></i>
+                                                                                                Perbarui QR</button>
+                                                                                            <button type="button"
+                                                                                                class="btn btn-outline-danger btn-sm flex-grow-1"
+                                                                                                id="btnDeleteSession"><i
+                                                                                                    class="bi bi-trash"></i>
+                                                                                                Hapus
+                                                                                                Sesi</button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div id="fields-whatsapp"></div>
+                                                                                </div>
+                                                                                <div class="col-md-6">
+                                                                                    <div
+                                                                                        class="card p-3 bg-light border-0">
+                                                                                        <h6 class="mb-3">Grup WhatsApp
+                                                                                        </h6>
+                                                                                        <div class="d-flex gap-2 mb-3">
+                                                                                            <button type="button"
+                                                                                                class="btn btn-primary btn-sm"
+                                                                                                id="btnLoadGroups">Muat
+                                                                                                Grup</button>
+                                                                                            <button type="button"
+                                                                                                class="btn btn-info btn-sm"
+                                                                                                id="btnTestConnection">Test
+                                                                                                Koneksi</button>
+                                                                                        </div>
+                                                                                        <div id="waGroupsList"
+                                                                                            style="max-height: 400px; overflow-y: auto;">
+                                                                                            <div id="groupsContainer"
+                                                                                                class="list-group list-group-flush">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <% } %>
+
+                                                                            <!-- Section: Notifikasi -->
+                                                                            <% if (activeSection==='notifikasi' ) { %>
+                                                                                <div class="tab-pane show active"
+                                                                                    id="content-notifikasi">
+                                                                                    <div class="form-section-title"><i
+                                                                                            class="bi bi-bell"></i>
+                                                                                        Pengaturan
+                                                                                        Notifikasi
+                                                                                    </div>
+                                                                                    <div id="fields-notifikasi"></div>
+                                                                                </div>
+                                                                                <% } %>
+
+                                                                                    <!-- Section: Otomasi -->
+                                                                                    <% if (activeSection==='otomasi' ) {
+                                                                                        %>
+                                                                                        <div class="tab-pane show active"
+                                                                                            id="content-otomasi">
+                                                                                            <div
+                                                                                                class="form-section-title">
+                                                                                                <i
+                                                                                                    class="bi bi-robot"></i>
+                                                                                                Pengaturan
+                                                                                                Otomasi
+                                                                                            </div>
+                                                                                            <div id="fields-otomasi">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <% } %>
+
+                                                                                            <!-- Section: Trouble Report -->
+                                                                                            <% if
+                                                                                                (activeSection==='trouble'
+                                                                                                ) { %>
+                                                                                                <div class="tab-pane show active"
+                                                                                                    id="content-trouble">
+                                                                                                    <div
+                                                                                                        class="form-section-title">
+                                                                                                        <i
+                                                                                                            class="bi bi-exclamation-triangle"></i>
+                                                                                                        Trouble Report
+                                                                                                    </div>
+                                                                                                    <div
+                                                                                                        id="fields-trouble">
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <% } %>
+
+                                                                                                    <!-- Section: Telegram -->
+                                                                                                    <% if
+                                                                                                        (activeSection==='telegram'
+                                                                                                        ) { %>
+                                                                                                        <div class="tab-pane show active"
+                                                                                                            id="content-telegram">
+                                                                                                            <div
+                                                                                                                class="form-section-title">
+                                                                                                                <i
+                                                                                                                    class="bi bi-telegram"></i>
+                                                                                                                Telegram
+                                                                                                                Bot
+                                                                                                            </div>
+                                                                                                            <div
+                                                                                                                class="alert alert-info small">
+                                                                                                                <i
+                                                                                                                    class="bi bi-info-circle"></i>
+                                                                                                                Untuk
+                                                                                                                mendapatkan
+                                                                                                                Chat
+                                                                                                                ID,
+                                                                                                                kirim
+                                                                                                                pesan
+                                                                                                                apapun
+                                                                                                                ke bot
+                                                                                                                Anda,
+                                                                                                                lalu
+                                                                                                                kunjungi
+                                                                                                                <a href="https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates"
+                                                                                                                    target="_blank">
+                                                                                                                    <code>https://api.telegram.org/bot&lt;YOUR_BOT_TOKEN&gt;/getUpdates</code>
+                                                                                                                </a>
+                                                                                                                (ganti
+                                                                                                                <code>&lt;YOUR_BOT_TOKEN&gt;</code>
+                                                                                                                dengan
+                                                                                                                token
+                                                                                                                bot
+                                                                                                                Anda).
+                                                                                                                Cari
+                                                                                                                nilai
+                                                                                                                "id"
+                                                                                                                di bawah
+                                                                                                                "chat".
+                                                                                                            </div>
+
+                                                                                                            <div
+                                                                                                                class="mb-3">
+                                                                                                                <label
+                                                                                                                    class="form-label"
+                                                                                                                    for="manual_bot_token">Bot
+                                                                                                                    Token</label>
+                                                                                                                <div
+                                                                                                                    class="input-group">
+                                                                                                                    <span
+                                                                                                                        class="input-group-text"><i
+                                                                                                                            class="bi bi-key"></i></span>
+                                                                                                                    <input
+                                                                                                                        type="password"
+                                                                                                                        class="form-control"
+                                                                                                                        name="telegram_bot.bot_token"
+                                                                                                                        id="manual_bot_token"
+                                                                                                                        value="<%= settings && settings.telegram_bot && settings.telegram_bot.bot_token ? settings.telegram_bot.bot_token : '' %>"
+                                                                                                                        placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz">
+                                                                                                                    <button
+                                                                                                                        class="btn btn-outline-secondary"
+                                                                                                                        type="button"
+                                                                                                                        onclick="const i=document.getElementById('manual_bot_token'); i.type = i.type==='password'?'text':'password';">
+                                                                                                                        <i
+                                                                                                                            class="bi bi-eye"></i>
+                                                                                                                    </button>
+                                                                                                                </div>
+                                                                                                                <div
+                                                                                                                    class="form-text">
+                                                                                                                    Token
+                                                                                                                    yang
+                                                                                                                    didapat
+                                                                                                                    dari
+                                                                                                                    @BotFather
+                                                                                                                </div>
+                                                                                                            </div>
+
+                                                                                                            <div
+                                                                                                                id="fields-telegram">
+                                                                                                            </div>
+
+                                                                                                            <div
+                                                                                                                class="mt-4 pt-3 border-top">
+                                                                                                                <div
+                                                                                                                    class="d-flex gap-2 align-items-center">
+                                                                                                                    <button
+                                                                                                                        type="button"
+                                                                                                                        class="btn btn-outline-primary btn-sm"
+                                                                                                                        id="btnTestTele">
+                                                                                                                        <i
+                                                                                                                            class="bi bi-send"></i>
+                                                                                                                        Test
+                                                                                                                        Pesan
+                                                                                                                    </button>
+                                                                                                                    <small
+                                                                                                                        class="text-muted ms-2">Pastikan
+                                                                                                                        Bot
+                                                                                                                        Token
+                                                                                                                        sudah
+                                                                                                                        disimpan
+                                                                                                                        sebelum
+                                                                                                                        test.</small>
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                        <% } %>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Sticky Footer -->
+                        <div class="settings-footer">
+                            <button type="button" class="btn btn-outline-secondary" onclick="location.reload()">
+                                <i class="bi bi-arrow-clockwise"></i> Reset Halaman
+                            </button>
+                            <button type="submit" form="settingsForm" class="btn btn-primary px-4">
+                                <i class="bi bi-save"></i> Simpan Semua Perubahan
+                            </button>
+                        </div>
+                    </div>
+                </main>
+        </div>
+    </div>
+    <!-- Modal Konfirmasi Restart Mikrotik -->
+    <div class="modal fade" id="restartMikrotikModal" tabindex="-1" aria-labelledby="restartMikrotikModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="restartMikrotikModalLabel"><i class="bi bi-arrow-repeat"></i> Konfirmasi
+                        Restart Mikrotik</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Apakah Anda yakin ingin <b>restart Mikrotik</b>?<br>Router akan reboot dan koneksi internet
+                    pelanggan akan terputus sementara.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-danger" id="confirmRestartMikrotik">Restart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Notifikasi -->
+    <div id="restartNotif" class="alert d-none position-fixed top-0 end-0 m-4" style="z-index:1055; min-width:300px;">
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Load QRCode.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        $(function () {
+            // --- Configuration & Constants ---
+            const hiddenFields = [
+                'pppoe_notifications.monitorInterval', 'secret_key', 'reconnect_interval',
+                'log_level', 'rx_power_notification_interval', 'whatsapp_log_level',
+                'pppoe_monitor_interval', 'server_port', 'whatsapp_session_path',
+                'admin_enabled', 'logo_filename', '_cached', '_dummy', '_error', '_loadTime', 'section_'
+            ];
+
+            const categoryMap = {
+                'mikrotik_': 'mikrotik', 'main_interface': 'mikrotik', 'user_auth_mode': 'mikrotik',
+                'genieacs_': 'genieacs', 'whatsapp_': 'whatsapp', 'rx_power_': 'notifikasi',
+                'rxpower_': 'notifikasi', 'offline_notification_': 'notifikasi',
+                'offline_device_threshold_hours': 'notifikasi', 'pppoe_notifications.': 'notifikasi',
+                'auto_suspension': 'otomasi', 'suspension_': 'otomasi', 'voucher_cleanup.': 'otomasi',
+                'otp_': 'otomasi', 'customerPortalOtp': 'otomasi', 'trouble_report.': 'trouble',
+                'telegram_bot.': 'telegram', 'app_name': 'umum', 'app_version': 'umum',
+                'company_': 'umum', 'contact_': 'umum', 'timezone': 'hidden',
+                // Hide payment fields and specific telegram fields from auto-render
+                'payment_': 'hidden', 'invoice_': 'hidden', 'payment_gateway': 'hidden',
+                'telegram_bot.bot_token': 'hidden' // Disembunyikan karena sudah ada input khusus
+            };
+
+            // --- UI Helpers ---
+            function showNotification(type, message) {
+                const icon = type === 'success' ? 'check-circle' : 'exclamation-triangle';
+                const notif = $(`
+                    <div class="alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3 shadow-lg" style="z-index: 1060; min-width: 300px;">
+                        <i class="bi bi-${icon} me-2"></i> ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `).appendTo('body');
+                setTimeout(() => notif.alert('close'), 5000);
+            }
+
+            function getCategory(key) {
+                for (const [prefix, cat] of Object.entries(categoryMap)) {
+                    if (key.startsWith(prefix)) return cat;
+                }
+                return 'umum';
+            }
+
+            function formatLabel(key) {
+                return key.split(/[._]/).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            }
+
+            // --- Rendering ---
+            function renderField(key, val) {
+                if (hiddenFields.includes(key)) return '';
+
+                let html = '<div class="mb-3">';
+                const label = formatLabel(key);
+
+                if (key === 'user_auth_mode') {
+                    html += `<label class="form-label">${label}</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="${key}" id="auth_m" value="mikrotik" ${val === 'mikrotik' ? 'checked' : ''}>
+                                    <label class="form-check-label" for="auth_m">Mikrotik API</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="${key}" id="auth_r" value="radius" ${val === 'radius' ? 'checked' : ''}>
+                                    <label class="form-check-label" for="auth_r">RADIUS</label>
+                                </div>
+                            </div>`;
+                } else if (typeof val === 'boolean' || val === 'true' || val === 'false') {
+                    const isChecked = (val === true || val === 'true');
+                    html += `<div class="form-check form-switch pt-2">
+                                <input class="form-check-input" type="checkbox" name="${key}" id="chk_${key}" ${isChecked ? 'checked' : ''}>
+                                <label class="form-check-label fw-bold" for="chk_${key}">${label}</label>
+                            </div>`;
+                } else if (typeof val === 'object' && val !== null) {
+                    Object.keys(val).forEach(sub => {
+                        html += renderField(`${key}.${sub}`, val[sub]);
+                    });
+                } else {
+                    if (key === 'timezone') {
+                        const timezoneValue = val || 'Asia/Jakarta';
+                        html += `<label class="form-label" for="f_${key}">Zona Waktu</label>
+                                 <input type="text" class="form-control" list="timezone-options" name="${key}" id="f_${key}" value="${timezoneValue}" placeholder="Contoh: Asia/Jakarta">
+                                 <div class="form-text">Pilih zona waktu untuk tampilan jam di dashboard admin.</div>
+                                 <datalist id="timezone-options">
+                                    <option value="Asia/Jakarta">WIB (Asia/Jakarta)</option>
+                                    <option value="Asia/Makassar">WITA (Asia/Makassar)</option>
+                                    <option value="Asia/Jayapura">WIT (Asia/Jayapura)</option>
+                                    <option value="Asia/Singapore">Asia/Singapore</option>
+                                    <option value="UTC">UTC</option>
+                                 </datalist>`;
+                    } else {
+                        const type = (key.includes('password') || key.includes('pass') || key.includes('key')) ? 'password' : 'text';
+                        html += `<label class="form-label" for="f_${key}">${label}</label>
+                                 <input type="${type}" class="form-control" name="${key}" id="f_${key}" value="${val}">`;
+                    }
+                }
+
+                return html + '</div>';
+            }
+
+            function loadSettings() {
+                $('.tab-pane [id^="fields-"]').empty();
+                $.get('/admin/settings/data', function (data) {
+                    $('#timezone').val(data.timezone || 'Asia/Jakarta');
+                    Object.keys(data).forEach(key => {
+                        const cat = getCategory(key);
+                        if (cat === 'hidden') return; // Skip hidden fields
+
+                        const fieldHtml = renderField(key, data[key]);
+                        if (fieldHtml) $(`#fields-${cat}`).append(fieldHtml);
+                    });
+                    if (data.logo_filename) $('#logoPreview').attr('src', `/img/${data.logo_filename}?v=${Date.now()}`);
+                }).fail(() => showNotification('danger', 'Gagal memuat pengaturan dari server'));
+            }
+
+            // --- WhatsApp ---
+            function updateWAStatus() {
+                $.get('/admin/settings/wa-status', function (res) {
+                    const statusDiv = $('#wa-status');
+                    if (res.connected) {
+                        statusDiv.html(`<span class="badge bg-success px-3 py-2"><i class="bi bi-link-45deg"></i> Terhubung: ${res.phoneNumber || 'Bot'}</span>`);
+                        $('#wa-qr-container').addClass('d-none');
+                    } else if (res.qr) {
+                        statusDiv.html('<span class="badge bg-warning text-dark px-3 py-2"><i class="bi bi-qr-code-scan"></i> Menunggu Scan...</span>');
+                        $('#wa-qr-container').removeClass('d-none');
+                        $('#wa-qr-div').empty();
+                        new QRCode(document.getElementById("wa-qr-div"), { text: res.qr, width: 220, height: 220 });
+                    } else {
+                        statusDiv.html('<span class="badge bg-secondary px-3 py-2"><i class="bi bi-plug"></i> Terputus</span>');
+                        $('#wa-qr-container').addClass('d-none');
+                    }
+                });
+            }
+
+            // --- Actions ---
+            $('#settingsForm').on('submit', function (e) {
+                e.preventDefault();
+                const btn = $('.settings-footer button[type="submit"]');
+                const originalHtml = btn.html();
+                btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Menyimpan...');
+
+                const formData = {};
+                $(this).find('input').each(function () {
+                    if (!this.name) return;
+                    if (this.type === 'checkbox') formData[this.name] = this.checked;
+                    else if (this.type === 'radio') { if (this.checked) formData[this.name] = this.value; }
+                    else formData[this.name] = this.value;
+                });
+
+                $.post('/admin/settings/save', formData)
+                    .done(res => showNotification('success', res.message || 'Pengaturan berhasil disimpan!'))
+                    .fail(err => showNotification('danger', 'Error: ' + (err.responseJSON?.error || 'Gagal menyimpan')))
+                    .always(() => btn.prop('disabled', false).html(originalHtml));
+            });
+
+            $('#btnUploadLogo').click(function () {
+                const file = $('#logoInput')[0].files[0];
+                if (!file) return showNotification('info', 'Pilih file terlebih dahulu');
+                const fd = new FormData();
+                fd.append('logo', file);
+                const btn = $(this).prop('disabled', true);
+                $.ajax({
+                    url: '/admin/settings/upload-logo', type: 'POST', data: fd, contentType: false, processData: false,
+                    success: res => {
+                        showNotification('success', 'Logo terupdate');
+                        if (res.filename) $('#logoPreview').attr('src', `/img/${res.filename}?v=${Date.now()}`);
+                    },
+                    complete: () => btn.prop('disabled', false)
+                });
+            });
+
+            $('#btnUploadAdminProfile').click(function () {
+                const file = $('#adminProfileInput')[0].files[0];
+                if (!file) return showNotification('info', 'Pilih foto profil admin terlebih dahulu');
+                const fd = new FormData();
+                fd.append('admin_profile', file);
+                const btn = $(this).prop('disabled', true);
+                $.ajax({
+                    url: '/admin/settings/upload-admin-profile', type: 'POST', data: fd, contentType: false, processData: false,
+                    success: res => {
+                        showNotification('success', res.message || 'Foto profil admin terupdate');
+                        if (res.path) {
+                            $('#adminProfilePreview').attr('src', `${res.path}?v=${Date.now()}`).show();
+                            $('#adminProfileFallback').hide();
+                        }
+                    },
+                    complete: () => btn.prop('disabled', false)
+                });
+            });
+
+            $('#btnRefreshQR').click(() => $.post('/admin/settings/wa-refresh', () => updateWAStatus()));
+            $('#btnDeleteSession').click(() => confirm('Hapus sesi WhatsApp?') && $.post('/admin/settings/wa-delete', () => updateWAStatus()));
+
+            $('#btnLoadGroups').click(function () {
+                const btn = $(this).prop('disabled', true).html('...');
+                $.get('/admin/settings/whatsapp-groups', res => {
+                    const container = $('#groupsContainer').empty();
+                    if (res.success && res.groups) {
+                        res.groups.forEach(g => {
+                            container.append(`<div class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+                                <div><div class="small fw-bold text-dark">${g.name}</div><div style="font-size:0.7rem" class="text-muted">${g.id}</div></div>
+                                <button type="button" class="btn btn-link btn-sm p-0" onclick="navigator.clipboard.writeText('${g.id}'); alert('ID Copied!');">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>`);
+                        });
+                    }
+                }).always(() => btn.prop('disabled', false).html('Muat Grup'));
+            });
+
+            $('#btnTestConnection').click(function () {
+                const btn = $(this).prop('disabled', true).html('...');
+                $.get('/admin/settings/wa-test-connection', res => {
+                    showNotification(res.success ? 'success' : 'danger', res.message);
+                }).always(() => btn.prop('disabled', false).html('Test Koneksi'));
+            });
+
+            $('#confirmRestartMikrotik').click(() => {
+                $('#restartMikrotikModal').modal('hide');
+                $.post('/admin/mikrotik/restart', res => showNotification(res.success ? 'success' : 'danger', res.message));
+            });
+
+            // Telegram Test
+            $('#btnTestTele').click(function () {
+                const chatId = prompt("Masukkan Chat ID untuk test pesan:", "");
+                if (chatId) {
+                    const btn = $(this).prop('disabled', true);
+                    const originalText = btn.html();
+                    btn.html('<span class="spinner-border spinner-border-sm"></span> Sending...');
+
+                    $.post('/admin/settings/telegram/test', { chatId: chatId })
+                        .done(res => showNotification('success', 'Pesan test terkirim!'))
+                        .fail(err => showNotification('danger', 'Gagal kirim pesan: ' + (err.responseJSON?.error || err.statusText)))
+                        .always(() => btn.prop('disabled', false).html(originalText));
+                }
+            });
+
+            // Database Restore
+            $('#btnRestoreDb').click(function () {
+                const fileInput = $('#restoreFile')[0];
+                if (!fileInput.files.length) {
+                    return showNotification('warning', 'Pilih file backup terlebih dahulu!');
+                }
+
+                if (!confirm('PERINGATAN KERAS: Seluruh data saat ini akan DIHAPUS dan digantikan dengan data dari backup. Apakah Anda yakin ingin melanjutkan?')) {
+                    return;
+                }
+
+                const fd = new FormData();
+                fd.append('backup', fileInput.files[0]);
+
+                const btn = $(this).prop('disabled', true);
+                const originalHtml = btn.html();
+                btn.html('<span class="spinner-border spinner-border-sm"></span> Restoring...');
+
+                $.ajax({
+                    url: '/admin/settings/database/restore',
+                    type: 'POST',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: res => {
+                        alert('Restore berhasil! Sistem akan reload.');
+                        location.reload();
+                    },
+                    error: err => {
+                        showNotification('danger', 'Gagal restore: ' + (err.responseJSON?.error || err.statusText));
+                    },
+                    complete: () => btn.prop('disabled', false).html(originalHtml)
+                });
+            });
+
+            // --- Init ---
+            loadSettings();
+            updateWAStatus();
+            setInterval(updateWAStatus, 30000);
+
+            // PENTING: Paksa scroll ke atas SEBELUM dan SESUDAH tab berganti
+            const scrollToTop = () => {
+                window.scrollTo({ top: 0, behavior: 'instant' });
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+                // Coba reset scroll pada container juga jika masih ada
+                $('.settings-content').scrollTop(0);
+            };
+
+            // 1. Trigger saat user BARU SAJA klik (sebelum animasi bootstrap selesai)
+            $('#settingsTabs button').on('show.bs.tab', function (e) {
+                scrollToTop();
+            });
+
+            // 2. Trigger lagi setelah tab terbuka penuh (untuk memastikan)
+            $('#settingsTabs button').on('shown.bs.tab', function (e) {
+                scrollToTop();
+
+                // Khusus mobile: pastikan posisi pas di bawah navbar (offset dikit)
+                if (window.innerWidth < 992) {
+                    const stickyOffset = 60; // Tinggi navbar mobile kira-kira
+                    const containerTop = $('.settings-container').offset().top;
+                    if (window.pageYOffset > containerTop) {
+                        window.scrollTo({ top: containerTop - stickyOffset, behavior: 'instant' });
+                    }
+                }
+            });
+        });
+    </script>
+
+    </div>
+</div>
+
+<!-- Mobile Bottom Navigation -->
+<%- include('partials/main-admin-mobile-navbar', { page: 'setting' }) %>
+
+<!-- Add bottom padding for mobile -->
+<style>
+    @media (max-width: 768px) {
+        body {
+            padding-bottom: 80px !important;
+        }
+        
+        .main-content {
+            padding-bottom: 80px !important;
+        }
+    }
+</style>
+<%- include('partials/footer') %>
+
+</html>

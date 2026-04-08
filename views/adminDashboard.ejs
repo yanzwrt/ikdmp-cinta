@@ -1,0 +1,2461 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title><% if (typeof isTechnicianView !== 'undefined' && isTechnicianView) { %>Dashboard Teknisi<% } else { %>Dashboard Admin<% } %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#667eea">
+    <link rel="manifest" href="/admin-manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/img/icons/icon-192.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/responsive-admin.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            --success-gradient: linear-gradient(135deg, #198754 0%, #146c43 100%);
+            --info-gradient: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);
+            --warning-gradient: linear-gradient(135deg, #ffc107 0%, #cc9a06 100%);
+            --danger-gradient: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+            --secondary-gradient: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            --card-shadow: 0 16px 38px rgba(15, 23, 42, 0.08);
+            --card-hover-shadow: 0 24px 46px rgba(15, 23, 42, 0.14);
+            --surface-glass: rgba(255, 255, 255, 0.78);
+            --surface-border: rgba(148, 163, 184, 0.22);
+            --surface-muted: #64748b;
+            --hero-glow: radial-gradient(circle at top left, rgba(96, 165, 250, 0.22), transparent 38%);
+        }
+
+        html, body {
+            overflow-x: hidden;
+            max-width: 100%;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(45, 212, 191, 0.12), transparent 22%),
+                linear-gradient(180deg, #f7faff 0%, #eef4ff 44%, #f8fbff 100%);
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            border-radius: 999px;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(12px);
+        }
+
+        body::before {
+            width: 360px;
+            height: 360px;
+            top: -80px;
+            right: -120px;
+            background: rgba(96, 165, 250, 0.14);
+        }
+
+        body::after {
+            width: 280px;
+            height: 280px;
+            bottom: 60px;
+            left: 18%;
+            background: rgba(45, 212, 191, 0.12);
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 1;
+            padding: 18px 20px 28px;
+        }
+
+        .stat-card {
+            border: none;
+            border-radius: 15px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+            height: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        .stat-card .card-body {
+            position: relative;
+            z-index: 2;
+            padding: 1.5rem;
+        }
+
+        .stat-card .icon-bg {
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            font-size: 5rem;
+            opacity: 0.2;
+            z-index: 1;
+            transform: rotate(-15deg);
+        }
+
+        .bg-gradient-blue { background: var(--primary-gradient); }
+        .bg-gradient-green { background: var(--success-gradient); }
+        .bg-gradient-cyan { background: var(--info-gradient); color: #fff !important; }
+        .bg-gradient-orange { background: var(--warning-gradient); color: #fff !important; }
+        .bg-gradient-red { background: var(--danger-gradient); }
+        .bg-gradient-gray { background: var(--secondary-gradient); }
+
+        .stat-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0;
+            line-height: 1.2;
+        }
+        
+        /* Mobile responsive fixes */
+        @media (max-width: 767.98px) {
+            .container-fluid,
+            .row {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+
+            .main-content {
+                margin-top: 70px !important; /* Extra space for mobile navbar */
+                padding: 10px !important;
+                margin-left: 0 !important;
+                z-index: 1;
+            }
+            
+            .container-fluid {
+                padding: 0;
+            }
+            
+            .card {
+                z-index: 1;
+                margin-bottom: 1rem;
+            }
+            
+            /* Pastikan cards tidak overlap dengan mobile navbar */
+            .row.mb-4:first-of-type {
+                margin-top: 10px;
+            }
+            
+            /* Stats cards responsive */
+            .card-body {
+                padding: 1rem 0.75rem;
+            }
+            
+            .fs-3 {
+                font-size: 1.5rem !important;
+            }
+            
+            .fs-2 {
+                font-size: 1.3rem !important;
+            }
+            
+            .fw-bold {
+                font-size: 0.9rem;
+            }
+            
+            /* Interface selector responsive */
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            #interfaceSelect {
+                width: 100% !important;
+                font-size: 0.85rem !important;
+            }
+            
+            /* Bandwidth cards responsive */
+            .bandwidth-card .card-body {
+                padding: 0.5rem !important;
+            }
+            
+            .bandwidth-card small {
+                font-size: 0.7rem !important;
+            }
+            
+            .bandwidth-card strong {
+                font-size: 0.9rem !important;
+            }
+            
+            /* Chart responsive */
+            .traffic-chart-card .card-body {
+                padding: 10px !important;
+            }
+            
+            .traffic-chart-card .card-body > div {
+                height: 200px !important;
+            }
+            
+            /* Form controls */
+            .form-select, .form-control {
+                padding: 8px 12px;
+                font-size: 14px;
+                min-height: 38px;
+            }
+            
+            /* Button responsive */
+            .btn {
+                padding: 8px 16px;
+                font-size: 14px;
+                min-height: 42px;
+                touch-action: manipulation;
+            }
+            
+            .btn-sm {
+                padding: 6px 12px;
+                font-size: 12px;
+                min-height: 36px;
+            }
+            
+            /* Responsive notification positioning */
+            #restartNotif {
+                top: 80px !important; /* Below mobile navbar */
+                right: 10px !important;
+                left: 10px !important;
+                width: auto !important;
+            }
+            
+            /* Alert responsive */
+            .alert {
+                font-size: 0.9rem;
+                padding: 0.5rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            /* Table responsive if any */
+            .table-responsive {
+                font-size: 0.85rem;
+            }
+            
+            /* Modal responsive */
+            .modal-dialog {
+                margin: 10px;
+                max-width: calc(100vw - 20px);
+            }
+            
+            .modal-body {
+                padding: 1rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 5px !important;
+            }
+            
+            .card-body {
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .fs-3 {
+                font-size: 1.3rem !important;
+            }
+            
+            .fw-bold {
+                font-size: 0.85rem;
+            }
+            
+            .bandwidth-card .card-body {
+                padding: 0.4rem !important;
+            }
+            
+            .bandwidth-card small {
+                font-size: 0.65rem !important;
+            }
+            
+            .bandwidth-card strong {
+                font-size: 0.8rem !important;
+            }
+            
+            /* Very small screen adjustments */
+            .col-md-4.mb-3 {
+                margin-bottom: 0.75rem !important;
+            }
+            
+            .row.mb-4 {
+                margin-bottom: 1rem !important;
+            }
+        }
+        
+        /* Traffic Chart Styling */
+        .traffic-chart-card {
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .traffic-chart-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+        
+        .traffic-chart-card .card-header {
+            border-bottom: none;
+            background: transparent;
+            padding: 15px 20px;
+        }
+        
+        .traffic-chart-card .card-body {
+            padding: 20px;
+        }
+        
+        /* Bandwidth Status Cards */
+        .bandwidth-card {
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .bandwidth-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        /* Touch improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .card:hover {
+                transform: none;
+            }
+            
+            .bandwidth-card:hover,
+            .traffic-chart-card:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Include Responsive Sidebar (Admin or Technician based on context) -->
+        <% if (typeof isTechnicianView !== 'undefined' && isTechnicianView) { %>
+        <%- include('partials/technician-responsive-sidebar', { page: page || 'dashboard', settings: settings, technician: technician }) %>
+        <% } else { %>
+        <%- include('partials/admin-responsive-sidebar', { page: 'dashboard', settings: settings }) %>
+        <% } %>
+        
+        <main class="main-content w-100">
+            <!-- CONFIGURATION VALIDATION ALERTS -->
+            <% if (configValidation && configValidation.hasValidationRun) { %>
+                <% if (configValidation.summary && configValidation.summary.status !== 'valid') { %>
+                <div class="alert alert-warning alert-dismissible fade show mb-3 auto-dismiss" role="alert" data-auto-dismiss="12000">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                        <div class="flex-grow-1">
+                            <strong>Konfigurasi sistem perlu diperiksa.</strong><br>
+                            <div class="mt-1">
+                                <%= configValidation.summary.message %>
+                            </div>
+                            <div class="mt-2">
+                                <strong>Solusi:</strong> Silakan periksa dan perbaiki konfigurasi GenieACS dan Mikrotik di halaman pengaturan.
+                            </div>
+                            <div class="mt-2">
+                                <a href="/admin/settings" class="btn btn-warning btn-sm">
+                                    <i class="bi bi-gear-fill me-1"></i>Perbaiki Konfigurasi Sekarang
+                                </a>
+                                <button type="button" class="btn btn-outline-warning btn-sm ms-2" onclick="clearConfigWarning()">
+                                    <i class="bi bi-eye-slash me-1"></i>Sembunyikan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <% } %>
+                
+                <% if (configValidation.defaultSettingsWarnings && configValidation.defaultSettingsWarnings.length > 0) { %>
+                <div class="alert alert-info alert-dismissible fade show mb-3 auto-dismiss" role="alert" data-auto-dismiss="6000">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+                        <div class="flex-grow-1">
+                            <strong>Rekomendasi Keamanan:</strong>
+                            <ul class="mb-2 mt-1">
+                                <% configValidation.defaultSettingsWarnings.forEach(function(warning) { %>
+                                <li><%= warning %></li>
+                                <% }); %>
+                            </ul>
+                            <div>
+                                <a href="/admin/settings" class="btn btn-outline-info btn-sm">
+                                    <i class="bi bi-shield-check me-1"></i>Update Pengaturan Keamanan
+                                </a>
+                                <button type="button" class="btn btn-outline-secondary btn-sm ms-2" onclick="clearConfigWarning()">
+                                    <i class="bi bi-eye-slash me-1"></i>Sembunyikan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <% } %>
+                
+                <% if (configValidation.results && configValidation.results.genieacs && !configValidation.results.genieacs.isValid) { %>
+                <div class="alert alert-danger alert-dismissible fade show mb-3 auto-dismiss" role="alert" data-auto-dismiss="10000">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-x-circle-fill me-2 fs-5"></i>
+                        <div class="flex-grow-1">
+                            <strong>GenieACS Bermasalah:</strong>
+                            <div class="mt-1">
+                                <% if (configValidation.results.genieacs.errors.length > 0) { %>
+                                    <ul class="mb-2">
+                                        <% configValidation.results.genieacs.errors.forEach(function(error) { %>
+                                        <li><%= error %></li>
+                                        <% }); %>
+                                    </ul>
+                                <% } %>
+                            </div>
+                            <div>
+                                <a href="/admin/settings" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-wrench me-1"></i>Perbaiki Konfigurasi GenieACS
+                                </a>
+                                <button type="button" class="btn btn-outline-secondary btn-sm ms-2" onclick="clearConfigWarning()">
+                                    <i class="bi bi-eye-slash me-1"></i>Sembunyikan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <% } %>
+                
+                <% if (configValidation.results && configValidation.results.mikrotik && !configValidation.results.mikrotik.isValid) { %>
+                <div class="alert alert-danger alert-dismissible fade show mb-3 auto-dismiss" role="alert" data-auto-dismiss="10000">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-x-circle-fill me-2 fs-5"></i>
+                        <div class="flex-grow-1">
+                            <strong>Mikrotik Bermasalah:</strong>
+                            <div class="mt-1">
+                                <% if (configValidation.results.mikrotik.errors.length > 0) { %>
+                                    <ul class="mb-2">
+                                        <% configValidation.results.mikrotik.errors.forEach(function(error) { %>
+                                        <li><%= error %></li>
+                                        <% }); %>
+                                    </ul>
+                                <% } %>
+                            </div>
+                            <div>
+                                <a href="/admin/settings" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-router me-1"></i>Perbaiki Konfigurasi Mikrotik
+                                </a>
+                                <button type="button" class="btn btn-outline-secondary btn-sm ms-2" onclick="clearConfigWarning()">
+                                    <i class="bi bi-eye-slash me-1"></i>Sembunyikan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <% } %>
+                
+                <% if (configValidation.summary && configValidation.summary.status === 'valid') { %>
+                <div class="alert alert-success alert-dismissible fade show mb-3 auto-dismiss" role="alert" data-auto-dismiss="4000">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                        <div class="flex-grow-1">
+                            <strong>Sistem Siap Digunakan!</strong>
+                            <div class="mt-1">
+                                <%= configValidation.summary.message %>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <% } %>
+            <% } %>
+
+            <!-- MANUAL VALIDATION BUTTON -->
+            <div class="row mb-3 dashboard-header-row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center dashboard-actions flex-wrap gap-2">
+                        <div class="dashboard-admin-summary">
+                            <h5 class="mb-1">Dashboard Admin</h5>
+                            <p class="text-muted small mb-0">System overview, network nodes, and configurations</p>
+                            <p class="small mb-0 mt-1 dashboard-clock">
+                              <i class="bi bi-clock me-1"></i>
+                              <span id="adminClock">-</span>
+                              <span class="text-muted">(<span id="adminClockTimezone">Asia/Jakarta</span>)</span>
+                            </p>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 justify-content-end align-items-center dashboard-action-toolbar">
+                            <button type="button" class="btn btn-outline-primary icon-only-btn dashboard-utility-btn" id="validateConfigBtn" title="Validasi Konfigurasi" aria-label="Validasi Konfigurasi">
+                                <i class="bi bi-patch-check-fill"></i>
+                            </button>
+                            <a href="/admin/settings" class="btn btn-outline-success icon-only-btn dashboard-utility-btn" title="Pengaturan Sistem" aria-label="Pengaturan Sistem">
+                                <i class="bi bi-sliders2"></i>
+                            </a>
+                            <button type="button" class="btn btn-outline-secondary icon-only-btn dashboard-utility-btn" id="refreshDashboardBtn" title="Sinkronkan Dashboard" aria-label="Sinkronkan Dashboard">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </button>
+                            <div class="dropdown">
+                                <button type="button" class="btn btn-outline-dark icon-only-btn dashboard-utility-btn notification-trigger position-relative" id="dashboardNotificationToggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Notifikasi" aria-label="Notifikasi">
+                                    <i class="bi bi-bell-fill"></i>
+                                    <% if ((dashboardNotificationCount || 0) > 0) { %>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge" id="dashboardNotificationBadge">
+                                        <%= dashboardNotificationCount > 9 ? '9+' : dashboardNotificationCount %>
+                                    </span>
+                                    <% } %>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end p-0 dashboard-notification-menu shadow border-0 overflow-hidden" aria-labelledby="dashboardNotificationToggle">
+                                    <div class="dashboard-notification-header d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <strong>Notifikasi</strong>
+                                            <div class="small text-muted" id="dashboardNotificationCountLabel"><%= dashboardNotificationCount || 0 %> alert aktif</div>
+                                        </div>
+                                        <a href="/admin/trouble" class="small text-decoration-none fw-semibold">Lihat Semua</a>
+                                    </div>
+                                    <div class="dashboard-notification-list" id="dashboardNotificationList">
+                                        <% if ((dashboardNotifications || []).length) { %>
+                                            <% dashboardNotifications.forEach(function(notification) { %>
+                                            <a href="<%= notification.link %>" class="dropdown-item dashboard-notification-item">
+                                                <span class="dashboard-notification-icon notification-<%= notification.type %>">
+                                                    <i class="bi <%= notification.icon %>"></i>
+                                                </span>
+                                                <span class="dashboard-notification-copy">
+                                                    <span class="dashboard-notification-title"><%= notification.title %></span>
+                                                    <span class="dashboard-notification-text"><%= notification.message %></span>
+                                                    <span class="dashboard-notification-meta"><%= notification.meta %></span>
+                                                </span>
+                                            </a>
+                                            <% }) %>
+                                        <% } else { %>
+                                            <div class="dashboard-notification-empty">
+                                                <span class="dashboard-notification-icon notification-success">
+                                                    <i class="bi bi-check2-all"></i>
+                                                </span>
+                                                <div>
+                                                    <strong>Tidak ada alert aktif</strong>
+                                                    <div class="small text-muted">Dashboard sedang aman dipantau.</div>
+                                                </div>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-white shadow-sm border-0 rounded-pill icon-only-btn" id="themeToggle" onclick="toggleTheme()" title="Ganti tema" aria-label="Ganti tema">
+                              <i class="bi bi-sun-fill text-warning" id="themeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<script>
+    // Theme Toggle Functionality
+    function toggleTheme() {
+        const body = document.body;
+        const currentTheme = body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        updateThemeButton(newTheme);
+    }
+
+    function updateThemeButton(theme) {
+        const icon = document.getElementById('themeIcon');
+        const btn = document.getElementById('themeToggle');
+        
+        if (!icon || !btn) return;
+
+        if (theme === 'dark') {
+            icon.className = 'bi bi-moon-stars-fill text-white';
+            btn.classList.remove('btn-white');
+            btn.classList.add('btn-dark');
+            // Apply dark mode styles dynamically
+            document.documentElement.style.setProperty('--bg-body', '#1a1a1a');
+            document.documentElement.style.setProperty('--bg-card', '#2d2d2d');
+            document.documentElement.style.setProperty('--text-color', '#ffffff');
+            document.documentElement.style.setProperty('--text-muted', '#a0a0a0');
+        } else {
+            icon.className = 'bi bi-sun-fill text-warning';
+            btn.classList.remove('btn-dark');
+            btn.classList.add('btn-white');
+            // Apply light mode styles dynamically
+            document.documentElement.style.setProperty('--bg-body', '#f5f7fb');
+            document.documentElement.style.setProperty('--bg-card', '#ffffff');
+            document.documentElement.style.setProperty('--text-color', '#212529');
+            document.documentElement.style.setProperty('--text-muted', '#6c757d');
+        }
+    }
+
+    function updateAdminClock() {
+        const clockEl = document.getElementById('adminClock');
+        const timezoneEl = document.getElementById('adminClockTimezone');
+        if (!clockEl || !timezoneEl) return;
+
+        const timezone = 'Asia/Jakarta';
+        try {
+            const now = new Date();
+            const waktu = new Intl.DateTimeFormat('id-ID', {
+                timeZone: timezone,
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).format(now);
+            clockEl.textContent = waktu;
+        } catch (error) {
+            const fallback = new Intl.DateTimeFormat('id-ID', {
+                timeZone: 'Asia/Jakarta',
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).format(new Date());
+            clockEl.textContent = fallback;
+            timezoneEl.textContent = 'Asia/Jakarta';
+        }
+    }
+
+    // Initialize Theme
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        updateThemeButton(savedTheme);
+        updateAdminClock();
+        setInterval(updateAdminClock, 1000);
+    });
+</script>
+
+<style>
+    :root {
+        --bg-body: #f5f7fb;
+        --bg-card: #ffffff;
+        --bg-sidebar: #ffffff;
+        --text-color: #212529;
+        --text-muted: #6c757d;
+        --border-color: #eef2f6;
+        --card-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    }
+
+    /* Dark Mode Variables */
+    [data-theme="dark"] {
+        --bg-body: #081120;
+        --bg-card: #101c30;
+        --bg-sidebar: #0d1728;
+        --text-color: #e6eefc;
+        --text-muted: #93a4bf;
+        --border-color: rgba(148, 163, 184, 0.18);
+        --card-shadow: 0 20px 42px rgba(2, 8, 23, 0.36);
+    }
+
+    body {
+        background-color: var(--bg-body);
+        color: var(--text-color);
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    [data-theme="dark"] body {
+        background:
+            radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 24%),
+            radial-gradient(circle at 85% 15%, rgba(20, 184, 166, 0.12), transparent 24%),
+            linear-gradient(180deg, #081120 0%, #0b1324 44%, #0a1428 100%);
+    }
+
+    /* Card Styles */
+    .card:not(.stat-gradient-card):not(.live-metric-card), .stat-card-modern:not(.stat-gradient-card) {
+        background-color: var(--bg-card) !important;
+        color: var(--text-color);
+        border: 1px solid var(--border-color) !important;
+        box-shadow: var(--card-shadow);
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+        background-color: var(--bg-sidebar) !important;
+        border-right: 1px solid var(--border-color);
+    }
+
+    .sidebar .nav-link {
+        color: var(--text-muted) !important;
+    }
+
+    .sidebar .nav-link:hover {
+        background: #f8fafc !important;
+        color: #0d6efd !important;
+    }
+
+    .sidebar .nav-link.active {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%) !important;
+        color: #ffffff !important;
+        box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3);
+        border: none !important;
+    }
+
+    .sidebar .nav-link.active span,
+    .sidebar .nav-link.active i,
+    .sidebar .nav-link.active .icon-wrapper {
+        color: #ffffff !important;
+    }
+
+    [data-theme="dark"] .sidebar .nav-link.active {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+        color: #ffffff !important;
+    }
+
+    .sidebar .nav-link.main-link {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-color);
+    }
+
+    .sidebar .logo-container {
+        background-color: var(--bg-card) !important;
+        box-shadow: var(--card-shadow) !important;
+    }
+
+    /* Text Colors */
+    .text-muted {
+        color: var(--text-muted) !important;
+    }
+    
+    .text-dark {
+        color: var(--text-color) !important;
+    }
+
+    /* Chart & Table adjustments */
+    [data-theme="dark"] .table {
+        color: var(--text-color);
+        border-color: var(--border-color);
+    }
+    
+    [data-theme="dark"] .bg-white {
+        background-color: var(--bg-card) !important;
+    }
+    /* Dashboard header tidy-up */
+    .dashboard-actions,
+    .dashboard-hero {
+        position: relative;
+        border: 1px solid var(--surface-border);
+        border-radius: 24px;
+        padding: 16px 20px;
+        background:
+            linear-gradient(145deg, rgba(255,255,255,0.88), rgba(244,247,255,0.82)),
+            var(--hero-glow);
+        backdrop-filter: blur(18px);
+        box-shadow: 0 18px 44px rgba(37, 99, 235, 0.08);
+    }
+
+    .dashboard-header-row,
+    .dashboard-header-row > .col-12,
+    .dashboard-actions {
+        position: relative;
+        z-index: 30;
+        overflow: visible !important;
+    }
+
+    .dashboard-actions .btn {
+        border-radius: 999px;
+        min-height: 38px;
+        padding-inline: 1rem;
+        font-weight: 700;
+    }
+
+    .dashboard-clock {
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .dashboard-admin-summary {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .dashboard-actions h5 {
+        font-size: 1.15rem;
+        letter-spacing: -0.02em;
+        color: #334155;
+        font-weight: 800;
+    }
+
+    .dashboard-actions::before,
+    .dashboard-hero::before {
+        content: "";
+        position: absolute;
+        inset: auto -60px -110px auto;
+        width: 220px;
+        height: 220px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(96, 165, 250, 0.16), transparent 70%);
+        pointer-events: none;
+    }
+
+    [data-theme="dark"] .dashboard-actions,
+    [data-theme="dark"] .dashboard-hero {
+        background:
+            linear-gradient(145deg, rgba(15,23,42,0.88), rgba(17,24,39,0.9)),
+            radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 40%);
+        border-color: rgba(148, 163, 184, 0.22);
+        box-shadow: 0 20px 42px rgba(2, 8, 23, 0.32);
+    }
+
+    [data-theme="dark"] .dashboard-actions h5,
+    [data-theme="dark"] .dashboard-hero h4 {
+        color: #f8fafc !important;
+    }
+
+    [data-theme="dark"] .dashboard-hero p,
+    [data-theme="dark"] .dashboard-clock,
+    [data-theme="dark"] #adminClock {
+        color: #cbd5e1 !important;
+    }
+
+    [data-theme="dark"] .dashboard-actions .btn-outline-secondary {
+        color: #e2e8f0 !important;
+        border-color: rgba(148, 163, 184, 0.6) !important;
+    }
+
+    .icon-only-btn {
+        width: 42px;
+        min-width: 42px;
+        height: 42px;
+        padding-inline: 0 !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .icon-only-btn i {
+        margin-right: 0 !important;
+        font-size: 1rem;
+    }
+
+    .dashboard-action-toolbar {
+        margin-left: auto;
+        position: relative;
+        z-index: 3;
+    }
+
+    .dashboard-utility-btn {
+        background: rgba(255,255,255,0.78);
+        border-width: 1px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .dashboard-utility-btn:hover,
+    .dashboard-utility-btn:focus-visible {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12);
+    }
+
+    .notification-badge {
+        font-size: 0.62rem;
+        padding: 0.28rem 0.38rem;
+        box-shadow: 0 8px 16px rgba(239, 68, 68, 0.28);
+    }
+
+    .dashboard-notification-menu {
+        width: min(360px, calc(100vw - 28px));
+        border-radius: 20px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(244,247,255,0.98));
+        border: 1px solid rgba(148, 163, 184, 0.16) !important;
+        backdrop-filter: blur(20px);
+        z-index: 1085;
+    }
+
+    .dashboard-notification-header {
+        padding: 16px 18px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(99, 102, 241, 0.08));
+    }
+
+    .dashboard-notification-list {
+        max-height: 360px;
+        overflow-y: auto;
+    }
+
+    .dashboard-notification-item,
+    .dashboard-notification-empty {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 18px;
+        white-space: normal;
+    }
+
+    .dashboard-notification-item {
+        border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        transition: background-color 0.2s ease;
+    }
+
+    .dashboard-notification-item:last-child {
+        border-bottom: 0;
+    }
+
+    .dashboard-notification-item:hover,
+    .dashboard-notification-item:focus {
+        background: rgba(59, 130, 246, 0.06);
+    }
+
+    .dashboard-notification-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 1rem;
+        color: #fff;
+    }
+
+    .notification-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    .notification-primary { background: linear-gradient(135deg, #6d4bff 0%, #7c3aed 100%); }
+    .notification-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    .notification-info { background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); }
+    .notification-success { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+
+    .dashboard-notification-copy {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .dashboard-notification-title {
+        color: #0f172a;
+        font-weight: 800;
+        font-size: 0.92rem;
+    }
+
+    .dashboard-notification-text {
+        color: #475569;
+        font-size: 0.82rem;
+        line-height: 1.45;
+    }
+
+    .dashboard-notification-meta {
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    [data-theme="dark"] .dashboard-utility-btn {
+        background: rgba(15, 23, 42, 0.72);
+        border-color: rgba(148, 163, 184, 0.28) !important;
+        color: #e2e8f0 !important;
+        box-shadow: 0 18px 34px rgba(2, 8, 23, 0.28);
+    }
+
+    [data-theme="dark"] .dashboard-notification-menu {
+        background: linear-gradient(180deg, rgba(8,17,32,0.98), rgba(13,23,40,0.98));
+        border-color: rgba(148, 163, 184, 0.18) !important;
+        box-shadow: 0 24px 48px rgba(2, 8, 23, 0.38);
+    }
+
+    [data-theme="dark"] .dashboard-notification-header {
+        border-bottom-color: rgba(148, 163, 184, 0.14);
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.16), rgba(99, 102, 241, 0.14));
+    }
+
+    [data-theme="dark"] .dashboard-notification-header strong,
+    [data-theme="dark"] .dashboard-notification-title {
+        color: #f8fafc !important;
+    }
+
+    [data-theme="dark"] .dashboard-notification-text,
+    [data-theme="dark"] .dashboard-notification-empty .text-muted {
+        color: #cbd5e1 !important;
+    }
+
+    [data-theme="dark"] .dashboard-notification-meta,
+    [data-theme="dark"] .dashboard-notification-header .text-muted {
+        color: #93a4bf !important;
+    }
+
+    @media (max-width: 767.98px) {
+        .dashboard-action-toolbar {
+            width: 100%;
+            justify-content: flex-end;
+        }
+
+        .dashboard-notification-menu {
+            width: min(340px, calc(100vw - 24px));
+        }
+    }
+
+    .section-header {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 1rem !important;
+    }
+
+    .section-header::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, rgba(99, 102, 241, 0.22), rgba(148, 163, 184, 0.08));
+    }
+
+    .section-header h6 {
+        margin: 0;
+        font-size: 0.78rem;
+        letter-spacing: 0.18em;
+        color: #5b6ea6 !important;
+        font-weight: 800 !important;
+    }
+
+    [data-theme="dark"] .section-header h6 {
+        color: #9db4df !important;
+    }
+</style>
+
+<!-- GENIEACS SECTION -->
+<div class="section-header mb-3 mt-4">
+  <h6 class="text-uppercase text-muted fw-bold small ls-1">Node Status (GenieACS)</h6>
+</div>
+<div class="row g-4 mb-4">
+  <div class="col-xl-4 col-md-6">
+    <div class="card stat-card-modern stat-gradient-card stat-gradient-acs border-0 h-100" style="background: linear-gradient(135deg, #1f6feb 0%, #1d4ed8 100%) !important;">
+      <div class="card-body p-4 d-flex align-items-center">
+        <div class="stat-icon-box bg-light-primary text-primary me-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+          <i class="bi bi-router fs-3"></i>
+        </div>
+        <div>
+          <div class="text-muted small fw-bold text-uppercase mb-1">Total ACS</div>
+          <div class="stat-value fw-bold text-dark fs-2" id="genieacs-total">
+            <% if (typeof genieacsTotal !== 'undefined' && genieacsTotal !== null) { %>
+              <%= genieacsTotal %>
+            <% } else { %>
+              <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-md-6">
+    <div class="card stat-card-modern stat-gradient-card stat-gradient-online border-0 h-100" style="background: linear-gradient(135deg, #1fbf8f 0%, #0f9f8a 100%) !important;">
+      <div class="card-body p-4 d-flex align-items-center">
+        <div class="stat-icon-box bg-light-success text-success me-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+          <i class="bi bi-wifi fs-3"></i>
+        </div>
+        <div>
+          <div class="text-muted small fw-bold text-uppercase mb-1">Online ONT</div>
+          <div class="stat-value fw-bold text-success fs-2" id="genieacs-online">
+            <% if (typeof genieacsOnline !== 'undefined' && genieacsOnline !== null) { %>
+              <%= genieacsOnline %>
+            <% } else { %>
+              <div class="spinner-border spinner-border-sm text-success" role="status"></div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-md-6">
+    <div class="card stat-card-modern stat-gradient-card stat-gradient-lost border-0 h-100" style="background: linear-gradient(135deg, #ef476f 0%, #c1121f 100%) !important;">
+      <div class="card-body p-4 d-flex align-items-center">
+        <div class="stat-icon-box bg-light-danger text-danger me-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+          <i class="bi bi-wifi-off fs-3"></i>
+        </div>
+        <div>
+          <div class="text-muted small fw-bold text-uppercase mb-1">Lost Signal</div>
+          <div class="stat-value fw-bold text-danger fs-2" id="genieacs-offline">
+            <% if (typeof genieacsOffline !== 'undefined' && genieacsOffline !== null) { %>
+              <%= genieacsOffline %>
+            <% } else { %>
+              <div class="spinner-border spinner-border-sm text-danger" role="status"></div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MIKROTIK SECTION -->
+<div class="section-header mb-3 mt-4">
+  <h6 class="text-uppercase text-muted fw-bold small ls-1">Connection Hub (Mikrotik)</h6>
+</div>
+<div class="row g-4 mb-4">
+  <div class="col-xl-4 col-md-6">
+    <div class="card stat-card-modern stat-gradient-card stat-gradient-pppoe border-0 h-100" style="background: linear-gradient(135deg, #0ea5e9 0%, #1d4ed8 100%) !important;">
+      <div class="card-body p-4 d-flex align-items-center">
+        <div class="stat-icon-box bg-light-info text-info me-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+          <i class="bi bi-people-fill fs-3"></i>
+        </div>
+        <div>
+          <div class="text-muted small fw-bold text-uppercase mb-1">PPPoE Registries</div>
+          <div class="stat-value fw-bold text-dark fs-2" id="mikrotik-total"><%= typeof mikrotikTotal !== 'undefined' ? mikrotikTotal : '-' %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-md-6">
+    <div class="card stat-card-modern stat-gradient-card stat-gradient-uplink border-0 h-100" style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%) !important;">
+      <div class="card-body p-4 d-flex align-items-center">
+        <div class="stat-icon-box bg-light-primary text-primary me-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+          <i class="bi bi-person-check-fill fs-3"></i>
+        </div>
+        <div>
+          <div class="text-muted small fw-bold text-uppercase mb-1">Active Uplink</div>
+          <div class="stat-value fw-bold text-primary fs-2" id="mikrotik-aktif"><%= typeof mikrotikAktif !== 'undefined' ? mikrotikAktif : '-' %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-md-6">
+    <div class="card stat-card-modern stat-gradient-card stat-gradient-disconnected border-0 h-100" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;">
+      <div class="card-body p-4 d-flex align-items-center">
+        <div class="stat-icon-box bg-light-warning text-warning me-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+          <i class="bi bi-person-x-fill fs-3"></i>
+        </div>
+        <div>
+          <div class="text-muted small fw-bold text-uppercase mb-1">Disconnected</div>
+          <div class="stat-value fw-bold text-warning fs-2" id="mikrotik-offline"><%= typeof mikrotikOffline !== 'undefined' ? mikrotikOffline : '-' %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.bg-light-primary { background-color: #eef2ff !important; }
+.bg-light-success { background-color: #ecfdf5 !important; }
+.bg-light-danger { background-color: #fef2f2 !important; }
+.bg-light-info { background-color: #f0f9ff !important; }
+.bg-light-warning { background-color: #fffbeb !important; }
+
+.stat-card-modern {
+  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.09);
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+  border-radius: 24px !important;
+}
+
+.stat-card-modern:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 28px 52px rgba(15, 23, 42, 0.14);
+}
+
+.stat-gradient-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.28) !important;
+  isolation: isolate;
+}
+
+.stat-gradient-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at top right, rgba(255,255,255,0.28), transparent 42%),
+    linear-gradient(180deg, rgba(255,255,255,0.08), transparent 55%);
+  pointer-events: none;
+}
+
+.stat-gradient-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -52px -52px auto;
+  width: 170px;
+  height: 170px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  pointer-events: none;
+}
+
+.stat-gradient-acs { background: linear-gradient(135deg, #4f7cff 0%, #2756d8 100%) !important; }
+.stat-gradient-online { background: linear-gradient(135deg, #20c997 0%, #0f9f8a 100%) !important; }
+.stat-gradient-lost { background: linear-gradient(135deg, #ff5e7b 0%, #d7264c 100%) !important; }
+.stat-gradient-pppoe { background: linear-gradient(135deg, #20b7f5 0%, #0b84d8 100%) !important; }
+.stat-gradient-uplink { background: linear-gradient(135deg, #5f6bff 0%, #3a41d6 100%) !important; }
+.stat-gradient-disconnected { background: linear-gradient(135deg, #f7b801 0%, #e28a00 100%) !important; }
+/* Keep per-card gradient colors in dark mode (do not let global card background override) */
+[data-theme="dark"] .stat-gradient-card.stat-gradient-acs { background-image: linear-gradient(135deg, #3366ff 0%, #1e3a8a 100%) !important; background-color: transparent !important; }
+[data-theme="dark"] .stat-gradient-card.stat-gradient-online { background-image: linear-gradient(135deg, #16c784 0%, #0f766e 100%) !important; background-color: transparent !important; }
+[data-theme="dark"] .stat-gradient-card.stat-gradient-lost { background-image: linear-gradient(135deg, #ff4d6d 0%, #be123c 100%) !important; background-color: transparent !important; }
+[data-theme="dark"] .stat-gradient-card.stat-gradient-pppoe { background-image: linear-gradient(135deg, #0ea5e9 0%, #1d4ed8 100%) !important; background-color: transparent !important; }
+[data-theme="dark"] .stat-gradient-card.stat-gradient-uplink { background-image: linear-gradient(135deg, #6366f1 0%, #3730a3 100%) !important; background-color: transparent !important; }
+[data-theme="dark"] .stat-gradient-card.stat-gradient-disconnected { background-image: linear-gradient(135deg, #f59e0b 0%, #b45309 100%) !important; background-color: transparent !important; }
+
+.stat-gradient-card .text-muted,
+.stat-gradient-card .stat-value,
+.stat-gradient-card .fw-bold {
+  color: #ffffff !important;
+}
+
+.stat-gradient-card .card-body {
+  min-height: 110px;
+  padding: 1.05rem 1.2rem !important;
+}
+
+.stat-gradient-card .small {
+  opacity: 0.88;
+}
+
+[data-theme="dark"] .stat-gradient-card .text-uppercase,
+[data-theme="dark"] .stat-gradient-card .text-muted,
+[data-theme="dark"] .stat-gradient-card .small {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.stat-gradient-card .stat-value {
+  font-size: 1.95rem !important;
+  letter-spacing: -0.03em;
+  text-shadow: 0 10px 24px rgba(0,0,0,0.18);
+}
+
+.stat-icon-box {
+  backdrop-filter: blur(6px);
+}
+
+.stat-gradient-card .stat-icon-box {
+  width: 54px !important;
+  height: 54px !important;
+  background: rgba(255,255,255,0.16) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,0.28);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
+}
+
+.stat-gradient-card .text-uppercase.small {
+  font-size: 0.72rem !important;
+  letter-spacing: 0.1em;
+}
+
+.live-metric-card {
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.28);
+  color: #fff;
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.14);
+  position: relative;
+  overflow: hidden;
+}
+
+.live-metric-card small,
+.live-metric-card h4,
+.live-metric-card i {
+  color: #fff !important;
+}
+
+.live-metric-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent 50%);
+  pointer-events: none;
+}
+
+.live-metric-card h4 {
+  font-size: 1.55rem;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+}
+
+[data-theme="dark"] .live-metric-card .text-primary,
+[data-theme="dark"] .live-metric-card .text-success,
+[data-theme="dark"] .live-metric-card .text-info,
+[data-theme="dark"] .live-metric-card .text-muted,
+[data-theme="dark"] .live-metric-card small,
+[data-theme="dark"] .live-metric-card h4,
+[data-theme="dark"] .live-metric-card i {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.metric-download { background: linear-gradient(135deg, #1d7df2 0%, #0058c9 100%) !important; }
+.metric-upload { background: linear-gradient(135deg, #17c1a3 0%, #10997f 100%) !important; }
+.metric-total { background: linear-gradient(135deg, #00b5e2 0%, #0077b6 100%) !important; }
+.metric-status { background: linear-gradient(135deg, #5f6bff 0%, #3e49df 100%) !important; }
+.metric-status.idle { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important; }
+.metric-status.low { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%) !important; }
+.metric-status.medium { background: linear-gradient(135deg, #06b6d4 0%, #0e7490 100%) !important; }
+.metric-status.high { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important; }
+.metric-status.very-high,
+.metric-status.ultra-high { background: linear-gradient(135deg, #ef4444 0%, #be123c 100%) !important; }
+
+.traffic-glass-card {
+  border-radius: 28px !important;
+  border: 1px solid rgba(148, 163, 184, 0.26) !important;
+  background:
+    linear-gradient(160deg, rgba(255,255,255,0.92), rgba(244,247,255,0.95)),
+    radial-gradient(circle at top right, rgba(96,165,250,0.08), transparent 30%);
+  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="dark"] .traffic-glass-card {
+  background:
+    linear-gradient(165deg, rgba(15,23,42,0.92), rgba(22,34,53,0.96)),
+    radial-gradient(circle at top right, rgba(34,197,94,0.08), transparent 30%);
+  border-color: rgba(148,163,184,0.2) !important;
+  box-shadow: 0 24px 50px rgba(2, 8, 23, 0.28);
+}
+
+.ls-1 { letter-spacing: 1px; }
+
+.traffic-glass-card > .card-header,
+.traffic-glass-card .card-header {
+  padding-top: 1.25rem !important;
+  padding-bottom: 1rem !important;
+}
+
+.traffic-glass-card .card-title,
+.traffic-glass-card h6 {
+  letter-spacing: -0.02em;
+}
+
+.traffic-glass-card .card-body {
+  position: relative;
+}
+
+.traffic-subcard {
+  border-radius: 22px !important;
+  border: 1px solid rgba(148, 163, 184, 0.18) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(247,250,255,0.98)) !important;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
+}
+
+[data-theme="dark"] .traffic-subcard {
+  background: linear-gradient(180deg, rgba(12,19,33,0.94), rgba(16,28,48,0.98)) !important;
+  border-color: rgba(148, 163, 184, 0.14) !important;
+  box-shadow: 0 18px 32px rgba(2, 8, 23, 0.18);
+}
+
+#interfaceSelect {
+  border-radius: 999px !important;
+  padding-inline: 1rem !important;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+[data-theme="dark"] #interfaceSelect {
+  background: rgba(15, 23, 42, 0.72) !important;
+  color: #e2e8f0 !important;
+}
+</style>
+            <!-- GRAFIK INTERNET -->
+            <div class="row mb-4">
+              <div class="col-md-12">
+                <div class="card border-0 shadow-sm traffic-glass-card">
+                  <div class="card-header bg-transparent border-bottom-0 pt-4 px-4">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                      <h5 class="card-title mb-0 fw-bold text-primary">
+                        <i class="bi bi-graph-up-arrow me-2"></i>Traffic Internet - <span id="currentInterface" class="text-dark">Ether1</span>
+                      </h5>
+                      <div class="d-flex flex-column align-items-end gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                          <label for="interfaceSelect" class="form-label mb-0 text-muted small">Interface:</label>
+                          <select id="interfaceSelect" class="form-select form-select-sm border-0 bg-light fw-semibold" style="width: auto; cursor: pointer; min-width: 210px;">
+                            <option value="ether1-ISP">Ether1-ISP (ISP)</option>
+                            <!-- Interface akan di-load secara dinamis -->
+                          </select>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="card-body px-4 pb-4">
+                    <!-- Real-time bandwidth info -->
+                    <div class="row g-3 mb-4">
+                      <div class="col-xl-3 col-sm-6">
+                        <div class="p-3 rounded-3 live-metric-card metric-download h-100">
+                          <div class="d-flex align-items-center justify-content-between mb-2">
+                            <small class="text-primary fw-semibold text-uppercase">Download</small>
+                            <i class="bi bi-download text-primary opacity-50"></i>
+                          </div>
+                          <h4 id="currentRx" class="mb-0 fw-bold text-dark">0 Mbps</h4>
+                        </div>
+                      </div>
+                      <div class="col-xl-3 col-sm-6">
+                        <div class="p-3 rounded-3 live-metric-card metric-upload h-100">
+                          <div class="d-flex align-items-center justify-content-between mb-2">
+                            <small class="text-success fw-semibold text-uppercase">Upload</small>
+                            <i class="bi bi-upload text-success opacity-50"></i>
+                          </div>
+                          <h4 id="currentTx" class="mb-0 fw-bold text-dark">0 Mbps</h4>
+                        </div>
+                      </div>
+                      <div class="col-xl-3 col-sm-6">
+                        <div class="p-3 rounded-3 live-metric-card metric-total h-100">
+                          <div class="d-flex align-items-center justify-content-between mb-2">
+                            <small class="text-info fw-semibold text-uppercase">Total</small>
+                            <i class="bi bi-activity text-info opacity-50"></i>
+                          </div>
+                          <h4 id="currentTotal" class="mb-0 fw-bold text-dark">0 Mbps</h4>
+                        </div>
+                      </div>
+                      <div class="col-xl-3 col-sm-6">
+                        <div id="trafficStatusCard" class="p-3 rounded-3 live-metric-card metric-status idle h-100">
+                          <div class="d-flex align-items-center justify-content-between mb-2">
+                            <small class="text-muted fw-semibold text-uppercase">Status</small>
+                            <i class="bi bi-speedometer2 text-muted opacity-50"></i>
+                          </div>
+                          <h4 id="currentStatus" class="mb-0 fw-bold text-dark">Idle</h4>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Grafik Traffic Terpisah -->
+                    <div class="row g-4">
+                      <!-- Grafik Download (RX) -->
+                      <div class="col-lg-6">
+                        <div class="card border-0 shadow-sm h-100 traffic-subcard">
+                          <div class="card-header bg-transparent border-bottom py-3">
+                            <h6 class="mb-0 fw-semibold text-primary"><i class="bi bi-download me-2"></i>Download Traffic (RX)</h6>
+                          </div>
+                          <div class="card-body">
+                            <div style="height: 250px;">
+                              <canvas id="rxChart"></canvas>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Grafik Upload (TX) -->
+                      <div class="col-lg-6">
+                        <div class="card border-0 shadow-sm h-100 traffic-subcard">
+                          <div class="card-header bg-transparent border-bottom py-3">
+                            <h6 class="mb-0 fw-semibold text-success"><i class="bi bi-upload me-2"></i>Upload Traffic (TX)</h6>
+                          </div>
+                          <div class="card-body">
+                            <div style="height: 250px;">
+                              <canvas id="txChart"></canvas>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Grafik Combined (Opsional) -->
+                    <div class="row mt-4">
+                      <div class="col-12">
+                        <div class="card border-0 shadow-sm traffic-glass-card">
+                          <div class="card-header bg-transparent border-bottom py-3">
+                            <h6 class="mb-0 fw-semibold text-dark"><i class="bi bi-graph-up me-2"></i>Combined Traffic Overview</h6>
+                          </div>
+                          <div class="card-body">
+                            <div style="height: 250px;">
+                              <canvas id="combinedChart"></canvas>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                    <div class="row mt-4 g-4">
+                      <div class="col-lg-4">
+                        <div class="card border-0 shadow-sm h-100 traffic-glass-card">
+                          <div class="card-header bg-transparent border-bottom py-3">
+                            <h6 class="mb-0 fw-semibold text-dark"><i class="bi bi-pie-chart me-2"></i>Traffic Share</h6>
+                          </div>
+                          <div class="card-body">
+                            <div style="height: 240px;">
+                              <canvas id="trafficShareChart"></canvas>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-lg-8">
+                        <div class="card border-0 shadow-sm h-100 traffic-glass-card">
+                          <div class="card-header bg-transparent border-bottom py-3">
+                            <h6 class="mb-0 fw-semibold text-dark"><i class="bi bi-activity me-2"></i>Traffic Trend (Last 30 Samples)</h6>
+                          </div>
+                          <div class="card-body">
+                            <div style="height: 240px;">
+                              <canvas id="trafficTrendChart"></canvas>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+              </div>
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+                        <script>
+                        // Grafik bandwidth real-time modern
+            const maxPoints = 30;
+            let currentInterface = localStorage.getItem('selectedInterface') || 'ether1-ISP';
+            
+            function formatBandwidth(bytesPerSec) {
+              if (!bytesPerSec || isNaN(bytesPerSec)) return '0 bps';
+              if (bytesPerSec >= 1000000000) return (bytesPerSec / 1000000000).toFixed(2) + ' Gbps';
+              if (bytesPerSec >= 1000000) return (bytesPerSec / 1000000).toFixed(2) + ' Mbps';
+              if (bytesPerSec >= 1000) return (bytesPerSec / 1000).toFixed(2) + ' Kbps';
+              return Math.floor(bytesPerSec) + ' bps';
+            }
+
+            function createAreaGradient(ctx, rgbColor) {
+              const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+              gradient.addColorStop(0, `rgba(${rgbColor}, 0.35)`);
+              gradient.addColorStop(0.65, `rgba(${rgbColor}, 0.12)`);
+              gradient.addColorStop(1, `rgba(${rgbColor}, 0.02)`);
+              return gradient;
+            }
+
+            function getChartBaseOptions() {
+              return {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 520, easing: 'easeOutCubic' },
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                  legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                      padding: 12,
+                      usePointStyle: true,
+                      pointStyle: 'circle',
+                      color: '#64748b',
+                      font: { size: 12, weight: '600' }
+                    }
+                  },
+                  tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(15,23,42,0.92)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#e2e8f0',
+                    borderColor: 'rgba(148,163,184,0.35)',
+                    borderWidth: 1,
+                    cornerRadius: 12,
+                    padding: 12,
+                    callbacks: {
+                      label: function(context) {
+                        return `${context.dataset.label}: ${formatBandwidth(context.parsed.y)}`;
+                      }
+                    }
+                  }
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Bandwidth', color: '#64748b', font: { size: 12, weight: '700' } },
+                    ticks: {
+                      callback: (v) => formatBandwidth(v),
+                      color: '#64748b',
+                      font: { size: 10, weight: '600' },
+                      maxTicksLimit: 8
+                    },
+                    grid: { color: 'rgba(148,163,184,0.16)', drawBorder: false }
+                  },
+                  x: {
+                    title: { display: true, text: 'Time', color: '#64748b', font: { size: 12, weight: '700' } },
+                    ticks: { color: '#94a3b8', font: { size: 10, weight: '600' }, maxTicksLimit: 6 },
+                    grid: { display: false, drawBorder: false },
+                    min: 0,
+                    max: maxPoints - 1
+                  }
+                },
+                elements: {
+                  point: { radius: 0, hoverRadius: 5, hitRadius: 16 },
+                  line: { borderWidth: 3, tension: 0.42, cubicInterpolationMode: 'monotone' }
+                }
+              };
+            }
+
+            let rxChart, txChart, combinedChart, trafficShareChart, trafficTrendChart;
+            let trendTotals = [];
+
+            const rxCtx = document.getElementById('rxChart').getContext('2d');
+            const txCtx = document.getElementById('txChart').getContext('2d');
+            const combinedCtx = document.getElementById('combinedChart').getContext('2d');
+            const shareCtx = document.getElementById('trafficShareChart').getContext('2d');
+            const trendCtx = document.getElementById('trafficTrendChart').getContext('2d');
+
+            function createRealtimeCharts() {
+              const base = { type: 'line', options: getChartBaseOptions() };
+
+              rxChart = new Chart(rxCtx, {
+                ...base,
+                data: {
+                  labels: [],
+                  datasets: [{
+                    label: 'Download (RX)',
+                    data: [],
+                    fill: true,
+                    backgroundColor: createAreaGradient(rxCtx, '13,202,240'),
+                    borderColor: '#0dcaf0',
+                    pointBackgroundColor: '#0dcaf0',
+                    pointBorderColor: '#ffffff'
+                  }]
+                }
+              });
+
+              txChart = new Chart(txCtx, {
+                ...base,
+                data: {
+                  labels: [],
+                  datasets: [{
+                    label: 'Upload (TX)',
+                    data: [],
+                    fill: true,
+                    backgroundColor: createAreaGradient(txCtx, '34,197,94'),
+                    borderColor: '#22c55e',
+                    pointBackgroundColor: '#22c55e',
+                    pointBorderColor: '#ffffff'
+                  }]
+                }
+              });
+
+              combinedChart = new Chart(combinedCtx, {
+                ...base,
+                data: {
+                  labels: [],
+                  datasets: [
+                    {
+                      type: 'bar',
+                      label: 'Total',
+                      data: [],
+                      backgroundColor: 'rgba(99,102,241,0.18)',
+                      borderColor: 'rgba(99,102,241,0.38)',
+                      borderWidth: 1,
+                      borderRadius: 8,
+                      barPercentage: 0.72,
+                      categoryPercentage: 0.74,
+                      order: 3
+                    },
+                    {
+                      label: 'Download (RX)',
+                      data: [],
+                      fill: false,
+                      borderColor: '#0dcaf0',
+                      borderWidth: 2.5,
+                      order: 1
+                    },
+                    {
+                      label: 'Upload (TX)',
+                      data: [],
+                      fill: false,
+                      borderColor: '#22c55e',
+                      borderWidth: 2.5,
+                      order: 2
+                    }
+                  ]
+                }
+              });
+
+              trafficShareChart = new Chart(shareCtx, {
+                type: 'doughnut',
+                data: {
+                  labels: ['Download', 'Upload'],
+                  datasets: [{
+                    data: [1, 1],
+                    backgroundColor: ['rgba(13,202,240,0.85)', 'rgba(34,197,94,0.85)'],
+                    borderColor: ['#0dcaf0', '#22c55e'],
+                    borderWidth: 1
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  cutout: '66%',
+                  plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, color: '#64748b' } },
+                    tooltip: {
+                      callbacks: {
+                        label: (ctx) => `${ctx.label}: ${formatBandwidth(ctx.parsed)}`
+                      }
+                    }
+                  }
+                }
+              });
+
+              trafficTrendChart = new Chart(trendCtx, {
+                type: 'bar',
+                data: {
+                  labels: [],
+                  datasets: [{
+                    label: 'Total Trend',
+                    data: [],
+                    backgroundColor: 'rgba(99,102,241,0.32)',
+                    borderColor: '#6366f1',
+                    borderWidth: 1,
+                    borderRadius: 6
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { display: false } },
+                  scales: {
+                    y: { beginAtZero: true, ticks: { callback: (v) => formatBandwidth(v), color: '#64748b', maxTicksLimit: 6 }, grid: { color: 'rgba(148,163,184,0.14)' } },
+                    x: { ticks: { display: false }, grid: { display: false } }
+                  }
+                }
+              });
+            }
+
+            function applyChartStyle() {
+              const rxDs = rxChart.data.datasets[0];
+              const txDs = txChart.data.datasets[0];
+              const cTotal = combinedChart.data.datasets[0];
+              const cRx = combinedChart.data.datasets[1];
+              const cTx = combinedChart.data.datasets[2];
+
+              rxChart.config.type = 'line';
+              txChart.config.type = 'line';
+
+              rxDs.borderColor = '#0dcaf0';
+              txDs.borderColor = '#22c55e';
+              rxDs.backgroundColor = createAreaGradient(rxCtx, '13,202,240');
+              txDs.backgroundColor = createAreaGradient(txCtx, '34,197,94');
+              rxDs.fill = true;
+              txDs.fill = true;
+
+              cTotal.hidden = false;
+              cRx.borderColor = '#0dcaf0';
+              cTx.borderColor = '#22c55e';
+              cRx.fill = false;
+              cTx.fill = false;
+
+              [rxChart, txChart, combinedChart].forEach(ch => {
+                ch.options.scales.x.grid.display = false;
+                ch.options.scales.y.grid.color = 'rgba(148,163,184,0.16)';
+              });
+
+              rxChart.update('none');
+              txChart.update('none');
+              combinedChart.update('none');
+            }
+            function updateExtraCharts(rxValue, txValue) {
+              trafficShareChart.data.datasets[0].data = [Math.max(0, rxValue), Math.max(0, txValue)];
+              trafficShareChart.update('none');
+
+              const total = rxValue + txValue;
+              trendTotals.push(total);
+              if (trendTotals.length > maxPoints) trendTotals.shift();
+
+              trafficTrendChart.data.labels = trendTotals.map((_, idx) => idx + 1);
+              trafficTrendChart.data.datasets[0].data = [...trendTotals];
+              adjustChartYAxis(trafficTrendChart);
+              trafficTrendChart.update('none');
+            }
+
+            function adjustChartYAxis(chart) {
+              if (!chart || !chart.data || !chart.data.datasets || chart.data.datasets.length === 0) return;
+              let allData = [];
+              chart.data.datasets.forEach(ds => {
+                if (Array.isArray(ds.data)) allData = allData.concat(ds.data.filter(v => typeof v === 'number' && !isNaN(v)));
+              });
+              if (!allData.length) return;
+
+              const maxValue = Math.max(...allData);
+              if (!isFinite(maxValue) || maxValue <= 0) {
+                chart.options.scales.y.min = 0;
+                chart.options.scales.y.max = 1;
+                chart.options.scales.y.ticks.stepSize = 0.2;
+                return;
+              }
+
+              const targetTicks = 7;
+              const roughStep = maxValue / targetTicks;
+              const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
+              const normalized = roughStep / magnitude;
+
+              let niceNormalized;
+              if (normalized <= 1) niceNormalized = 1;
+              else if (normalized <= 2) niceNormalized = 2;
+              else if (normalized <= 2.5) niceNormalized = 2.5;
+              else if (normalized <= 5) niceNormalized = 5;
+              else niceNormalized = 10;
+
+              const stepSize = niceNormalized * magnitude;
+              const yMax = Math.ceil(maxValue / stepSize) * stepSize;
+
+              chart.options.scales.y.min = 0;
+              chart.options.scales.y.max = yMax;
+              chart.options.scales.y.ticks.stepSize = stepSize;
+              chart.options.scales.y.ticks.maxTicksLimit = 8;
+            }
+
+            function updateChart(chart, label, value) {
+              if (chart.data.labels.length >= maxPoints) {
+                chart.data.labels.shift();
+                chart.data.datasets[0].data.shift();
+              }
+              chart.data.labels.push(label);
+              chart.data.datasets[0].data.push(parseFloat(value));
+
+              if (chart.data.labels.length >= maxPoints) {
+                chart.options.scales.x.min = chart.data.labels.length - maxPoints;
+                chart.options.scales.x.max = chart.data.labels.length - 1;
+              }
+
+              adjustChartYAxis(chart);
+              chart.update('none');
+            }
+
+            function updateCombinedChart(label, rxValue, txValue) {
+              if (combinedChart.data.labels.length >= maxPoints) {
+                combinedChart.data.labels.shift();
+                combinedChart.data.datasets[0].data.shift();
+                combinedChart.data.datasets[1].data.shift();
+                combinedChart.data.datasets[2].data.shift();
+              }
+
+              combinedChart.data.labels.push(label);
+              combinedChart.data.datasets[0].data.push(parseFloat(rxValue + txValue));
+              combinedChart.data.datasets[1].data.push(parseFloat(rxValue));
+              combinedChart.data.datasets[2].data.push(parseFloat(txValue));
+
+              if (combinedChart.data.labels.length >= maxPoints) {
+                combinedChart.options.scales.x.min = combinedChart.data.labels.length - maxPoints;
+                combinedChart.options.scales.x.max = combinedChart.data.labels.length - 1;
+              }
+
+              adjustChartYAxis(combinedChart);
+              combinedChart.update('none');
+            }
+
+            function updateAllCharts(label, rxBytes, txBytes) {
+              updateChart(rxChart, label, rxBytes);
+              updateChart(txChart, label, txBytes);
+              updateCombinedChart(label, rxBytes, txBytes);
+              updateExtraCharts(rxBytes, txBytes);
+            }
+
+            function addTrafficData(rx, tx, interface) {
+              const now = new Date();
+              const label = now.toLocaleTimeString('id-ID', { hour12: false });
+              const rxBytes = parseInt(rx) || 0;
+              const txBytes = parseInt(tx) || 0;
+
+              document.getElementById('currentRx').textContent = formatBandwidth(rxBytes);
+              document.getElementById('currentTx').textContent = formatBandwidth(txBytes);
+              document.getElementById('currentTotal').textContent = formatBandwidth(rxBytes + txBytes);
+
+              const statusElement = document.getElementById('currentStatus');
+              const containerDiv = document.getElementById('trafficStatusCard') || statusElement.closest('.p-3');
+              const totalMbps = (rxBytes + txBytes) / 1000000;
+              statusElement.className = 'mb-0 fw-bold text-white';
+
+              if (totalMbps > 1000) {
+                statusElement.textContent = 'Ultra High';
+                containerDiv.className = 'p-3 rounded-3 live-metric-card metric-status ultra-high h-100';
+              } else if (totalMbps > 500) {
+                statusElement.textContent = 'Very High';
+                containerDiv.className = 'p-3 rounded-3 live-metric-card metric-status very-high h-100';
+              } else if (totalMbps > 100) {
+                statusElement.textContent = 'High';
+                containerDiv.className = 'p-3 rounded-3 live-metric-card metric-status high h-100';
+              } else if (totalMbps > 10) {
+                statusElement.textContent = 'Medium';
+                containerDiv.className = 'p-3 rounded-3 live-metric-card metric-status medium h-100';
+              } else if (totalMbps > 1) {
+                statusElement.textContent = 'Low';
+                containerDiv.className = 'p-3 rounded-3 live-metric-card metric-status low h-100';
+              } else {
+                statusElement.textContent = 'Idle';
+                containerDiv.className = 'p-3 rounded-3 live-metric-card metric-status idle h-100';
+              }
+
+              updateAllCharts(label, rxBytes, txBytes);
+            }
+
+            function resetAllCharts() {
+              rxChart.data.labels = [];
+              rxChart.data.datasets[0].data = [];
+              rxChart.update('none');
+
+              txChart.data.labels = [];
+              txChart.data.datasets[0].data = [];
+              txChart.update('none');
+
+              combinedChart.data.labels = [];
+              combinedChart.data.datasets[0].data = [];
+              combinedChart.data.datasets[1].data = [];
+              combinedChart.data.datasets[2].data = [];
+              combinedChart.update('none');
+
+              trendTotals = [];
+              trafficTrendChart.data.labels = [];
+              trafficTrendChart.data.datasets[0].data = [];
+              trafficTrendChart.update('none');
+
+              trafficShareChart.data.datasets[0].data = [1, 1];
+              trafficShareChart.update('none');
+            }
+
+            createRealtimeCharts();
+            applyChartStyle();
+
+async function fetchTraffic() {
+  try {
+    const res = await fetch(`/api/dashboard/traffic?interface=${currentInterface}`);
+    const data = await res.json();
+    if (data.success) {
+      // Gunakan requestAnimationFrame untuk update yang lebih smooth
+      requestAnimationFrame(() => {
+        addTrafficData(data.rx, data.tx, data.interface);
+      });
+    }
+  } catch (e) { 
+    console.error('Error fetching traffic data:', e);
+  }
+}
+
+// Load interface secara dinamis dari Mikrotik
+async function loadInterfaces() {
+  try {
+    console.log('Info dashboard.');
+    const response = await fetch('/api/dashboard/interfaces');
+    const data = await response.json();
+    
+    console.log('Info dashboard.');
+    
+    if (data.success && data.interfaces && data.interfaces.length > 0) {
+      const select = document.getElementById('interfaceSelect');
+      
+      // Hapus semua option kecuali yang pertama (default)
+      while (select.children.length > 1) {
+        select.removeChild(select.lastChild);
+      }
+      
+      // Tambahkan interface yang terdeteksi
+      data.interfaces.forEach(iface => {
+        const option = document.createElement('option');
+        option.value = iface.name;
+        
+        // Buat label yang informatif
+        let label = iface.name;
+        
+        // Tambahkan label khusus untuk interface tertentu
+        if (iface.name === 'ether1-ISP') {
+          label = 'ether1-ISP (ISP)';
+        } else if (iface.name === 'ether2-CADANGAN ISP') {
+          label = 'ether2-CADANGAN ISP (Backup)';
+        } else if (iface.name === 'ether3-LOKAL') {
+          label = 'ether3-LOKAL (Local)';
+        } else if (iface.name === 'ether4-LOKAL-LEPTOP') {
+          label = 'ether4-LOKAL-LEPTOP (Laptop)';
+        } else if (iface.name === 'ether5-LOKAL-REMOT OLT') {
+          label = 'ether5-LOKAL-REMOT OLT (Remote)';
+        } else if (iface.name === 'ether6-OLT-SFP1-TANJUNGPURA') {
+          label = 'ether6-OLT-SFP1-TANJUNGPURA (OLT1)';
+        } else if (iface.name === 'ether7-OLT-SFP2-TANJUNGPURA2') {
+          label = 'ether7-OLT-SFP2-TANJUNGPURA2 (OLT2)';
+        } else if (iface.name === 'ether8-HOTSPOT-RADIO') {
+          label = 'ether8-HOTSPOT-RADIO (Hotspot)';
+        } else if (iface.name === 'ether9-HOTSPOT-SWICTHHUB') {
+          label = 'ether9-HOTSPOT-SWICTHHUB (Switch)';
+        } else if (iface.name === 'ether10-POP PEGAGAN/JANGGAR') {
+          label = 'ether10-POP PEGAGAN/JANGGAR (POP)';
+        } else if (iface.name === 'bridge1-HOTSPOT') {
+          label = 'bridge1-HOTSPOT (Bridge)';
+        } else if (iface.name === 'bridge2_OLT') {
+          label = 'bridge2_OLT (Bridge OLT)';
+        } else if (iface.name === 'vlan6-1100') {
+          label = 'vlan6-1100 (VLAN)';
+        }
+        
+        // Tambahkan status
+        if (iface.disabled) {
+          label += ' [Disabled]';
+        } else if (!iface.running) {
+          label += ' [Down]';
+        } else {
+          label += ' [Active]';
+        }
+        
+        option.textContent = label;
+        select.appendChild(option);
+      });
+      
+      console.log('Info dashboard.');
+      
+      // Update current interface jika tidak ada di list
+      // Perbaikan: Jangan paksa override currentInterface jika sudah ada di localStorage, kecuali benar-benar tidak valid
+      // Biarkan user choice (dari localStorage) tetap menjadi prioritas
+      
+      const currentOption = select.querySelector(`option[value="${currentInterface}"]`);
+      if (currentOption) {
+          // Jika interface yang disimpan valid dan ada di list, set dropdown ke nilai tersebut
+          select.value = currentInterface;
+          document.getElementById('currentInterface').textContent = currentInterface;
+      } else if (data.interfaces.length > 0) {
+          // Jika interface yang disimpan TIDAK valid (misal ganti router), baru fallback ke interface pertama
+          console.warn(`Interface ${currentInterface} not found in list, fallback to first available.`);
+          currentInterface = data.interfaces[0].name;
+          localStorage.setItem('selectedInterface', currentInterface);
+          document.getElementById('currentInterface').textContent = currentInterface;
+          select.value = currentInterface;
+      }
+      
+    } else {
+      console.warn('Peringatan proses dashboard.');
+      console.warn('Response:', data);
+    }
+  } catch (error) {
+    console.error('Terjadi error pada proses dashboard.');
+    console.error('Error details:', error.message);
+  }
+}
+
+// Set interface yang tersimpan ke dropdown
+document.getElementById('interfaceSelect').value = currentInterface;
+document.getElementById('currentInterface').textContent = currentInterface;
+
+// Event listener untuk perubahan interface
+document.getElementById('interfaceSelect').addEventListener('change', function() {
+  currentInterface = this.value;
+  localStorage.setItem('selectedInterface', currentInterface); // Simpan ke localStorage
+  document.getElementById('currentInterface').textContent = currentInterface; // Update tampilan
+  console.log('Interface changed to:', currentInterface);
+  resetAllCharts(); // Reset semua chart data
+  fetchTraffic(); // Fetch data baru segera
+});
+
+// Load interfaces saat halaman dimuat
+loadInterfaces();
+
+// Set interval untuk update data - interval yang lebih optimal untuk grafik
+setInterval(() => { if (!document.hidden) fetchTraffic(); }, 5000); // Update tiap 5 detik, hanya saat tab aktif
+fetchTraffic(); // Fetch data pertama kali
+</script>
+<script>
+// Fungsi untuk me-refresh logo dengan timestamp baru
+function refreshLogo() {
+    const logo = document.getElementById('logoImage');
+    if (logo) {
+        // Tambahkan parameter timestamp baru untuk memaksa reload gambar
+        const timestamp = new Date().getTime();
+        const src = logo.src.split('?')[0]; // Hapus parameter yang ada
+        logo.src = `${src}?v=${timestamp}`;
+    }
+}
+
+// Refresh logo setiap 5 menit
+setInterval(refreshLogo, 300000); // 5 menit, tidak membebani jaringan
+
+// Refresh logo saat halaman dimuat
+document.addEventListener('DOMContentLoaded', function() {
+    refreshLogo();
+});
+</script>
+            </main>
+    </div>
+</div>
+<!-- Modal Konfirmasi Restart Mikrotik -->
+<div class="modal fade" id="restartMikrotikModal" tabindex="-1" aria-labelledby="restartMikrotikModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="restartMikrotikModalLabel"><i class="bi bi-arrow-repeat"></i> Konfirmasi Restart Mikrotik</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Apakah Anda yakin ingin <b>restart Mikrotik</b>?<br>Router akan reboot dan koneksi internet pelanggan akan terputus sementara.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button type="button" class="btn btn-danger" id="confirmRestartMikrotik">Restart</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Toast Container -->
+<div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
+<!-- PWA Install Prompt -->
+<div id="pwa-install-prompt" class="pwa-install-prompt" style="display: none;">
+    <div class="pwa-content">
+        <div class="pwa-icon">
+            <img src="/img/icons/icon-192.png" alt="App Icon">
+        </div>
+        <div class="pwa-info">
+            <h5>Install Aplikasi Admin</h5>
+            <p>Akses lebih cepat & kelola sistem mudah</p>
+        </div>
+        <button id="pwa-install-btn" class="btn btn-primary btn-sm rounded-pill px-3">Install</button>
+        <button id="pwa-dismiss-btn" class="btn-close-pwa"><i class="bi bi-x"></i></button>
+    </div>
+</div>
+<link href="/css/pwa-install.css" rel="stylesheet">
+<script src="/js/pwa-install.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Fungsi toast notification
+function showToast(type, title, message, duration = 5000) {
+    const toastId = 'toast-' + Date.now();
+    const iconClass = type === 'success' ? 'bi-check-circle' : type === 'error' ? 'bi-x-circle' : 'bi-info-circle';
+    const bgClass = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-primary';
+    
+    const toastHtml = `
+        <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true" style="min-width: 300px;">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi ${iconClass} me-2"></i>
+                    <strong>${title}</strong><br>
+                    <small>${message}</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    `;
+    
+    $('#toast-container').append(toastHtml);
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement, { delay: duration });
+    toast.show();
+    
+    // Auto remove after hide
+    toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+    });
+}
+
+const initialDashboardNotifications = <%- JSON.stringify(dashboardNotifications || []) %>;
+let lastDashboardNotificationSignature = JSON.stringify(initialDashboardNotifications);
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function renderDashboardNotificationBadge(count) {
+    const toggle = document.getElementById('dashboardNotificationToggle');
+    if (!toggle) return;
+
+    let badge = document.getElementById('dashboardNotificationBadge');
+    if (count > 0) {
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.id = 'dashboardNotificationBadge';
+            badge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge';
+            toggle.appendChild(badge);
+        }
+        badge.textContent = count > 9 ? '9+' : String(count);
+    } else if (badge) {
+        badge.remove();
+    }
+
+    updateAdminAppBadge(count);
+}
+
+async function updateAdminAppBadge(count) {
+    try {
+        if (!('setAppBadge' in navigator) || !('clearAppBadge' in navigator)) {
+            return;
+        }
+
+        if (count > 0) {
+            await navigator.setAppBadge(count);
+        } else {
+            await navigator.clearAppBadge();
+        }
+    } catch (error) {
+        console.warn('Badge admin tidak dapat diperbarui:', error);
+    }
+}
+
+function renderDashboardNotifications(notifications) {
+    const list = document.getElementById('dashboardNotificationList');
+    const countLabel = document.getElementById('dashboardNotificationCountLabel');
+    if (!list || !countLabel) return;
+
+    const safeNotifications = Array.isArray(notifications) ? notifications : [];
+    countLabel.textContent = `${safeNotifications.length} alert aktif`;
+    renderDashboardNotificationBadge(safeNotifications.length);
+
+    if (!safeNotifications.length) {
+        list.innerHTML = `
+            <div class="dashboard-notification-empty">
+                <span class="dashboard-notification-icon notification-success">
+                    <i class="bi bi-check2-all"></i>
+                </span>
+                <div>
+                    <strong>Tidak ada alert aktif</strong>
+                    <div class="small text-muted">Dashboard sedang aman dipantau.</div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    list.innerHTML = safeNotifications.map((notification) => `
+        <a href="${escapeHtml(notification.link || '#')}" class="dropdown-item dashboard-notification-item">
+            <span class="dashboard-notification-icon notification-${escapeHtml(notification.type || 'info')}">
+                <i class="bi ${escapeHtml(notification.icon || 'bi-bell-fill')}"></i>
+            </span>
+            <span class="dashboard-notification-copy">
+                <span class="dashboard-notification-title">${escapeHtml(notification.title || 'Notifikasi')}</span>
+                <span class="dashboard-notification-text">${escapeHtml(notification.message || '')}</span>
+                <span class="dashboard-notification-meta">${escapeHtml(notification.meta || '')}</span>
+            </span>
+        </a>
+    `).join('');
+}
+
+async function refreshDashboardNotifications(showNewToast = false) {
+    try {
+        const response = await fetch('/admin/dashboard/notifications', {
+            headers: { 'Accept': 'application/json' },
+            cache: 'no-store'
+        });
+
+        if (!response.ok) return;
+
+        const payload = await response.json();
+        if (!payload.success) return;
+
+        const nextNotifications = Array.isArray(payload.notifications) ? payload.notifications : [];
+        const nextSignature = JSON.stringify(nextNotifications);
+
+        if (showNewToast && nextSignature !== lastDashboardNotificationSignature && nextNotifications.length > JSON.parse(lastDashboardNotificationSignature).length) {
+            showToast('info', 'Notifikasi Baru', 'Ada alert baru di dashboard admin.');
+        }
+
+        lastDashboardNotificationSignature = nextSignature;
+        renderDashboardNotifications(nextNotifications);
+    } catch (error) {
+        console.warn('Gagal memperbarui notifikasi dashboard:', error);
+    }
+}
+
+$(function() {
+  renderDashboardNotifications(initialDashboardNotifications);
+  setInterval(() => {
+    refreshDashboardNotifications(true);
+  }, 30000);
+
+  const notificationToggle = document.getElementById('dashboardNotificationToggle');
+  if (notificationToggle && window.bootstrap?.Dropdown) {
+    const notificationDropdown = bootstrap.Dropdown.getOrCreateInstance(notificationToggle);
+    notificationToggle.addEventListener('click', function(event) {
+      event.preventDefault();
+      notificationDropdown.toggle();
+    });
+  }
+
+  $(document).on('click', '#restartMikrotikBtn', function(e) {
+    e.preventDefault();
+    $('#restartMikrotikModal').modal('show');
+  });
+  
+  $('#confirmRestartMikrotik').on('click', function() {
+    const $btn = $(this);
+    const originalText = $btn.html();
+    
+    // Loading state
+    $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Restarting...');
+    $('#restartMikrotikModal').modal('hide');
+    
+    $.ajax({
+      url: '/admin/mikrotik/restart',
+      method: 'POST',
+      success: function(res) {
+        if(res.success) {
+          showToast('success', 'Restart Berhasil', res.message || 'Mikrotik berhasil direstart!');
+        } else {
+          showToast('error', 'Restart Gagal', res.message || 'Gagal restart Mikrotik!');
+        }
+      },
+      error: function() {
+        showToast('error', 'Error', 'Gagal menghubungi server!');
+      },
+      complete: function() {
+        // Reset button
+        $btn.prop('disabled', false).html(originalText);
+      }
+    });
+  });
+  
+  // Handler untuk tombol validasi konfigurasi
+  $('#validateConfigBtn').on('click', function() {
+    const $btn = $(this);
+    const originalText = $btn.html();
+    
+    // Loading state
+    $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i>');
+    
+    $.ajax({
+      url: '/admin/config/validate',
+      method: 'GET',
+      success: function(response) {
+        if (response.success) {
+          showToast('success', 'Validasi Selesai', 'Konfigurasi sistem telah divalidasi. Halaman akan di-refresh untuk menampilkan hasil.');
+          
+          // Refresh halaman setelah 2 detik untuk menampilkan hasil validasi
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        } else {
+          showToast('error', 'Validasi Gagal', response.message || 'Gagal menjalankan validasi konfigurasi');
+        }
+      },
+      error: function(xhr) {
+        const errorMsg = xhr.responseJSON?.message || 'Gagal menghubungi server';
+        showToast('error', 'Error', errorMsg);
+      },
+      complete: function() {
+        // Reset button
+        $btn.prop('disabled', false).html(originalText);
+      }
+    });
+  });
+  
+  // Handler untuk tombol refresh dashboard
+  $('#refreshDashboardBtn').on('click', function() {
+    const $btn = $(this);
+    const originalText = $btn.html();
+    
+    // Loading state
+    $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i>');
+    
+    // Refresh halaman
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
+  });
+  
+  // Auto-dismiss untuk alert konfigurasi
+  function initAutoDismissAlerts() {
+    $('.auto-dismiss').each(function() {
+      const $alert = $(this);
+      const autoDismissTime = parseInt($alert.data('auto-dismiss')) || 5000;
+      
+      // Set timer untuk auto dismiss
+      setTimeout(() => {
+        if ($alert.is(':visible')) {
+          $alert.fadeOut(500, function() {
+            $(this).remove();
+          });
+        }
+      }, autoDismissTime);
+      
+      // Hover pause - jika user hover alert, pause auto dismiss
+      let autoDismissTimer;
+      let isPaused = false;
+      
+      const startTimer = () => {
+        if (!isPaused) {
+          autoDismissTimer = setTimeout(() => {
+            if ($alert.is(':visible')) {
+              $alert.fadeOut(500, function() {
+                $(this).remove();
+              });
+            }
+          }, autoDismissTime);
+        }
+      };
+      
+      const pauseTimer = () => {
+        isPaused = true;
+        if (autoDismissTimer) {
+          clearTimeout(autoDismissTimer);
+        }
+      };
+      
+      const resumeTimer = () => {
+        isPaused = false;
+        startTimer();
+      };
+      
+      // Event handlers
+      $alert.on('mouseenter', pauseTimer);
+      $alert.on('mouseleave', resumeTimer);
+      
+      // Start initial timer
+      startTimer();
+    });
+  }
+  
+  // Initialize auto-dismiss saat halaman load
+  initAutoDismissAlerts();
+  
+  // Auto-refresh dashboard data jika ada loading indicators
+  function checkAndRefreshDashboard() {
+    const loadingElements = $('.fs-3:contains("Loading...")');
+    if (loadingElements.length > 0) {
+      console.log('Info dashboard.');
+      setTimeout(() => {
+        window.location.reload();
+      }, 10000);
+    }
+  }
+  
+  // Check untuk loading indicators setiap 5 detik
+  setInterval(checkAndRefreshDashboard, 30000); // 30 detik agar lebih ringan
+});
+
+// Fungsi untuk clear config warning
+function clearConfigWarning() {
+  // Kirim request untuk clear hasil validasi dari session
+  $.ajax({
+    url: '/admin/config/clear',
+    method: 'POST',
+    success: function(response) {
+      if (response.success) {
+        showToast('success', 'Warning Dihapus', 'Hasil validasi konfigurasi telah dihapus. Warning tidak akan muncul lagi sampai konfigurasi berubah.');
+        
+        // Sembunyikan semua alert konfigurasi
+        $('.alert').fadeOut(500, function() {
+          $(this).remove();
+        });
+      } else {
+        showToast('error', 'Gagal', 'Gagal menghapus warning: ' + (response.message || 'Unknown error'));
+      }
+    },
+    error: function(xhr) {
+      const errorMsg = xhr.responseJSON?.message || 'Gagal menghubungi server';
+      showToast('error', 'Error', errorMsg);
+    }
+  });
+}
+</script>
+
+<!-- Mobile Bottom Navigation - Included in Layout -->
+<%- include('partials/main-admin-mobile-navbar', { page: 'dashboard' }) %>
+<%- include('partials/footer') %>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

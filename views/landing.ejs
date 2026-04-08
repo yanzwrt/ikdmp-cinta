@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= appName %> - Internet Service Provider</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    :root {
+      --primary: #00f5ff;
+      --secondary: #bf00ff;
+      --dark: #0a0a12;
+      --light: #ffffff;
+      --gray: #b0b0c0;
+      --bg-dark: #0f0f1a;
+      --bg-card: #1a1a2e;
+      --line: rgba(255, 255, 255, 0.08);
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+      --wrap: min(1240px, calc(100% - 40px));
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(111, 88, 255, 0.12), transparent 35%),
+        radial-gradient(circle at bottom left, rgba(0, 245, 255, 0.12), transparent 35%),
+        var(--dark);
+      color: var(--light);
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    .wrap { width: var(--wrap); margin: 0 auto; }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      background: rgba(10, 10, 18, 0.9);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .navbar-inner {
+      width: var(--wrap);
+      margin: 0 auto;
+      min-height: 82px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .logo-mark {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(0,245,255,0.12), rgba(111,88,255,0.22));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 8px;
+    }
+
+    .logo-title { font-size: 1.1rem; font-weight: 800; }
+    .logo-subtitle { color: var(--gray); font-size: 0.86rem; }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .nav-links a {
+      color: rgba(255,255,255,0.86);
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: 0.25s;
+    }
+
+    .nav-links a:hover { color: #bf5af2; }
+
+    .member-dropdown { position: relative; }
+
+    .member-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 22px;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      color: #fff;
+      font-weight: 700;
+      background: linear-gradient(135deg, #7b61ff 0%, #bf5af2 100%);
+      box-shadow: 0 12px 30px rgba(191, 90, 242, 0.22);
+    }
+
+    .member-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 12px);
+      min-width: 240px;
+      padding: 10px;
+      border-radius: 18px;
+      background: rgba(26, 26, 46, 0.98);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .member-dropdown:hover .member-menu,
+    .member-dropdown:focus-within .member-menu { display: block; }
+
+    .member-menu a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      color: rgba(255,255,255,0.9);
+      font-size: 0.94rem;
+    }
+
+    .member-menu a:hover {
+      background: rgba(255,255,255,0.05);
+      color: #bf5af2;
+    }
+
+    .menu-toggle {
+      display: none;
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      font-size: 1.25rem;
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 120px 0 70px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .hero-content {
+      max-width: 860px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .hero-content h1 {
+      font-size: clamp(2.8rem, 4.4vw, 4.1rem);
+      line-height: 1.14;
+      margin-bottom: 22px;
+      letter-spacing: -0.03em;
+      background: linear-gradient(90deg, #7b61ff 0%, #bf5af2 48%, #ff59c7 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-content p {
+      max-width: 760px;
+      margin-left: auto;
+      margin-right: auto;
+      color: var(--gray);
+      font-size: 1.04rem;
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+
+    .cta-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+      justify-content: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 26px;
+      border-radius: 16px;
+      font-weight: 700;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    .btn-primary {
+      color: #08111f;
+      background: linear-gradient(90deg, #7b61ff 0%, #bf5af2 100%);
+      color: #fff;
+      box-shadow: 0 14px 28px rgba(191, 90, 242, 0.22);
+    }
+
+    .btn-outline {
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .hero-pills {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .hero-pill {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      text-align: center;
+    }
+
+    .hero-pill strong {
+      display: block;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .hero-pill span {
+      color: var(--gray);
+      font-size: 0.84rem;
+      line-height: 1.5;
+    }
+
+    .section {
+      padding: 86px 0;
+    }
+
+    .section-dark { background: var(--bg-dark); }
+
+    .section-head {
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto 48px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(2rem, 3vw, 2.8rem);
+      margin-bottom: 14px;
+    }
+
+    .section-head h2 span { color: #bf5af2; }
+    .section-head p {
+      color: var(--gray);
+      line-height: 1.8;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card,
+    .package-card,
+    .footer-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: var(--shadow);
+    }
+
+    .feature-card {
+      padding: 30px;
+      border-radius: 22px;
+      transition: 0.25s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(191,90,242,0.28);
+    }
+
+    .feature-icon {
+      font-size: 2.3rem;
+      color: #bf5af2;
+      margin-bottom: 18px;
+    }
+
+    .feature-card h3 {
+      margin-bottom: 12px;
+      font-size: 1.18rem;
+    }
+
+    .feature-card p {
+      color: var(--gray);
+      line-height: 1.75;
+      font-size: 0.94rem;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .package-card {
+      padding: 34px 28px;
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: 0.25s ease;
+    }
+
+    .package-card.popular {
+      border-color: rgba(111,88,255,0.45);
+      box-shadow: 0 0 30px rgba(111,88,255,0.16);
+    }
+
+    .package-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(191,90,242,0.28);
+    }
+
+    .package-card::after {
+      content: '';
+      position: absolute;
+      right: -40px;
+      bottom: -44px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.12), transparent 70%);
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: 18px;
+      right: -34px;
+      padding: 6px 40px;
+      transform: rotate(45deg);
+      background: var(--secondary);
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    .package-card h3 {
+      font-size: 1.38rem;
+      margin-bottom: 10px;
+    }
+
+    .package-meta {
+      color: var(--gray);
+      font-size: 0.92rem;
+      margin-bottom: 18px;
+    }
+
+    .price {
+      font-size: 2.4rem;
+      font-weight: 800;
+      margin-bottom: 24px;
+    }
+
+    .price span {
+      font-size: 1rem;
+      color: var(--gray);
+      font-weight: 400;
+      margin-left: 6px;
+    }
+
+    .package-features {
+      list-style: none;
+      display: grid;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .package-features li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--gray);
+      line-height: 1.6;
+    }
+
+    .package-features i { color: var(--primary); }
+
+    footer {
+      background: #080810;
+      border-top: 1px solid rgba(0,245,255,0.08);
+      padding: 84px 0 34px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.7fr 1fr 1.3fr;
+      gap: 54px;
+    }
+
+    .footer-card {
+      padding: 28px;
+      border-radius: 24px;
+    }
+
+    .footer-card h4 {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+
+    .footer-card p,
+    .footer-links a,
+    .contact-row span {
+      color: var(--gray);
+      line-height: 1.8;
+      font-size: 0.94rem;
+    }
+
+    .footer-links {
+      display: grid;
+      gap: 12px;
+    }
+
+    .footer-links a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-links a:hover { color: var(--primary); }
+
+    .contact-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .contact-row {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .contact-row i {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      color: #bf5af2;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .contact-row strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.84rem;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+    }
+
+    .social-links a {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: #fff;
+    }
+
+    .social-links a:hover {
+      background: linear-gradient(135deg, #7b61ff 0%, #bf5af2 100%);
+      border-color: transparent;
+    }
+
+    .copyright {
+      margin-top: 34px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      text-align: center;
+      color: var(--gray);
+      font-size: 0.84rem;
+    }
+
+    @media (max-width: 1100px) {
+      .hero-grid,
+      .feature-grid,
+      .pricing-grid,
+      .footer-grid,
+      .hero-pills {
+        grid-template-columns: 1fr;
+      }
+
+    }
+
+    @media (max-width: 860px) {
+      .nav-links,
+      .nav .member-dropdown { display: none; }
+      .menu-toggle { display: inline-grid; place-items: center; }
+
+      .nav.mobile-open {
+        position: absolute;
+        top: calc(100% + 12px);
+        left: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        padding: 18px;
+        background: rgba(15,15,26,0.98);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+      }
+
+      .nav.mobile-open .nav-links,
+      .nav.mobile-open .member-dropdown {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+      }
+
+      .nav.mobile-open .member-menu {
+        position: static;
+        display: block;
+        min-width: 100%;
+        background: transparent;
+        border: none;
+        padding: 0;
+        box-shadow: none;
+      }
+
+      .nav.mobile-open .member-btn { width: 100%; }
+    }
+
+    @media (max-width: 720px) {
+      .wrap,
+      .navbar-inner { width: min(1240px, calc(100% - 24px)); }
+      .hero { padding: 112px 0 56px; min-height: auto; }
+      .cta-buttons { flex-direction: column; }
+      .btn { width: 100%; }
+      .section { padding: 64px 0; }
+      .hero-content h1 { font-size: 2.45rem; }
+      .hero-content { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="#home" class="logo">
+        <span class="logo-mark"><img src="/public/img/<%= logoFilename %>" alt="<%= appName %>"></span>
+        <span>
+          <span class="logo-title"><%= appName %></span>
+          <span class="logo-subtitle">Fiber Internet</span>
+        </span>
+      </a>
+
+      <button class="menu-toggle" type="button" aria-label="Toggle menu" onclick="toggleMenu()">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <div class="nav" id="mainNav">
+        <div class="nav-links">
+          <a href="#home">Beranda</a>
+          <a href="#services">Layanan</a>
+          <a href="#pricing">Paket</a>
+          <a href="#contact">Hubungi Kami</a>
+        </div>
+
+        <div class="member-dropdown">
+          <button class="member-btn" type="button">Member Area <i class="bi bi-chevron-down"></i></button>
+          <div class="member-menu">
+            <a href="/admin/login"><i class="bi bi-shield-lock"></i> Admin</a>
+            <a href="/customer/login"><i class="bi bi-person-circle"></i> Pelanggan</a>
+            <a href="/technician/login"><i class="bi bi-tools"></i> Teknisi</a>
+            <a href="/agent/login"><i class="bi bi-person-badge"></i> Sales / Agen</a>
+            <a href="/collector/login"><i class="bi bi-wallet2"></i> Collector</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero" id="home">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <h1><%- heroTitle %></h1>
+          <p><%= heroDescription %></p>
+
+          <div class="cta-buttons">
+            <a href="#pricing" class="btn btn-primary"><i class="bi bi-grid-1x2-fill"></i> Lihat Paket</a>
+              <a href="/customer/register" class="btn btn-outline"><i class="bi bi-person-plus"></i> Daftar Sekarang</a>
+          </div>
+
+          <div class="hero-pills">
+            <div class="hero-pill">
+              <strong>Portal</strong>
+              <span>Admin, pelanggan, teknisi, agen.</span>
+            </div>
+            <div class="hero-pill">
+              <strong>Support</strong>
+              <span>Monitoring dan penanganan cepat.</span>
+            </div>
+            <div class="hero-pill">
+              <strong>Fiber</strong>
+              <span>Stabil untuk rumah dan bisnis.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-dark" id="services">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Kenapa Memilih <span><%= appName %></span>?</h2>
+        <p>Fiber cepat, stabil, dan siap mendukung kebutuhan rumah maupun bisnis.</p>
+      </div>
+
+      <div class="feature-grid">
+        <% features.forEach((feature) => { %>
+          <article class="feature-card">
+            <div class="feature-icon"><i class="bi <%= feature.icon %>"></i></div>
+            <h3><%= feature.title %></h3>
+            <p><%= feature.description %></p>
+          </article>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="pricing">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Pilihan <span>Paket Internet</span></h2>
+        <p>Pilihan paket utama untuk kebutuhan internet harian.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <% if (packages.length > 0) { %>
+          <% packages.forEach((pkg) => { %>
+            <article class="package-card <%= pkg.isPopular ? 'popular' : '' %>">
+              <% if (pkg.isPopular) { %><div class="popular-badge">Best Seller</div><% } %>
+              <h3><%= pkg.name %></h3>
+              <div class="package-meta"><%= pkg.speedLabel %></div>
+              <div class="price">Rp <%= pkg.formattedPrice %><span>/bulan</span></div>
+              <ul class="package-features">
+                  <li><i class="bi bi-check-circle-fill"></i> <%= pkg.description || 'Internet siap pakai' %></li>
+                  <li><i class="bi bi-check-circle-fill"></i> Fiber optic stabil</li>
+                  <li><i class="bi bi-check-circle-fill"></i> Support teknis</li>
+              </ul>
+              <a href="/customer/register?package_id=<%= pkg.id %>" class="btn <%= pkg.isPopular ? 'btn-primary' : 'btn-outline' %>">
+                <i class="bi bi-send"></i> Pilih Paket
+              </a>
+            </article>
+          <% }) %>
+        <% } else { %>
+          <article class="package-card">
+            <h3>IKDMP-10 Mbps</h3>
+            <div class="package-meta">Fiber Optic</div>
+            <div class="price">Rp 150.000<span>/bulan</span></div>
+            <ul class="package-features">
+              <li><i class="bi bi-check-circle-fill"></i> Untuk kebutuhan rumah</li>
+              <li><i class="bi bi-check-circle-fill"></i> Browsing dan streaming</li>
+              <li><i class="bi bi-check-circle-fill"></i> Support teknis</li>
+            </ul>
+            <a href="/customer/register" class="btn btn-outline"><i class="bi bi-send"></i> Pilih Paket</a>
+          </article>
+          <article class="package-card popular">
+            <div class="popular-badge">Best Seller</div>
+            <h3>IKDMP-15 Mbps</h3>
+            <div class="package-meta">Fiber Optic</div>
+            <div class="price">Rp 200.000<span>/bulan</span></div>
+            <ul class="package-features">
+              <li><i class="bi bi-check-circle-fill"></i> Untuk keluarga aktif</li>
+              <li><i class="bi bi-check-circle-fill"></i> Stabil untuk meeting</li>
+              <li><i class="bi bi-check-circle-fill"></i> Prioritas support</li>
+            </ul>
+            <a href="/customer/register" class="btn btn-primary"><i class="bi bi-send"></i> Pilih Paket</a>
+          </article>
+          <article class="package-card">
+            <h3>IKDMP-20 Mbps</h3>
+            <div class="package-meta">Fiber Optic</div>
+            <div class="price">Rp 250.000<span>/bulan</span></div>
+            <ul class="package-features">
+              <li><i class="bi bi-check-circle-fill"></i> Untuk rumah dan usaha</li>
+              <li><i class="bi bi-check-circle-fill"></i> Nyaman untuk multi device</li>
+              <li><i class="bi bi-check-circle-fill"></i> Support aktif</li>
+            </ul>
+            <a href="/customer/register" class="btn btn-outline"><i class="bi bi-send"></i> Pilih Paket</a>
+          </article>
+        <% } %>
+      </div>
+    </div>
+  </section>
+
+  <footer id="contact">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div class="footer-card">
+          <a href="#home" class="logo" style="margin-bottom:18px;">
+            <span class="logo-mark"><img src="/public/img/<%= logoFilename %>" alt="<%= appName %>"></span>
+            <span>
+              <span class="logo-title"><%= appName %></span>
+              <span class="logo-subtitle"><%= companySlogan %></span>
+            </span>
+          </a>
+          <p><%= footerInfo %></p>
+          <div class="social-links">
+            <a href="/admin/login" aria-label="Admin"><i class="bi bi-shield-lock"></i></a>
+            <a href="/customer/login" aria-label="Pelanggan"><i class="bi bi-person-circle"></i></a>
+            <a href="/technician/login" aria-label="Teknisi"><i class="bi bi-tools"></i></a>
+            <a href="/agent/login" aria-label="Agen"><i class="bi bi-person-badge"></i></a>
+            <a href="/collector/login" aria-label="Collector"><i class="bi bi-wallet2"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-card">
+          <h4>Navigasi</h4>
+          <div class="footer-links">
+            <a href="#home"><i class="bi bi-chevron-right"></i> Beranda</a>
+            <a href="#services"><i class="bi bi-chevron-right"></i> Layanan</a>
+            <a href="#pricing"><i class="bi bi-chevron-right"></i> Paket Internet</a>
+            <a href="/customer/login"><i class="bi bi-chevron-right"></i> Portal Pelanggan</a>
+            <a href="/admin/login"><i class="bi bi-chevron-right"></i> Portal Admin</a>
+          </div>
+        </div>
+
+        <div class="footer-card">
+          <h4>Hubungi Kami</h4>
+          <div class="contact-stack">
+            <div class="contact-row">
+              <i class="bi bi-telephone-fill"></i>
+              <div>
+                <strong>Telepon / WA</strong>
+                <span><a href="<%= heroWhatsappLink %>" target="_blank" rel="noopener noreferrer"><%= contactPhone %></a></span>
+              </div>
+            </div>
+            <div class="contact-row">
+              <i class="bi bi-envelope-fill"></i>
+              <div>
+                <strong>Email</strong>
+                <span><a href="mailto:<%= contactEmail %>"><%= contactEmail %></a></span>
+              </div>
+            </div>
+            <div class="contact-row">
+              <i class="bi bi-geo-alt-fill"></i>
+              <div>
+                <strong>Alamat</strong>
+                <span><%= contactAddress %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="copyright">
+        &copy; <%= new Date().getFullYear() %> <strong><%= appName %></strong>. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById('mainNav').classList.toggle('mobile-open');
+    }
+  </script>
+</body>
+</html>
