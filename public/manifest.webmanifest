@@ -1,0 +1,23 @@
+{
+    "name":  "Pelanggan IKDMP-CINTA",
+    "short_name":  "IKDMP-CINTA",
+    "start_url":  "/customer/dashboard?source=pwa-customer",
+    "scope":  "/customer/",
+    "display":  "standalone",
+    "background_color":  "#0B1437",
+    "theme_color":  "#0B1437",
+    "orientation":  "portrait",
+    "icons":  [
+                  {
+                      "src":  "/img/icons/icon-192.png",
+                      "sizes":  "192x192",
+                      "type":  "image/png"
+                  },
+                  {
+                      "src":  "/img/icons/icon-512.png",
+                      "sizes":  "512x512",
+                      "type":  "image/png"
+                  }
+              ],
+    "id":  "/customer"
+}
