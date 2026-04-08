@@ -1,0 +1,152 @@
+[
+  {
+    "id": "TR133218MHI",
+    "status": "closed",
+    "createdAt": "2026-04-06T13:12:13.218Z",
+    "updatedAt": "2026-04-06T14:57:34.219Z",
+    "phone": "6282172714270",
+    "name": "Silvi",
+    "location": "Kp. Negla",
+    "category": "Lainnya",
+    "description": "Wifi yang 5 G mati🙏",
+    "device_photo": null,
+    "notes": [
+      {
+        "timestamp": "2026-04-06T13:17:09.661Z",
+        "content": "[Admin:Admin] apa bisa di fotokan modem nya ?",
+        "status": "in_progress",
+        "notificationSent": true
+      },
+      {
+        "timestamp": "2026-04-06T13:31:01.142Z",
+        "content": "[Teknisi]: A potokn modem n",
+        "status": "in_progress",
+        "notificationSent": true
+      },
+      {
+        "timestamp": "2026-04-06T13:31:31.905Z",
+        "content": "[Teknisi]: A potokn modem n",
+        "status": "in_progress",
+        "notificationSent": true
+      },
+      {
+        "timestamp": "2026-04-06T14:05:03.370Z",
+        "content": "[Admin:Admin] cek",
+        "status": "resolved",
+        "notificationSent": true
+      },
+      {
+        "timestamp": "2026-04-06T14:56:09.578Z",
+        "content": "[Pelanggan]: Atos ayena mah a hatur nuhun🙏",
+        "status": "resolved",
+        "notificationSent": true
+      },
+      {
+        "timestamp": "2026-04-06T14:57:34.219Z",
+        "content": "[Pelanggan]: Laporan ditutup oleh pelanggan",
+        "status": "closed",
+        "notificationSent": true
+      }
+    ]
+  },
+  {
+    "id": "TR905609PBJ",
+    "status": "resolved",
+    "createdAt": "2026-04-06T12:35:05.609Z",
+    "updatedAt": "2026-04-06T14:05:21.945Z",
+    "phone": "6282321074485",
+    "name": "Cepi Romansyah",
+    "location": "Kp. Negla",
+    "category": "Koneksi Putus-Putus",
+    "description": "Wifi Loading dari tdi jam 3",
+    "device_photo": null,
+    "notes": [
+      {
+        "timestamp": "2026-04-06T13:16:43.474Z",
+        "content": "[Admin:Admin] baik kami cek ya",
+        "status": "in_progress",
+        "notificationSent": true
+      },
+      {
+        "timestamp": "2026-04-06T14:05:21.945Z",
+        "content": "[Admin:Admin] coba di cek",
+        "status": "resolved",
+        "notificationSent": true
+      }
+    ]
+  },
+  {
+    "id": "TR133386EV6",
+    "status": "closed",
+    "createdAt": "2026-04-03T11:52:13.386Z",
+    "updatedAt": "2026-04-03T16:55:14.919Z",
+    "phone": "6282262971906",
+    "name": "Salsa",
+    "location": "Kp. Bojongsari",
+    "category": "Tidak ada Koneksi",
+    "description": "No internet",
+    "device_photo": "trouble-6282262971906-1775217102876.jpg",
+    "notes": [
+      {
+        "timestamp": "2026-04-03T12:07:50.809Z",
+        "content": "Proses",
+        "status": "in_progress",
+        "notificationSent": true
+      },
+      {
+        "timestamp": "2026-04-03T13:04:35.985Z",
+        "content": "[Teknisi]: Perbaikan Selsai, Mohon cek kembali. apabila masih terjadi gangguan segera balas pesan ini, terima kasih",
+        "status": "resolved",
+        "notificationSent": true
+      },
+      {
+        "timestamp": "2026-04-03T14:36:46.315Z",
+        "content": "berhubung tidak ada tanggapan kami tutup laporannya ya pak/buk",
+        "status": "closed",
+        "notificationSent": true
+      },
+      {
+        "timestamp": "2026-04-03T14:39:43.701Z",
+        "content": "ok",
+        "status": "resolved"
+      },
+      {
+        "timestamp": "2026-04-03T16:38:23.357Z",
+        "content": "[Pelanggan]: terima kasih",
+        "status": "resolved",
+        "notificationSent": true
+      },
+      {
+        "timestamp": "2026-04-03T16:55:14.919Z",
+        "content": "[Pelanggan]: Laporan ditutup oleh pelanggan",
+        "status": "closed",
+        "notificationSent": true
+      }
+    ]
+  },
+  {
+    "id": "TR218476NAA",
+    "status": "resolved",
+    "createdAt": "2026-04-02T11:26:58.476Z",
+    "updatedAt": "2026-04-02T11:39:47.851Z",
+    "phone": "6282321074485",
+    "name": "Cepi Romansyah",
+    "location": "Kp. Negla",
+    "category": "Tidak ada Koneksi",
+    "description": "Wifi Tidak konek",
+    "notes": [
+      {
+        "timestamp": "2026-04-02T11:38:50.765Z",
+        "content": "proses",
+        "status": "in_progress",
+        "notificationSent": true
+      },
+      {
+        "timestamp": "2026-04-02T11:39:47.851Z",
+        "content": "mohon di cek, apakah masih tidak ada koneksi internet?",
+        "status": "resolved",
+        "notificationSent": true
+      }
+    ]
+  }
+]
