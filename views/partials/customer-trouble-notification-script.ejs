@@ -1,0 +1,301 @@
+<script>
+    (function () {
+        const readStorageKey = 'customerNotificationReadMap';
+        const soundEnabledKey = 'customerNotificationSoundEnabled';
+        const lastUnreadKey = 'customerNotificationLastUnreadCount';
+
+        function getReadMap() {
+            try {
+                return JSON.parse(localStorage.getItem(readStorageKey) || '{}') || {};
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function setReadMap(map) {
+            localStorage.setItem(readStorageKey, JSON.stringify(map || {}));
+        }
+
+        function getLastUnreadCount() {
+            return Number(localStorage.getItem(lastUnreadKey) || '0');
+        }
+
+        function setLastUnreadCount(count) {
+            localStorage.setItem(lastUnreadKey, String(Number(count || 0)));
+        }
+
+        function normalizeNotifications(items) {
+            return Array.isArray(items) ? items.filter(Boolean).map((item) => ({
+                id: String(item.id || ''),
+                title: String(item.title || 'Notifikasi'),
+                message: String(item.message || ''),
+                type: String(item.type || 'info'),
+                link: String(item.link || '/customer/notifications'),
+                updatedAt: String(item.updatedAt || item.createdAt || ''),
+                createdAt: String(item.createdAt || item.updatedAt || ''),
+                meta: item.meta || {}
+            })).filter((item) => item.id) : [];
+        }
+
+        function getUnreadNotifications(notifications) {
+            const readMap = getReadMap();
+            return notifications.filter((item) => {
+                const lastRead = String(readMap[item.id] || '');
+                const marker = String(item.updatedAt || item.createdAt || '');
+                return !marker || marker !== lastRead;
+            });
+        }
+
+        function markNotificationsRead(notifications) {
+            const readMap = getReadMap();
+            normalizeNotifications(notifications).forEach((item) => {
+                readMap[item.id] = String(item.updatedAt || item.createdAt || new Date().toISOString());
+            });
+            setReadMap(readMap);
+        }
+
+        function markSingleNotificationRead(id, marker) {
+            if (!id) return;
+            const readMap = getReadMap();
+            readMap[String(id)] = String(marker || new Date().toISOString());
+            setReadMap(readMap);
+        }
+
+        async function updateCustomerAppBadge(count) {
+            try {
+                if (!('setAppBadge' in navigator) || !('clearAppBadge' in navigator)) return;
+                if (count > 0) await navigator.setAppBadge(count);
+                else await navigator.clearAppBadge();
+            } catch (error) {
+                console.warn('Badge customer tidak dapat diperbarui:', error);
+            }
+        }
+
+        function playCustomerNotificationSound() {
+            try {
+                if (localStorage.getItem(soundEnabledKey) === 'false') return;
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const audioContext = new AudioCtx();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(740, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(1047, audioContext.currentTime + 0.14);
+                gainNode.gain.setValueAtTime(0.0001, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.08, audioContext.currentTime + 0.03);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.34);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.36);
+            } catch (error) {
+                console.warn('Suara notifikasi customer tidak dapat diputar:', error);
+            }
+        }
+
+        function renderBadges(unreadCount) {
+            const notifications = normalizeNotifications(window.__customerNotifications || []);
+            const unread = getUnreadNotifications(notifications);
+            const total = Number(unreadCount || unread.length || 0);
+            const chatCount = unread.filter((item) => item.type === 'chat').length;
+            const troubleCount = unread.filter((item) => item.type === 'trouble').length;
+
+            document.querySelectorAll('.customer-notification-badge').forEach((badge) => {
+                if (total > 0) {
+                    badge.textContent = total > 9 ? '9+' : String(total);
+                    badge.classList.remove('d-none');
+                    badge.style.display = 'inline-flex';
+                } else {
+                    badge.classList.add('d-none');
+                    badge.style.display = 'none';
+                }
+            });
+
+            document.querySelectorAll('.customer-chat-badge').forEach((badge) => {
+                if (chatCount > 0) {
+                    badge.textContent = chatCount > 9 ? '9+' : String(chatCount);
+                    badge.classList.remove('d-none');
+                    badge.style.display = 'inline-flex';
+                } else {
+                    badge.classList.add('d-none');
+                    badge.style.display = 'none';
+                }
+            });
+
+            document.querySelectorAll('.customer-trouble-badge, .customer-trouble-update-badge').forEach((badge) => {
+                if (troubleCount > 0) {
+                    badge.textContent = troubleCount > 9 ? '9+' : String(troubleCount);
+                    badge.classList.remove('d-none');
+                    badge.style.display = 'inline-flex';
+                } else {
+                    badge.classList.add('d-none');
+                    badge.style.display = 'none';
+                }
+            });
+
+            updateCustomerAppBadge(total);
+        }
+
+        function iconForNotification(type) {
+            switch (type) {
+                case 'billing-overdue':
+                    return 'bi bi-exclamation-octagon-fill';
+                case 'billing-due':
+                    return 'bi bi-alarm-fill';
+                case 'wifi':
+                    return 'bi bi-wifi';
+                case 'password':
+                    return 'bi bi-key-fill';
+                case 'trouble':
+                    return 'bi bi-life-preserver';
+                case 'chat':
+                    return 'bi bi-chat-dots-fill';
+                default:
+                    return 'bi bi-bell-fill';
+            }
+        }
+
+        function formatRelativeDate(value) {
+            if (!value) return '';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+            return date.toLocaleString('id-ID', {
+                timeZone: 'Asia/Jakarta',
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function renderNotificationList(notifications) {
+            const wrap = document.getElementById('customerNotificationList');
+            if (!wrap) return;
+
+            const unreadIds = new Set(getUnreadNotifications(notifications).map((item) => item.id));
+            if (!notifications.length) {
+                wrap.innerHTML = `
+                    <div class="customer-notification-empty">
+                        <i class="bi bi-bell-slash"></i>
+                        <h6>Belum ada notifikasi</h6>
+                        <p>Semua pemberitahuan pelanggan akan muncul di sini.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            wrap.innerHTML = notifications.map((item) => `
+                <a href="${item.link}" class="customer-notification-item ${unreadIds.has(item.id) ? 'is-unread' : ''}" data-customer-notification-id="${item.id}" data-customer-notification-marker="${item.updatedAt || item.createdAt || ''}">
+                    <div class="customer-notification-item__icon">
+                        <i class="${iconForNotification(item.type)}"></i>
+                    </div>
+                    <div class="customer-notification-item__content">
+                        <div class="customer-notification-item__top">
+                            <h6>${item.title}</h6>
+                            ${unreadIds.has(item.id) ? '<span class="customer-notification-item__badge">Baru</span>' : ''}
+                        </div>
+                        <p>${item.message}</p>
+                        <small>${formatRelativeDate(item.updatedAt || item.createdAt)}</small>
+                    </div>
+                </a>
+            `).join('');
+        }
+
+        function openNotificationPanel() {
+            const overlay = document.getElementById('customerNotificationOverlay');
+            const panel = document.getElementById('customerNotificationPanel');
+            if (!overlay || !panel) return;
+            overlay.classList.add('is-open');
+            panel.classList.add('is-open');
+            panel.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeNotificationPanel() {
+            const overlay = document.getElementById('customerNotificationOverlay');
+            const panel = document.getElementById('customerNotificationPanel');
+            if (!overlay || !panel) return;
+            overlay.classList.remove('is-open');
+            panel.classList.remove('is-open');
+            panel.setAttribute('aria-hidden', 'true');
+        }
+
+        function markCurrentContextAsRead(notifications) {
+            const currentPath = window.location.pathname;
+            const currentReportId = document.body?.dataset?.troubleReportId;
+            const targets = normalizeNotifications(notifications).filter((item) => {
+                if (currentPath === '/customer/chat' && item.type === 'chat') return true;
+                if (currentReportId && item.link.includes(`/customer/trouble/detail/${currentReportId}`)) return true;
+                return item.link === currentPath;
+            });
+            if (targets.length > 0) {
+                markNotificationsRead(targets);
+            }
+        }
+
+        async function refreshCustomerNotifications() {
+            try {
+                const response = await fetch('/customer/notifications/summary', {
+                    headers: { 'Accept': 'application/json' },
+                    cache: 'no-store'
+                });
+                if (!response.ok) return;
+                const payload = await response.json();
+                if (!payload.success) return;
+
+                const notifications = normalizeNotifications(payload.notifications);
+                window.__customerNotifications = notifications;
+
+                markCurrentContextAsRead(notifications);
+
+                const unreadNotifications = getUnreadNotifications(notifications);
+                const unreadCount = unreadNotifications.length;
+                const lastUnreadCount = getLastUnreadCount();
+
+                renderBadges(unreadCount);
+                renderNotificationList(notifications);
+
+                if (window.__customerNotificationsLoaded && unreadCount > lastUnreadCount) {
+                    playCustomerNotificationSound();
+                }
+
+                setLastUnreadCount(unreadCount);
+                window.__customerNotificationsLoaded = true;
+            } catch (error) {
+                console.warn('Gagal memperbarui notifikasi customer:', error);
+            }
+        }
+
+        document.addEventListener('click', function (event) {
+            const item = event.target.closest('[data-customer-notification-id]');
+            if (item) {
+                markSingleNotificationRead(
+                    item.getAttribute('data-customer-notification-id'),
+                    item.getAttribute('data-customer-notification-marker')
+                );
+                setTimeout(() => refreshCustomerNotifications(), 50);
+                closeNotificationPanel();
+                return;
+            }
+
+            const toggle = event.target.closest('[data-customer-notification-toggle]');
+            if (toggle) {
+                event.preventDefault();
+                const panel = document.getElementById('customerNotificationPanel');
+                if (panel && panel.classList.contains('is-open')) closeNotificationPanel();
+                else openNotificationPanel();
+                return;
+            }
+
+            if (event.target.closest('#customerNotificationClose') || event.target.closest('#customerNotificationOverlay')) {
+                closeNotificationPanel();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            refreshCustomerNotifications();
+            setInterval(refreshCustomerNotifications, 30000);
+        });
+    })();
+</script>

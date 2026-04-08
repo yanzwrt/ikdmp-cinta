@@ -1,0 +1,344 @@
+<%
+    const billingHeaderCustomer = (typeof billingData !== 'undefined' && billingData && billingData.customer) ? billingData.customer : null;
+    const headerCustomer = billingHeaderCustomer || ((typeof customer !== 'undefined' && customer) ? customer : ((typeof profileData !== 'undefined' && profileData) ? profileData : null));
+    const headerName = (headerCustomer && (headerCustomer.name || headerCustomer.customer_name)) || (typeof customerName !== 'undefined' ? customerName : 'Pelanggan');
+    const headerUsername = (headerCustomer && (headerCustomer.username || headerCustomer.pppoe_username || headerCustomer.phone)) || (typeof sessionPhone !== 'undefined' ? sessionPhone : (typeof phone !== 'undefined' ? phone : 'customer'));
+    const headerPhotoFile = headerCustomer && headerCustomer.profile_photo ? headerCustomer.profile_photo : '';
+    const headerPhotoUrl = headerPhotoFile ? `/img/customer-profiles/${headerPhotoFile}` : '';
+    const headerInitial = String(headerName || 'P').trim().charAt(0).toUpperCase();
+%>
+<style>
+    .customer-profile-topbar {
+        position: fixed;
+        top: calc(env(safe-area-inset-top, 0px) + 10px);
+        left: 12px;
+        right: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 14px 16px;
+        margin: 0;
+        border-radius: 20px;
+        background:
+            radial-gradient(circle at top right, rgba(255,255,255,0.12), transparent 36%),
+            linear-gradient(135deg, #6d4bff 0%, #7c3aed 45%, #8b5cf6 100%);
+        box-shadow: 0 18px 38px rgba(91, 33, 182, 0.24);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        backdrop-filter: blur(18px);
+        z-index: 1001;
+    }
+
+    .customer-profile-topbar__identity {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .customer-profile-topbar__avatar {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        overflow: hidden;
+        background: linear-gradient(135deg, rgba(255,255,255,0.24), rgba(255,255,255,0.08));
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        font-weight: 700;
+        box-shadow: 0 14px 26px rgba(49, 10, 110, 0.28);
+        flex-shrink: 0;
+        border: 1px solid rgba(255,255,255,0.22);
+    }
+
+    .customer-profile-topbar__avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .customer-profile-topbar__name {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .customer-profile-topbar__meta {
+        margin: 2px 0 0;
+        font-size: 0.82rem;
+        color: rgba(238, 242, 255, 0.82);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .customer-profile-topbar__notify {
+        position: relative;
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.14);
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 24px rgba(49, 10, 110, 0.18);
+        flex-shrink: 0;
+        text-decoration: none !important;
+    }
+
+    .customer-profile-topbar__notify svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        stroke-width: 2;
+        fill: none;
+        display: block;
+    }
+
+    .customer-profile-topbar__badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        padding: 0 5px;
+        background: #ef4444;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 18px rgba(239, 68, 68, 0.32);
+    }
+
+    .customer-notification-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.24);
+        backdrop-filter: blur(4px);
+        z-index: 1098;
+        display: none;
+    }
+
+    .customer-notification-panel {
+        position: fixed;
+        top: calc(env(safe-area-inset-top, 0px) + 68px);
+        left: 12px;
+        right: 12px;
+        max-height: min(70vh, 520px);
+        overflow-y: auto;
+        border-radius: 22px;
+        background: rgba(255,255,255,0.97);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        box-shadow: 0 24px 50px rgba(76, 29, 149, 0.24);
+        z-index: 1099;
+        display: none;
+        padding: 16px;
+    }
+
+    .customer-notification-panel.is-open,
+    .customer-notification-overlay.is-open {
+        display: block;
+    }
+
+    .customer-notification-panel__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .customer-notification-panel__title {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .customer-notification-panel__subtitle {
+        margin: 2px 0 0;
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .customer-notification-panel__close {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        background: #f8fafc;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .customer-notification-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .customer-notification-item {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        text-decoration: none;
+        background: #fff;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 18px;
+        padding: 12px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    }
+
+    .customer-notification-item.is-unread {
+        background: linear-gradient(135deg, rgba(109, 75, 255, 0.08), rgba(168, 85, 247, 0.04));
+        border-color: rgba(109, 75, 255, 0.2);
+    }
+
+    .customer-notification-item__icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .customer-notification-item__content {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .customer-notification-item__top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 6px;
+    }
+
+    .customer-notification-item__top h6 {
+        margin: 0;
+        font-size: 0.92rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .customer-notification-item__content p {
+        margin: 0 0 6px;
+        color: #475569;
+        font-size: 0.86rem;
+        line-height: 1.45;
+    }
+
+    .customer-notification-item__content small {
+        color: #64748b;
+        font-size: 0.76rem;
+    }
+
+    .customer-notification-item__badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: #ef4444;
+        color: #fff;
+        font-size: 0.68rem;
+        font-weight: 700;
+    }
+
+    .customer-notification-empty {
+        text-align: center;
+        padding: 2rem 1rem;
+        border-radius: 18px;
+        background: #fff;
+        border: 1px dashed rgba(148, 163, 184, 0.32);
+        color: #64748b;
+    }
+
+    .customer-notification-empty i {
+        font-size: 1.8rem;
+        color: #8b5cf6;
+        margin-bottom: 0.6rem;
+        display: inline-block;
+    }
+
+    @media (min-width: 768px) {
+        .customer-profile-topbar {
+            display: none;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        body.has-customer-topbar {
+            padding-top: 94px !important;
+        }
+    }
+</style>
+
+<div class="customer-profile-topbar d-md-none">
+    <div class="customer-profile-topbar__identity">
+        <div class="customer-profile-topbar__avatar" id="customerTopbarAvatar">
+            <% if (headerPhotoUrl) { %>
+                <img src="<%= headerPhotoUrl %>" alt="Foto Profil <%= headerName %>">
+            <% } else { %>
+                <span><%= headerInitial %></span>
+            <% } %>
+        </div>
+        <div class="min-w-0">
+            <p class="customer-profile-topbar__name"><%= headerName %></p>
+            <p class="customer-profile-topbar__meta">@<%= headerUsername %></p>
+        </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+    <a href="/customer/chat" class="customer-profile-topbar__notify text-decoration-none" aria-label="Chat admin">
+        <i class="bi bi-chat-dots"></i>
+        <span class="customer-profile-topbar__badge customer-chat-badge">0</span>
+    </a>
+    <button type="button" class="customer-profile-topbar__notify text-decoration-none" aria-label="Pusat notifikasi pelanggan" data-customer-notification-toggle="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"></path>
+            <path d="M10 17a2 2 0 0 0 4 0"></path>
+        </svg>
+        <span class="customer-profile-topbar__badge customer-notification-badge">0</span>
+    </button>
+    </div>
+</div>
+<div class="customer-notification-overlay" id="customerNotificationOverlay"></div>
+<div class="customer-notification-panel" id="customerNotificationPanel" aria-hidden="true">
+    <div class="customer-notification-panel__header">
+        <div>
+            <h5 class="customer-notification-panel__title">Notifikasi</h5>
+            <p class="customer-notification-panel__subtitle">Semua pemberitahuan penting pelanggan.</p>
+        </div>
+        <button type="button" class="customer-notification-panel__close" id="customerNotificationClose" aria-label="Tutup notifikasi">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <div id="customerNotificationList" class="customer-notification-list"></div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (window.innerWidth < 768) {
+            document.body.classList.add('has-customer-topbar');
+        }
+    });
+</script>

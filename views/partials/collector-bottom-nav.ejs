@@ -1,0 +1,520 @@
+<%
+    const collectorHeader = (typeof collector !== 'undefined' && collector) ? collector : {};
+    const collectorHeaderName = collectorHeader.name || 'Collector';
+    const collectorHeaderUsername = collectorHeader.phone || collectorHeader.username || 'collector';
+    const collectorHeaderPhoto = collectorHeader.profile_photo ? `/img/collector-profiles/${collectorHeader.profile_photo}` : '';
+    const collectorHeaderInitial = String(collectorHeaderName || 'C').trim().charAt(0).toUpperCase();
+%>
+<div class="collector-mobile-topbar d-md-none">
+    <div class="collector-mobile-topbar__identity">
+        <div class="collector-mobile-topbar__avatar">
+            <% if (collectorHeaderPhoto) { %>
+                <img src="<%= collectorHeaderPhoto %>" alt="Foto Profil <%= collectorHeaderName %>">
+            <% } else { %>
+                <span><%= collectorHeaderInitial %></span>
+            <% } %>
+        </div>
+        <div class="collector-mobile-topbar__text">
+            <strong><%= collectorHeaderName %></strong>
+            <small>@<%= collectorHeaderUsername %></small>
+        </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <a href="/collector/chat" class="collector-mobile-topbar__action text-decoration-none" aria-label="Chat admin">
+            <i class="bi bi-chat-dots"></i>
+        </a>
+        <button type="button" class="collector-mobile-topbar__action" id="collectorNotificationToggle" aria-label="Notifikasi collector">
+            <i class="bi bi-bell"></i>
+            <span class="collector-mobile-topbar__badge d-none" id="collectorTopbarBadge">0</span>
+        </button>
+    </div>
+</div>
+
+<div class="collector-notification-overlay d-md-none" id="collectorNotificationOverlay"></div>
+<div class="collector-notification-panel d-md-none" id="collectorNotificationPanel" aria-hidden="true">
+    <div class="collector-notification-panel__header">
+        <div>
+            <h5>Notifikasi Collector</h5>
+            <p>Pembayaran pending dan riwayat masuk terbaru.</p>
+        </div>
+        <button type="button" class="collector-notification-panel__close" id="collectorNotificationClose" aria-label="Tutup notifikasi">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <div class="collector-notification-list" id="collectorNotificationList"></div>
+</div>
+
+<div class="collector-bottom-nav">
+    <a href="/collector/dashboard" class="collector-nav-item <%= currentPage === 'dashboard' ? 'active' : '' %>">
+        <i class="bi bi-house"></i>
+        <span>Home</span>
+    </a>
+    <a href="/collector/payment" class="collector-nav-item <%= currentPage === 'payment' ? 'active' : '' %>">
+        <i class="bi bi-plus-circle"></i>
+        <span>Bayar</span>
+    </a>
+    <a href="/collector/payments" class="collector-nav-item <%= currentPage === 'payments' ? 'active' : '' %>">
+        <i class="bi bi-list-ul"></i>
+        <span>Riwayat</span>
+    </a>
+    <a href="/collector/customers" class="collector-nav-item <%= currentPage === 'customers' ? 'active' : '' %>">
+        <i class="bi bi-people"></i>
+        <span>Customer</span>
+    </a>
+    <a href="/collector/profile" class="collector-nav-item <%= currentPage === 'profile' ? 'active' : '' %>">
+        <i class="bi bi-person"></i>
+        <span>Profil</span>
+    </a>
+</div>
+
+<style>
+.collector-mobile-topbar {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 10px);
+    left: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 20px;
+    background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.12), transparent 36%),
+        linear-gradient(135deg, #16a34a 0%, #22c55e 45%, #10b981 100%);
+    border: 1px solid rgba(255,255,255,0.16);
+    box-shadow: 0 18px 38px rgba(21, 128, 61, 0.24);
+    backdrop-filter: blur(18px);
+    z-index: 1095;
+}
+
+.collector-mobile-topbar__identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.collector-mobile-topbar__avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 15px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    border: 1px solid rgba(255,255,255,0.18);
+    flex-shrink: 0;
+}
+
+.collector-mobile-topbar__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.collector-mobile-topbar__text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.collector-mobile-topbar__text strong {
+    font-size: 0.96rem;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.collector-mobile-topbar__text small {
+    color: rgba(240, 253, 244, 0.84);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.collector-mobile-topbar__action {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.14);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.18);
+}
+
+.collector-mobile-topbar__badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.35);
+}
+
+.collector-notification-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.24);
+    backdrop-filter: blur(4px);
+    z-index: 1097;
+    display: none;
+}
+
+.collector-notification-panel {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 68px);
+    left: 12px;
+    right: 12px;
+    max-height: min(70vh, 520px);
+    overflow-y: auto;
+    border-radius: 22px;
+    background: rgba(255,255,255,0.97);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: 0 24px 50px rgba(21, 128, 61, 0.22);
+    z-index: 1098;
+    display: none;
+    padding: 16px;
+}
+
+.collector-notification-overlay.is-open,
+.collector-notification-panel.is-open {
+    display: block;
+}
+
+.collector-notification-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.collector-notification-panel__header h5 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.collector-notification-panel__header p {
+    margin: 2px 0 0;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.collector-notification-panel__close {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: #f8fafc;
+    color: #475569;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.collector-notification-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.collector-notification-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    text-decoration: none;
+    background: #fff;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 18px;
+    padding: 12px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+
+.collector-notification-item.is-unread {
+    background: linear-gradient(135deg, rgba(22, 163, 74, 0.08), rgba(16, 185, 129, 0.04));
+    border-color: rgba(22, 163, 74, 0.2);
+}
+
+.collector-notification-item__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #16a34a, #10b981);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.collector-notification-item__content {
+    min-width: 0;
+    flex: 1;
+}
+
+.collector-notification-item__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.collector-notification-item__top h6 {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.collector-notification-item__content p {
+    margin: 0 0 6px;
+    color: #475569;
+    font-size: 0.86rem;
+    line-height: 1.45;
+}
+
+.collector-notification-item__content small {
+    color: #64748b;
+    font-size: 0.76rem;
+}
+
+.collector-notification-item__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+.collector-notification-empty {
+    text-align: center;
+    padding: 2rem 1rem;
+    border-radius: 18px;
+    background: #fff;
+    border: 1px dashed rgba(148, 163, 184, 0.32);
+    color: #64748b;
+}
+
+.collector-bottom-nav {
+    position: fixed;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+    left: 12px;
+    right: 12px;
+    background: linear-gradient(135deg, #16a34a 0%, #22c55e 45%, #10b981 100%);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 24px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 9px 8px calc(9px + env(safe-area-inset-bottom, 0px));
+    z-index: 1094;
+    box-shadow: 0 18px 38px rgba(21, 128, 61, 0.24);
+}
+
+.collector-nav-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: rgba(255,255,255,0.78);
+    padding: 6px 8px;
+    border-radius: 16px;
+    min-width: 58px;
+    text-align: center;
+}
+
+.collector-nav-item.active {
+    color: #fff;
+    background: rgba(255,255,255,0.14);
+}
+
+.collector-nav-item i {
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+}
+
+.collector-nav-item span {
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1.1;
+}
+
+body.has-bottom-nav {
+    padding-top: 98px;
+    padding-bottom: 94px;
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        display: none !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .collector-mobile-topbar,
+    .collector-notification-overlay,
+    .collector-notification-panel {
+        display: none !important;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.body.classList.add('has-bottom-nav');
+    const readStorageKey = 'collectorNotificationReadMap';
+    const bellBtn = document.getElementById('collectorNotificationToggle');
+    const panel = document.getElementById('collectorNotificationPanel');
+    const overlay = document.getElementById('collectorNotificationOverlay');
+    const listWrap = document.getElementById('collectorNotificationList');
+
+    function getReadMap() {
+        try { return JSON.parse(localStorage.getItem(readStorageKey) || '{}') || {}; }
+        catch (error) { return {}; }
+    }
+
+    function setReadMap(map) {
+        localStorage.setItem(readStorageKey, JSON.stringify(map || {}));
+    }
+
+    function normalize(items) {
+        return Array.isArray(items) ? items.filter(Boolean).map((item) => ({
+            id: String(item.id || ''),
+            title: String(item.title || 'Notifikasi Collector'),
+            message: String(item.message || ''),
+            type: String(item.type || 'info'),
+            link: String(item.link || '/collector/payments'),
+            updatedAt: String(item.updatedAt || item.createdAt || ''),
+            createdAt: String(item.createdAt || item.updatedAt || ''),
+            marker: String(item.marker || item.updatedAt || item.createdAt || '')
+        })).filter((item) => item.id) : [];
+    }
+
+    function getUnread(items) {
+        const readMap = getReadMap();
+        return normalize(items).filter((item) => readMap[item.id] !== item.marker);
+    }
+
+    function markSingleRead(id, marker) {
+        const readMap = getReadMap();
+        readMap[String(id)] = String(marker || new Date().toISOString());
+        setReadMap(readMap);
+    }
+
+    function renderBadge(count) {
+        const badge = document.getElementById('collectorTopbarBadge');
+        if (!badge) return;
+        if (count > 0) {
+            badge.textContent = count > 9 ? '9+' : String(count);
+            badge.classList.remove('d-none');
+        } else {
+            badge.classList.add('d-none');
+        }
+    }
+
+    function iconFor(type) {
+        return type === 'pending' ? 'bi bi-hourglass-split' : 'bi bi-receipt';
+    }
+
+    function renderList(items) {
+        const unreadIds = new Set(getUnread(items).map((item) => item.id));
+        if (!listWrap) return;
+        if (!items.length) {
+            listWrap.innerHTML = '<div class="collector-notification-empty"><i class="bi bi-bell-slash mb-2"></i><div>Belum ada notifikasi</div></div>';
+            return;
+        }
+        listWrap.innerHTML = items.map((item) => `
+            <a href="${item.link}" class="collector-notification-item ${unreadIds.has(item.id) ? 'is-unread' : ''}" data-collector-notification-id="${item.id}" data-collector-notification-marker="${item.marker}">
+                <div class="collector-notification-item__icon"><i class="${iconFor(item.type)}"></i></div>
+                <div class="collector-notification-item__content">
+                    <div class="collector-notification-item__top">
+                        <h6>${item.title}</h6>
+                        ${unreadIds.has(item.id) ? '<span class="collector-notification-item__badge">Baru</span>' : ''}
+                    </div>
+                    <p>${item.message}</p>
+                    <small>${item.updatedAt ? new Date(item.updatedAt).toLocaleString('id-ID') : ''}</small>
+                </div>
+            </a>
+        `).join('');
+    }
+
+    function openPanel() {
+        if (panel) panel.classList.add('is-open');
+        if (overlay) overlay.classList.add('is-open');
+    }
+
+    function closePanel() {
+        if (panel) panel.classList.remove('is-open');
+        if (overlay) overlay.classList.remove('is-open');
+    }
+
+    async function refreshCollectorSummary() {
+        try {
+            const response = await fetch('/collector/notifications/summary', {
+                headers: { 'Accept': 'application/json' },
+                cache: 'no-store'
+            });
+            if (!response.ok) return;
+            const payload = await response.json();
+            if (!payload.success) return;
+            const notifications = normalize(payload.notifications);
+            const unread = getUnread(notifications);
+            renderBadge(unread.length);
+            renderList(notifications);
+        } catch (error) {
+            console.warn('Gagal memperbarui notifikasi kolektor:', error);
+        }
+    }
+
+    if (bellBtn) {
+        bellBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (panel && panel.classList.contains('is-open')) closePanel();
+            else openPanel();
+        });
+    }
+
+    document.addEventListener('click', function(event) {
+        const item = event.target.closest('[data-collector-notification-id]');
+        if (item) {
+            markSingleRead(item.getAttribute('data-collector-notification-id'), item.getAttribute('data-collector-notification-marker'));
+            setTimeout(refreshCollectorSummary, 50);
+            closePanel();
+            return;
+        }
+        if (event.target.closest('#collectorNotificationClose') || event.target.closest('#collectorNotificationOverlay')) {
+            closePanel();
+        }
+    });
+
+    refreshCollectorSummary();
+    setInterval(refreshCollectorSummary, 30000);
+});
+</script>

@@ -1,0 +1,161 @@
+<!-- Main Admin Mobile Bottom Navigation -->
+<nav class="admin-bottom-nav d-md-none" id="mainAdminBottomNav">
+    <!-- Home -->
+    <a class="bot-nav-item <%= typeof page !== 'undefined' && page === 'dashboard' ? 'active' : '' %>"
+        href="/admin/dashboard">
+        <i class="bi bi-house" style="font-size: 1.2rem;"></i>
+        <span style="font-size: 0.7rem; font-weight: 500;">Home</span>
+    </a>
+
+    <!-- GenieACS -->
+    <a class="bot-nav-item <%= typeof page !== 'undefined' && page === 'genieacs' ? 'active' : '' %>"
+        href="/admin/genieacs">
+        <i class="bi bi-hdd-network" style="font-size: 1.2rem;"></i>
+        <span style="font-size: 0.7rem; font-weight: 500;">GenieACS</span>
+    </a>
+
+    <!-- Mikrotik -->
+    <a class="bot-nav-item <%= typeof page !== 'undefined' && (page === 'mikrotik' || page === 'mikrotik-profiles' || page === 'hotspot') ? 'active' : '' %>"
+        href="/admin/mikrotik">
+        <i class="bi bi-router" style="font-size: 1.2rem;"></i>
+        <span style="font-size: 0.7rem; font-weight: 500;">Mikrotik</span>
+    </a>
+
+    <!-- Billing -->
+    <a class="bot-nav-item <%= typeof page !== 'undefined' && page === 'billing' ? 'active' : '' %>"
+        href="/admin/billing/dashboard">
+        <i class="bi bi-receipt" style="font-size: 1.2rem;"></i>
+        <span style="font-size: 0.7rem; font-weight: 500;">Billing</span>
+    </a>
+
+    <!-- Mapping -->
+    <a class="bot-nav-item <%= typeof page !== 'undefined' && page === 'mapping' ? 'active' : '' %>"
+        href="/admin/mapping-new">
+        <i class="bi bi-diagram-3" style="font-size: 1.2rem;"></i>
+        <span style="font-size: 0.7rem; font-weight: 500;">Mapping</span>
+    </a>
+
+    <!-- Trouble -->
+    <a class="bot-nav-item <%= typeof page !== 'undefined' && page === 'trouble' ? 'active' : '' %>"
+        href="/admin/trouble">
+        <i class="bi bi-exclamation-triangle" style="font-size: 1.2rem;"></i>
+        <span style="font-size: 0.7rem; font-weight: 500;">Trouble</span>
+    </a>
+
+    <!-- Setting -->
+    <a class="bot-nav-item <%= typeof page !== 'undefined' && page === 'setting' ? 'active' : '' %>"
+        href="/admin/settings">
+        <i class="bi bi-gear" style="font-size: 1.2rem;"></i>
+        <span style="font-size: 0.7rem; font-weight: 500;">Setting</span>
+    </a>
+</nav>
+
+<style>
+    /* Bottom Navigation Styles - Fixed to avoid Bootstrap conflicts */
+    .admin-bottom-nav {
+        position: fixed !important;
+        bottom: env(safe-area-inset-bottom, 0px) !important;
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+        max-width: none !important;
+        transform: none !important;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.96), rgba(118, 75, 162, 0.96)) !important;
+        border: 1px solid rgba(255, 255, 255, 0.14) !important;
+        border-radius: 22px !important;
+        min-height: 74px !important;
+        height: 74px !important;
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+        z-index: 9999 !important; /* Higher z-index to stay on top */
+        backdrop-filter: blur(16px) !important;
+        padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+        margin: 0 !important;
+        overflow: hidden !important;
+        box-shadow: 0 16px 34px rgba(76, 29, 149, 0.24), inset 0 1px 0 rgba(255,255,255,0.12) !important;
+        backdrop-filter: blur(18px) saturate(140%) !important;
+    }
+
+    .bot-nav-item {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 4px !important;
+        color: rgba(255, 255, 255, 0.72) !important;
+        text-decoration: none !important;
+        transition: all 0.25s ease !important;
+        min-width: 0 !important;
+        text-align: center !important;
+        border-radius: 16px !important;
+        padding: 6px 2px 7px !important;
+        min-height: 54px !important;
+    }
+
+    .bot-nav-item:hover {
+        color: #fff !important;
+        background: rgba(255,255,255,0.08) !important;
+    }
+
+    .bot-nav-item.active {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        background: rgba(255,255,255,0.14) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.16) !important;
+    }
+
+    .bot-nav-item i {
+        font-size: 1.02rem !important;
+        line-height: 1 !important;
+        margin-bottom: 0 !important;
+    }
+
+    .bot-nav-item span {
+        font-size: 0.58rem !important;
+        font-weight: 600 !important;
+        display: block !important;
+        width: 100% !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+
+    /* Add padding to body for mobile */
+    @media (max-width: 768px) {
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100% !important;
+        }
+
+        body {
+            padding-bottom: 80px !important;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .admin-bottom-nav {
+            display: none !important;
+        }
+    }
+
+</style>
+
+<script>
+(function () {
+    const nav = document.getElementById('mainAdminBottomNav');
+    if (!nav) return;
+
+    const adjustBottom = () => {
+        if (!window.visualViewport) return;
+        const offset = Math.max(0, window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop);
+        nav.style.bottom = `${offset}px`;
+    };
+
+    adjustBottom();
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', adjustBottom);
+        window.visualViewport.addEventListener('scroll', adjustBottom);
+    }
+    window.addEventListener('orientationchange', () => setTimeout(adjustBottom, 250));
+})();
+</script>

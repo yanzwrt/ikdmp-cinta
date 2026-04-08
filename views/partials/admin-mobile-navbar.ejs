@@ -1,0 +1,147 @@
+﻿<script>
+(function(){
+  if (!document.querySelector('link[data-bootstrap-icons]')) {
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css';
+    link.setAttribute('data-bootstrap-icons', '1');
+    document.head.appendChild(link);
+  }
+})();
+</script>
+
+<!-- Admin Mobile Bottom Navigation -->
+<nav class="admin-bottom-nav d-md-none">
+    <!-- Pelanggan -->
+    <a class="bot-nav-item <%= typeof currentPage !== 'undefined' && currentPage === 'customers' ? 'active' : '' %>"
+        href="/admin/billing/customers">
+        <i class="bi bi-people" style="font-size: 1.2rem;"></i>
+        <span style="font-size: 0.7rem; font-weight: 500;">Pelanggan</span>
+    </a>
+
+    <!-- Tagihan -->
+    <a class="bot-nav-item <%= typeof currentPage !== 'undefined' && currentPage === 'invoices' ? 'active' : '' %>"
+        href="/admin/billing/invoices">
+        <i class="bi bi-receipt" style="font-size: 1.2rem;"></i>
+        <span style="font-size: 0.7rem; font-weight: 500;">Tagihan</span>
+    </a>
+
+    <!-- Home (Billing Dashboard) -->
+    <a class="bot-nav-item <%= typeof currentPage !== 'undefined' && currentPage === 'dashboard' ? 'active' : '' %>"
+        href="/admin/billing/dashboard">
+        <i class="bi bi-house" style="font-size: 1.2rem;"></i>
+        <span style="font-size: 0.7rem; font-weight: 500;">Home</span>
+    </a>
+
+    <!-- Bayar -->
+    <a class="bot-nav-item <%= typeof currentPage !== 'undefined' && currentPage === 'payments' ? 'active' : '' %>"
+        href="/admin/billing/payments">
+        <i class="bi bi-credit-card" style="font-size: 1.2rem;"></i>
+        <span style="font-size: 0.7rem; font-weight: 500;">Bayar</span>
+    </a>
+
+    <!-- Payment Monitor -->
+    <a class="bot-nav-item <%= typeof currentPage !== 'undefined' && ['payment-monitor', 'financial-report', 'collector-remittance', 'collector-reports', 'reports', 'monthly-summary'].includes(currentPage) ? 'active' : '' %>"
+        href="/admin/billing/payment-monitor">
+        <i class="bi bi-activity" style="font-size: 1.2rem;"></i>
+        <span style="font-size: 0.7rem; font-weight: 500;">Monitor</span>
+    </a>
+
+    <!-- Dashboard Utama -->
+    <a class="bot-nav-item"
+        href="/admin/dashboard">
+        <i class="bi bi-arrow-left-circle" style="font-size: 1.2rem;"></i>
+        <span style="font-size: 0.7rem; font-weight: 500;">Kembali</span>
+    </a>
+</nav>
+
+<style>
+    /* Bottom Navigation Styles - Fixed to avoid Bootstrap conflicts */
+    .admin-bottom-nav {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+        max-width: none !important;
+        transform: none !important;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.96), rgba(118, 75, 162, 0.96)) !important;
+        border: 1px solid rgba(255, 255, 255, 0.14) !important;
+        border-radius: 22px !important;
+        min-height: 74px !important;
+        height: 74px !important;
+        display: grid !important;
+        grid-template-columns: repeat(6, 1fr) !important;
+        z-index: 9999 !important; /* Higher z-index to stay on top */
+        backdrop-filter: blur(16px) !important;
+        padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+        margin: 0 !important;
+        overflow: hidden !important;
+        box-shadow: 0 16px 34px rgba(76, 29, 149, 0.24), inset 0 1px 0 rgba(255,255,255,0.12) !important;
+        backdrop-filter: blur(18px) saturate(140%) !important;
+    }
+
+    .bot-nav-item {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 4px !important;
+        color: rgba(255, 255, 255, 0.72) !important;
+        text-decoration: none !important;
+        transition: all 0.25s ease !important;
+        min-width: 0 !important;
+        text-align: center !important;
+        border-radius: 16px !important;
+        padding: 6px 2px 7px !important;
+        position: relative !important;
+        min-height: 54px !important;
+    }
+
+    .bot-nav-item:hover {
+        color: #fff !important;
+        background: rgba(255,255,255,0.08) !important;
+    }
+
+    .bot-nav-item.active {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        background: rgba(255,255,255,0.14) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.16) !important;
+    }
+
+    .bot-nav-item i {
+        font-size: 1.08rem !important;
+        line-height: 1 !important;
+        margin-bottom: 0 !important;
+    }
+
+    .bot-nav-item span {
+        font-size: 0.61rem !important;
+        font-weight: 600 !important;
+        display: block !important;
+        width: 100% !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+
+    /* Add padding to body for mobile */
+    @media (max-width: 768px) {
+        body {
+            padding-bottom: 96px !important;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .admin-bottom-nav {
+            display: none !important;
+        }
+    }
+
+    /* Hide bottom nav when modal is open */
+    body.modal-open .admin-bottom-nav {
+        display: none !important;
+    }
+</style>
+
