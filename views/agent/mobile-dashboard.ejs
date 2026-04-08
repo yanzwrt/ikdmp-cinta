@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Dashboard agent untuk sistem billing IKDMP-BILL">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Agent">
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="msapplication-tap-highlight" content="no">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest-agent.webmanifest">
+    
+    <!-- PWA Icons -->
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
+    <title>Agent Mobile - <%= appSettings.company_name || 'IKDMP Bill' %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/agent-pwa.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .mobile-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .mobile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem;
+            text-align: center;
+        }
+        .balance-card {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 0.75rem;
+            margin: 0.5rem;
+            text-align: center;
+        }
+        .quick-action-sm {
+            background: white;
+            border-radius: 8px;
+            padding: 0.75rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .quick-action-sm:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        .quick-action-sm i {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 0.5rem !important;
+            margin: 0.25rem !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .notification-item {
+            background: white;
+            border-radius: 8px;
+            padding: 0.5rem;
+            margin: 0.25rem;
+            border-left: 3px solid #667eea;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+        .notification-item.unread {
+            background: #f8f9ff;
+            border-left-color: #667eea;
+        }
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .floating-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            padding: 0.5rem;
+            z-index: 1000;
+        }
+        .nav-item {
+            text-align: center;
+            padding: 0.5rem;
+            color: #6c757d;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .nav-item.active {
+            color: #667eea;
+        }
+        .nav-item i {
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        .nav-item span {
+            font-size: 0.75rem;
+        }
+        .stat-item {
+            background: #f8f9fa !important;
+            border-radius: 8px !important;
+            padding: 0.5rem !important;
+            margin-bottom: 0.25rem !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- Header -->
+        <div class="mobile-header">
+            <h5 class="mb-0">
+                <i class="fas fa-user-tie me-2"></i>
+                Agent Portal
+            </h5>
+            <small class="opacity-75">Selamat datang, <%= agent.name %>!</small>
+        </div>
+
+        <!-- 2x2 Grid Layout -->
+        <div class="row g-1 mx-1 mt-2" style="max-height: 50vh;">
+            <!-- Balance Card -->
+            <div class="col-6">
+                <div class="stats-card" style="height: auto !important;">
+                    <h6 class="mb-0 small">
+                        <i class="fas fa-wallet me-1"></i>
+                        Saldo
+                    </h6>
+                    <h5 class="text-success mb-0">Rp <%= balance.toLocaleString() %></h5>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="col-6">
+                <div class="stats-card" style="height: auto !important;">
+                    <h6 class="mb-0 small">
+                        <i class="fas fa-bolt me-1"></i>
+                        Aksi
+                    </h6>
+                    <div class="row g-1">
+                        <div class="col-6">
+                            <div class="quick-action-sm" onclick="location.href='/agent/vouchers'">
+                                <i class="fas fa-ticket-alt text-primary small"></i>
+                                <small class="d-block">Voucher</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="quick-action-sm" onclick="location.href='/agent/payments'">
+                                <i class="fas fa-credit-card text-success small"></i>
+                                <small class="d-block">Bayar</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="quick-action-sm" onclick="location.href='/agent/balance'">
+                                <i class="fas fa-wallet text-warning small"></i>
+                                <small class="d-block">Saldo</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="quick-action-sm" onclick="location.href='/agent/transactions'">
+                                <i class="fas fa-history text-info small"></i>
+                                <small class="d-block">Riwayat</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="col-6">
+                <div class="stats-card" style="height: auto !important;">
+                    <h6 class="mb-0 small">
+                        <i class="fas fa-chart-pie me-1"></i>
+                        Statistik
+                    </h6>
+                    <div class="row text-center g-1">
+                        <div class="col-6">
+                            <div class="stat-item">
+                                <h6 class="text-primary mb-0 small"><%= stats.total_vouchers || 0 %></h6>
+                                <small class="text-muted small">Voucher</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-item">
+                                <h6 class="text-success mb-0 small"><%= stats.total_payments || 0 %></h6>
+                                <small class="text-muted small">Pembayaran</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-item">
+                                <h6 class="text-warning mb-0 small">Rp <%= (stats.total_spent_vouchers || 0).toLocaleString() %></h6>
+                                <small class="text-muted small">Penjualan</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-item">
+                                <h6 class="text-info mb-0 small">Rp <%= ((stats.voucher_commission || 0) + (stats.payment_commission || 0)).toLocaleString() %></h6>
+                                <small class="text-muted small">Komisi</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Net Profit -->
+            <div class="col-6">
+                <div class="stats-card" style="height: auto !important;">
+                    <h6 class="mb-0 small">
+                        <i class="fas fa-coins me-1"></i>
+                        Keuntungan
+                    </h6>
+                    <div class="text-center">
+                        <h5 class="text-success mb-0">Rp <%= ((stats.voucher_commission || 0) + (stats.payment_commission || 0)).toLocaleString() %></h5>
+                        <small class="text-muted small">Total komisi hari ini</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Notifications -->
+        <div class="stats-card">
+            <h6 class="mb-2">
+                <i class="fas fa-bell me-2"></i>
+                Notifikasi Terbaru
+            </h6>
+            <% if (notifications.length > 0) { %>
+                <% notifications.slice(0, 2).forEach(notification => { %>
+                    <div class="notification-item <%= notification.is_read ? '' : 'unread' %>">
+                        <div class="d-flex align-items-center">
+                            <div class="me-2">
+                                <i class="fas fa-<%= notification.notification_type === 'voucher_sold' ? 'ticket-alt' : notification.notification_type === 'payment_received' ? 'credit-card' : notification.notification_type === 'balance_updated' ? 'wallet' : 'bell' %> text-<%= notification.notification_type === 'voucher_sold' ? 'info' : notification.notification_type === 'payment_received' ? 'success' : notification.notification_type === 'balance_updated' ? 'warning' : 'primary' %> small"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 small"><%= notification.title %></h6>
+                                <p class="mb-0 text-muted small text-truncate"><%= notification.message %></p>
+                                <small class="text-muted small">
+                                    <i class="fas fa-clock me-1"></i>
+                                    <%= new Date(notification.created_at).toLocaleString('id-ID') %>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="text-center text-muted py-2">
+                    <i class="fas fa-bell-slash mb-1"></i>
+                    <p class="small mb-0">Tidak ada notifikasi</p>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="stats-card">
+            <h6 class="mb-2">
+                <i class="fas fa-receipt me-2"></i>
+                Transaksi Terbaru
+            </h6>
+            <% if (recentTransactions.length > 0) { %>
+                <% recentTransactions.slice(0, 2).forEach(transaction => { %>
+                    <div class="notification-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0 small text-truncate" style="max-width: 150px;"><%= transaction.description %></h6>
+                                <small class="text-muted small">
+                                    <i class="fas fa-clock me-1"></i>
+                                    <%= new Date(transaction.created_at).toLocaleString('id-ID') %>
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <span class="fw-bold small <%= transaction.amount > 0 ? 'text-success' : 'text-danger' %>">
+                                    <%= transaction.amount > 0 ? '+' : '' %>Rp <%= Math.abs(transaction.amount).toLocaleString() %>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="text-center text-muted py-2">
+                    <i class="fas fa-receipt mb-1"></i>
+                    <p class="small mb-0">Belum ada transaksi</p>
+                </div>
+            <% } %>
+        </div>
+
+        <%- include('../partials/agent-mobile-navbar') %>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="floating-btn" onclick="location.href='/agent/vouchers'" title="Jual Voucher">
+        <i class="fas fa-plus"></i>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto refresh stats every 30 seconds
+        setInterval(function() {
+            fetch('/agent/api/stats')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update stats if needed
+                        console.log('Stats updated');
+                    }
+                })
+                .catch(error => console.error('Error updating stats:', error));
+        }, 30000);
+
+        // Mark notifications as read when clicked
+        document.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const notificationId = this.dataset.notificationId;
+                if (notificationId) {
+                    fetch('/agent/mark-notification-read', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ notificationId: notificationId })
+                    });
+                }
+            });
+        });
+
+        // Add touch feedback for quick actions
+        document.querySelectorAll('.quick-action').forEach(action => {
+            action.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.95)';
+            });
+            
+            action.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+    <script src="/js/pwa-install.js"></script>
+    <script src="/js/agent-pwa.js"></script>
+</body>
+</html>
+
