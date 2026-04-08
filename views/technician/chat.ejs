@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %></title>
+    <link rel="manifest" href="/technician-manifest.webmanifest">
+    <meta name="theme-color" content="#6d4bff">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="/css/responsive-admin.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(180deg, #efe7ff 0%, #f7f4ff 100%);
+        }
+        .chat-app {
+            width: min(100%, 820px);
+            margin: 0 auto;
+            background: rgba(255,255,255,.96);
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 24px 48px rgba(91,33,182,.12);
+            border: 1px solid rgba(148,163,184,.18);
+        }
+        .chat-app__header {
+            background: linear-gradient(135deg, #6d4bff 0%, #7c3aed 48%, #8b5cf6 100%);
+            color: #fff;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .chat-app__header small {
+            color: rgba(255,255,255,.82);
+        }
+        .chat-app__messages {
+            min-height: 58vh;
+            max-height: 64vh;
+            overflow-y: auto;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background:
+                radial-gradient(circle at top left, rgba(109,75,255,.08), transparent 28%),
+                linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,244,255,.98));
+        }
+        .chat-msg {
+            max-width: 82%;
+            border-radius: 20px;
+            padding: 12px 14px;
+            box-shadow: 0 10px 22px rgba(15,23,42,.07);
+        }
+        .chat-msg--admin {
+            align-self: flex-start;
+            background: #fff;
+            color: #0f172a;
+            border: 1px solid rgba(148,163,184,.24);
+        }
+        .chat-msg--you {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #6d4bff 0%, #8b5cf6 100%);
+            color: #fff;
+        }
+        .chat-app__compose {
+            padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+            background: rgba(255,255,255,.94);
+            border-top: 1px solid rgba(148,163,184,.16);
+        }
+        .chat-empty {
+            text-align: center;
+            color: #64748b;
+            padding: 3rem 1rem;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding-top: 84px !important;
+                padding-bottom: 104px !important;
+            }
+            .chat-app {
+                border-radius: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/mobile-navbar', { currentPage: 'settings' }) %>
+
+    <div class="container-fluid">
+        <div class="row">
+            <%- include('../partials/technician-responsive-sidebar', { page: 'settings', technician: technician }) %>
+            <main class="col-md-10 ms-sm-auto main-content py-3 py-md-4">
+                <div class="chat-app">
+                    <div class="chat-app__header">
+                        <div>
+                            <div class="fw-bold fs-5">Chat Admin</div>
+                            <small>Balasan langsung dari admin dan teknisi.</small>
+                        </div>
+                        <a href="/technician/settings" class="btn btn-light btn-sm rounded-pill px-3">
+                            <i class="bx bx-arrow-back me-1"></i>Kembali
+                        </a>
+                    </div>
+
+                    <div id="chatMessages" class="chat-app__messages">
+                        <div class="chat-empty">Memuat percakapan...</div>
+                    </div>
+
+                    <div class="chat-app__compose">
+                        <form id="chatForm" class="d-flex gap-2">
+                            <input type="text" id="chatInput" class="form-control form-control-lg rounded-pill" placeholder="Ketik balasan ke admin..." required>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">Kirim</button>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatWib(value) {
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '-';
+            return new Intl.DateTimeFormat('id-ID', {
+                timeZone: 'Asia/Jakarta',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            }).format(date) + ' WIB';
+        }
+
+        function renderMessages(messages) {
+            const wrap = document.getElementById('chatMessages');
+            if (!wrap) return;
+            if (!Array.isArray(messages) || !messages.length) {
+                wrap.innerHTML = '<div class="chat-empty">Belum ada percakapan.</div>';
+                return;
+            }
+            wrap.innerHTML = messages.map((item) => {
+                const fromTechnician = item.sender_role === 'technician';
+                return `
+                    <div class="chat-msg ${fromTechnician ? 'chat-msg--you' : 'chat-msg--admin'}">
+                        <div class="fw-semibold small mb-1">${fromTechnician ? 'Anda' : 'Admin'}</div>
+                        <div>${escapeHtml(item.message)}</div>
+                        <div class="small mt-2 ${fromTechnician ? 'text-white-50' : 'text-muted'}">${formatWib(item.created_at)}</div>
+                    </div>
+                `;
+            }).join('');
+            wrap.scrollTop = wrap.scrollHeight;
+        }
+
+        async function loadMessages() {
+            const response = await fetch('/technician/chat/messages', { cache: 'no-store' });
+            const result = await response.json();
+            if (!result.success) throw new Error(result.message || 'Gagal memuat chat');
+            renderMessages(result.messages || []);
+        }
+
+        document.getElementById('chatForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+            const response = await fetch('/technician/chat/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
+            const result = await response.json();
+            if (!result.success) {
+                alert(result.message || 'Gagal mengirim pesan');
+                return;
+            }
+            input.value = '';
+            await loadMessages();
+        });
+
+        loadMessages().catch((error) => {
+            document.getElementById('chatMessages').innerHTML = `<div class="chat-empty text-danger">${escapeHtml(error.message)}</div>`;
+        });
+        setInterval(() => loadMessages().catch(() => {}), 12000);
+    </script>
+</body>
+</html>

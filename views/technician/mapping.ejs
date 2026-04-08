@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Mapping - Portal Teknisi</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        
+        .main-content {
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 75vh;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(2px);
+        }
+        
+        .cable-line {
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: all 0.3s ease;
+        }
+        
+        .cable-line.connected {
+            stroke: #28a745;
+            stroke-width: 3;
+            opacity: 0.9;
+        }
+        
+        .cable-line.disconnected {
+            stroke: #dc3545;
+            stroke-width: 2;
+            opacity: 0.7;
+        }
+        
+        .cable-line-animated {
+            stroke: #FF5722;
+            stroke-width: 4;
+            stroke-dasharray: 20, 15;
+            stroke-dashoffset: 0;
+            animation: cableFlow 2s linear infinite;
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));
+            transition: all 0.3s ease;
+        }
+        
+        .cable-line-connected {
+            stroke: #28a745;
+            stroke-width: 4;
+            stroke-dasharray: 15, 10;
+            stroke-dashoffset: 0;
+            animation: cableFlow 3s linear infinite;
+            filter: drop-shadow(0 3px 6px rgba(40, 167, 69, 0.5));
+        }
+        
+        .cable-line-disconnected {
+            stroke: #dc3545;
+            stroke-width: 3;
+            stroke-dasharray: 10, 5;
+            stroke-dashoffset: 0;
+            animation: cableFlow 4s linear infinite;
+            filter: drop-shadow(0 3px 6px rgba(220, 53, 69, 0.5));
+        }
+        
+        .backbone-line-active {
+            stroke: #007bff;
+            stroke-width: 5;
+            stroke-dasharray: 25, 15;
+            stroke-dashoffset: 0;
+            animation: backboneFlow 2.5s linear infinite;
+            filter: drop-shadow(0 4px 8px rgba(0, 123, 255, 0.5));
+        }
+        
+        .backbone-line-inactive {
+            stroke: #6c757d;
+            stroke-width: 3;
+            stroke-dasharray: 12, 8;
+            stroke-dashoffset: 0;
+            animation: backboneFlow 5s linear infinite;
+            filter: drop-shadow(0 3px 6px rgba(108, 117, 125, 0.5));
+        }
+        
+        @keyframes cableFlow {
+            0% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: -35; }
+        }
+        
+        @keyframes backboneFlow {
+            0% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: -40; }
+        }
+        
+        @keyframes pulseData {
+            0% { r: 3; opacity: 1; }
+            50% { r: 5; opacity: 0.7; }
+            100% { r: 3; opacity: 1; }
+        }
+        
+        .data-flow-marker {
+            background: transparent !important;
+            border: none !important;
+        }
+        
+        .data-flow-container {
+            position: relative;
+            width: 12px;
+            height: 12px;
+        }
+        
+        .data-flow-dot {
+            width: 8px;
+            height: 8px;
+            background: #FF5722;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulseData 2s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(255, 87, 34, 0.6);
+        }
+        
+        .data-flow-trail {
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255, 87, 34, 0.3);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulseTrail 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulseTrail {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+            50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.3; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+        }
+        
+        .cable-flow .data-flow-dot {
+            background: #28a745;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.6);
+        }
+        
+        .cable-flow .data-flow-trail {
+            border-color: rgba(40, 167, 69, 0.3);
+        }
+        
+        .backbone-flow .data-flow-dot {
+            background: #007bff;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.6);
+        }
+        
+        .backbone-flow .data-flow-trail {
+            border-color: rgba(0, 123, 255, 0.3);
+        }
+        
+        .header-nav {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            z-index: 1001;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        
+        .header-nav h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .panels-container {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .control-panel,
+        .stats-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .control-panel h5,
+        .stats-panel h5 {
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: 600;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.05);
+        }
+        
+        .stat-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .stat-icon.odp { background: #e74c3c; }
+        .stat-icon.customer { background: #27ae60; }
+        .stat-icon.cable { background: #f39c12; }
+        .stat-icon.backbone { background: #8e44ad; }
+
+        .odp-popup .form-select,
+        .odp-popup .btn {
+            font-size: 13px;
+        }
+
+        .odp-popup .status-editor {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .odp-popup .status-editor label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .odp-popup {
+            min-width: 280px;
+        }
+
+        .odp-popup .odp-photo-box {
+            margin-bottom: 12px;
+            border-radius: 14px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+            border: 1px solid rgba(37, 99, 235, 0.12);
+            padding: 10px;
+        }
+
+        .odp-popup .odp-photo-box img {
+            display: block;
+            width: 100%;
+            max-height: 180px;
+            object-fit: contain;
+            margin: 0 auto;
+            border-radius: 10px;
+            background: #ffffff;
+        }
+
+        .odp-popup .odp-photo-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 120px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.86);
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            padding: 12px;
+        }
+
+        .odp-popup p {
+            margin-bottom: 8px;
+        }
+
+        .custom-odp-icon,
+        .custom-onu-icon {
+            background: transparent !important;
+            border: none !important;
+            opacity: 1 !important;
+        }
+        
+        @keyframes odpPulse {
+            0% { transform: scale(1); box-shadow: 0 3px 8px rgba(0,0,0,0.3); }
+            50% { transform: scale(1.1); box-shadow: 0 4px 12px rgba(255,215,0,0.5); }
+            100% { transform: scale(1); box-shadow: 0 3px 8px rgba(0,0,0,0.3); }
+        }
+        
+        .mobile-toggle,
+        .mobile-layer-toggle {
+            position: fixed;
+            top: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            color: white;
+            border: none;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1002;
+            display: none;
+        }
+        
+        .mobile-toggle {
+            right: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        
+        .mobile-layer-toggle {
+            right: 80px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+        
+        @media (max-width: 768px) {
+            .control-panel, .stats-panel {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                max-width: 90vw;
+                max-height: 80vh;
+                overflow-y: auto;
+                display: none;
+                z-index: 1001;
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                padding: 20px;
+            }
+            
+            .control-panel.show, .stats-panel.show {
+                display: block;
+            }
+            
+            .mobile-toggle,
+            .mobile-layer-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .header-nav {
+                padding-right: 140px;
+            }
+            
+            .leaflet-control-layers {
+                display: none;
+            }
+            
+            .leaflet-control-layers.show {
+                display: block !important;
+            }
+            
+            .main-content {
+                padding-bottom: 120px !important;
+            }
+            
+            .map-container,
+            .panels-container {
+                margin-bottom: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <%- include('../partials/technician-responsive-sidebar', { page: 'mapping', technician: technician }) %>
+            <main class="col-md-10 ms-sm-auto main-content" style="min-height: 100vh;">
+                <div class="header-nav">
+                    <h1><i class="bx bx-map-marked-alt"></i> Network Mapping - Teknisi</h1>
+                </div>
+
+                <div class="map-container">
+                    <div id="loading" class="loading">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <div class="mt-2">Loading network data...</div>
+                        </div>
+                    </div>
+                    <div id="map"></div>
+                </div>
+
+                <div class="panels-container">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="control-panel">
+                                <h5><i class="bx bx-layer-group me-2"></i>Layer Controls</h5>
+                                
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="odpLayer" checked>
+                                    <label class="form-check-label" for="odpLayer">
+                                        <span class="stat-icon odp me-2" style="font-size: 12px;">⚡</span>ODPs
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="customerLayer" checked>
+                                    <label class="form-check-label" for="customerLayer">
+                                        <span class="stat-icon customer me-2" style="font-size: 12px;">📶</span>ONUs
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="cableLayer" checked>
+                                    <label class="form-check-label" for="cableLayer">
+                                        <span class="stat-icon cable me-2">K</span>Cable Routes
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="backboneLayer" checked>
+                                    <label class="form-check-label" for="backboneLayer">
+                                        <span class="stat-icon backbone me-2">B</span>Backbone
+                                    </label>
+                                </div>
+                                
+                                <hr>
+                                
+                                <h6 class="mb-2">Base Map</h6>
+                                <select class="form-select form-select-sm" id="baseMapSelect">
+                                    <option value="satellite">Satellite</option>
+                                    <option value="light">Light Theme</option>
+                                    <option value="dark">Dark Theme</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="stats-panel">
+                                <h5><i class="bx bx-bar-chart me-2"></i>Network Statistics</h5>
+                                
+                                <div class="stat-item">
+                                    <span class="stat-icon odp" style="font-size: 12px;">⚡</span>
+                                    <div>
+                                        <div class="fw-bold">ODPs</div>
+                                        <small class="text-muted" id="odpCount">0</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="stat-item">
+                                    <span class="stat-icon customer" style="font-size: 12px;">📶</span>
+                                    <div>
+                                        <div class="fw-bold">ONUs</div>
+                                        <small class="text-muted" id="customerCount">0</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="stat-item">
+                                    <span class="stat-icon cable">K</span>
+                                    <div>
+                                        <div class="fw-bold">Cable Routes</div>
+                                        <small class="text-muted" id="cableCount">0</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="stat-item">
+                                    <span class="stat-icon backbone">B</span>
+                                    <div>
+                                        <div class="fw-bold">Backbone</div>
+                                        <small class="text-muted" id="backboneCount">0</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <%- include('partials/mobile-navbar', { currentPage: 'mapping' }) %>
+
+                <button class="mobile-toggle" id="mobileToggle">
+                    <i class="bx bx-menu"></i>
+                </button>
+                <button class="mobile-layer-toggle" id="mobileLayerToggle">
+                    <i class="bx bx-layer"></i>
+                </button>
+
+                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    let map;
+    let networkData = {};
+    let customerLayer, odpLayer, cableLayer, backboneLayer;
+    let lightTheme, darkTheme, satelliteTheme, openStreetTheme;
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function getOdpStatusBadgeClass(status) {
+        const normalized = String(status || 'inactive').toLowerCase();
+        if (normalized === 'active') return 'success';
+        if (normalized === 'maintenance') return 'warning text-dark';
+        return 'secondary';
+    }
+
+    function buildOdpPopup(odp) {
+        const normalizedStatus = String(odp.status || 'inactive').toLowerCase();
+        const photoFilename = odp.photo ? String(odp.photo).trim() : '';
+        return `
+            <div class="odp-popup">
+                <h6><i class="fas fa-broadcast-tower"></i> ${escapeHtml(odp.name || 'ODP')}</h6>
+                <div class="odp-photo-box">
+                    ${photoFilename
+                        ? `<img src="/img/odp/${encodeURIComponent(photoFilename)}" alt="Foto ODP ${escapeHtml(odp.name || '')}">`
+                        : `<div class="odp-photo-empty">Foto ODP belum tersedia</div>`}
+                </div>
+                <p><strong>Code:</strong> ${escapeHtml(odp.code || 'N/A')}</p>
+                <p><strong>Capacity:</strong> ${escapeHtml(odp.capacity || 'N/A')} ports</p>
+                <p><strong>Used Ports:</strong> ${escapeHtml(odp.used_ports || 0)}</p>
+                <p><strong>Status:</strong> <span class="badge bg-${getOdpStatusBadgeClass(normalizedStatus)}">${escapeHtml(normalizedStatus)}</span></p>
+                <p><strong>Address:</strong> ${escapeHtml(odp.address || 'N/A')}</p>
+                <p><strong>Coordinates:</strong> ${escapeHtml(odp.latitude)}, ${escapeHtml(odp.longitude)}</p>
+                <div class="status-editor">
+                    <label for="odp-status-${odp.id}">Ubah Status ODP</label>
+                    <select class="form-select form-select-sm mb-2" id="odp-status-${odp.id}">
+                        <option value="active" ${normalizedStatus === 'active' ? 'selected' : ''}>Active</option>
+                        <option value="maintenance" ${normalizedStatus === 'maintenance' ? 'selected' : ''}>Maintenance</option>
+                        <option value="inactive" ${normalizedStatus === 'inactive' ? 'selected' : ''}>Inactive</option>
+                    </select>
+                    <button type="button" class="btn btn-sm btn-primary w-100" onclick="saveTechnicianOdpStatus(${Number(odp.id)}, this)">
+                        <i class="bi bi-save me-1"></i>Simpan Status
+                    </button>
+                    <small class="text-muted d-block mt-2">Jika diubah ke maintenance/inactive, pelanggan di ODP ini akan menerima notifikasi otomatis.</small>
+                </div>
+            </div>
+        `;
+    }
+
+    async function saveTechnicianOdpStatus(odpId, buttonEl) {
+        const odp = (networkData.odps || []).find(item => Number(item.id) === Number(odpId));
+        if (!odp) {
+            alert('Data ODP tidak ditemukan');
+            return;
+        }
+
+        const select = document.getElementById(`odp-status-${odpId}`);
+        if (!select) {
+            alert('Pilihan status tidak ditemukan');
+            return;
+        }
+
+        const newStatus = select.value;
+        const previousStatus = String(odp.status || 'inactive').toLowerCase();
+        const shouldForceNotification = ['maintenance', 'inactive'].includes(newStatus);
+
+        if (buttonEl) {
+            buttonEl.disabled = true;
+            buttonEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan...';
+        }
+
+        try {
+            const response = await fetch(`/technician/api/odp/${odpId}/status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: newStatus,
+                    force_notification: shouldForceNotification
+                })
+            });
+
+            const rawText = await response.text();
+            let result;
+            try {
+                result = rawText ? JSON.parse(rawText) : {};
+            } catch (parseError) {
+                throw new Error(rawText || 'Respon server tidak valid');
+            }
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Gagal menyimpan status ODP');
+            }
+
+            odp.status = newStatus;
+            alert(`Status ODP berhasil diubah ke ${newStatus}. ${['maintenance', 'inactive'].includes(newStatus) ? 'Notifikasi pelanggan sedang dikirim.' : (previousStatus !== 'active' && newStatus === 'active' ? 'Pelanggan akan menerima info layanan kembali normal.' : '')}`);
+            renderNetworkData();
+        } catch (error) {
+            console.error('Error updating technician ODP status:', error);
+            alert(error.message || 'Gagal mengupdate status ODP');
+        } finally {
+            if (buttonEl) {
+                buttonEl.disabled = false;
+                buttonEl.innerHTML = '<i class="bi bi-save me-1"></i>Simpan Status';
+            }
+        }
+    }
+
+    function initMap() {
+        console.log('🗺️ Initializing technician mapping...');
+
+        map = L.map('map').setView([-7.1599, 108.0612], 13);
+
+        lightTheme = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap © CartoDB',
+            subdomains: 'abcd',
+            maxZoom: 19
+        });
+
+        darkTheme = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap © CartoDB',
+            subdomains: 'abcd',
+            maxZoom: 19
+        });
+
+        openStreetTheme = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '© Esri © DigitalGlobe © GeoEye © i-cubed © USDA FSA © USGS © AeroGRID © IGN © IGP'
+        });
+
+        satelliteTheme = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: '© Google Maps'
+        });
+
+        satelliteTheme.addTo(map);
+
+        const baseLayers = {
+            "Satellite": satelliteTheme,
+            "OpenStreet": openStreetTheme,
+            "Light Theme": lightTheme,
+            "Dark Theme": darkTheme
+        };
+
+        customerLayer = L.layerGroup().addTo(map);
+        odpLayer = L.layerGroup().addTo(map);
+        cableLayer = L.layerGroup().addTo(map);
+        backboneLayer = L.layerGroup().addTo(map);
+
+        const overlayLayers = {
+            "ODPs": odpLayer,
+            "Customers": customerLayer,
+            "Cable Routes": cableLayer,
+            "Backbone": backboneLayer
+        };
+
+        L.control.layers(baseLayers, overlayLayers, {
+            position: 'topright',
+            collapsed: true
+        }).addTo(map);
+
+        loadNetworkData();
+    }
+
+    async function loadNetworkData() {
+        try {
+            showLoading();
+
+            const [mappingResponse, cableResponse] = await Promise.all([
+                fetch('/technician/api/mapping-data'),
+                fetch('/technician/api/cable-network-data')
+            ]);
+
+            if (!mappingResponse.ok) {
+                throw new Error(`Mapping API error! status: ${mappingResponse.status}`);
+            }
+
+            if (!cableResponse.ok) {
+                throw new Error(`Cable API error! status: ${cableResponse.status}`);
+            }
+
+            const mappingJson = await mappingResponse.json();
+            const cableJson = await cableResponse.json();
+
+            if (!mappingJson.success) {
+                throw new Error(mappingJson.message || 'Failed to load mapping data');
+            }
+
+            if (!cableJson.success) {
+                throw new Error(cableJson.message || 'Failed to load cable network data');
+            }
+
+            networkData = {
+                odps: mappingJson.data?.odps || [],
+                customers: mappingJson.data?.customers || [],
+                cables: cableJson.data?.cableRoutes || [],
+                backbone: cableJson.data?.networkSegments || []
+            };
+
+            console.log('✅ networkData:', networkData);
+
+            renderNetworkData();
+            updateStatistics();
+            hideLoading();
+        } catch (error) {
+            console.error('Error loading network data:', error);
+            showError('Error loading network data: ' + error.message);
+            hideLoading();
+        }
+    }
+
+    function renderNetworkData() {
+        customerLayer.clearLayers();
+        odpLayer.clearLayers();
+        cableLayer.clearLayers();
+        backboneLayer.clearLayers();
+
+        // Render ODP
+        if (networkData.odps && networkData.odps.length > 0) {
+            networkData.odps.forEach((odp) => {
+                if (odp.latitude && odp.longitude) {
+                    const odpIcon = L.divIcon({
+                        className: 'custom-odp-icon',
+                        html: `
+                            <div style="
+                                background: linear-gradient(135deg, #FFD700 0%, #F4A261 100%);
+                                border: 3px solid #FFFFFF;
+                                border-radius: 50%;
+                                width: 18px;
+                                height: 18px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+                                position: relative;
+                                animation: odpPulse 3s infinite;
+                            ">
+                                <div style="
+                                    color: white;
+                                    font-size: 10px;
+                                    font-weight: bold;
+                                    pointer-events: none;
+                                    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+                                ">⚡</div>
+                            </div>
+                            <div style="
+                                position: absolute;
+                                bottom: -8px;
+                                left: 50%;
+                                transform: translateX(-50%);
+                                width: 0;
+                                height: 0;
+                                border-left: 6px solid transparent;
+                                border-right: 6px solid transparent;
+                                border-top: 6px solid #FFD700;
+                                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+                            "></div>
+                        `,
+                        iconSize: [20, 20],
+                        iconAnchor: [10, 20],
+                        popupAnchor: [0, -20]
+                    });
+
+                    const marker = L.marker([parseFloat(odp.latitude), parseFloat(odp.longitude)], {
+                        icon: odpIcon
+                    }).bindPopup(buildOdpPopup(odp));
+
+                    odpLayer.addLayer(marker);
+                }
+            });
+        }
+
+        // Render Customer / ONU
+        if (networkData.customers && networkData.customers.length > 0) {
+            networkData.customers.forEach((customer) => {
+                if (customer.latitude && customer.longitude) {
+                    let onuColor, onuIconHtml;
+
+                    if (customer.serviceStatus === 'suspended') {
+                        onuColor = '#FF9800';
+                        onuIconHtml = '<div style="color: white; font-size: 14px; font-weight: bold; pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,0.6);">⚠️</div>';
+                    } else if (customer.deviceStatus === 'Offline') {
+                        onuColor = '#F44336';
+                        onuIconHtml = '<div style="color: white; font-size: 14px; font-weight: bold; pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,0.6);">❌</div>';
+                    } else {
+                        onuColor = '#4CAF50';
+                        onuIconHtml = '<div style="color: white; font-size: 14px; font-weight: bold; pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,0.6);">📶</div>';
+                    }
+
+                    const onuIconEl = L.divIcon({
+                        className: 'custom-onu-icon',
+                        html: `
+                            <div style="
+                                background: linear-gradient(135deg, ${onuColor} 0%, ${onuColor}dd 100%);
+                                border: 4px solid #FFFFFF;
+                                border-radius: 8px;
+                                width: 32px;
+                                height: 32px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+                                position: relative;
+                                animation: pulse-onu 2s infinite;
+                            ">
+                                ${onuIconHtml}
+                            </div>
+                            <div style="
+                                position: absolute;
+                                bottom: -10px;
+                                left: 50%;
+                                transform: translateX(-50%);
+                                width: 0;
+                                height: 0;
+                                border-left: 8px solid transparent;
+                                border-right: 8px solid transparent;
+                                border-top: 8px solid ${onuColor};
+                                filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+                            "></div>
+                            <style>
+                                @keyframes pulse-onu {
+                                    0% { transform: scale(1); }
+                                    50% { transform: scale(1.05); }
+                                    100% { transform: scale(1); }
+                                }
+                            </style>
+                        `,
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 40],
+                        popupAnchor: [0, -40]
+                    });
+
+                    const marker = L.marker([parseFloat(customer.latitude), parseFloat(customer.longitude)], {
+                        icon: onuIconEl
+                    }).bindPopup(`
+                        <div class="customer-popup" style="max-width: 350px;">
+                            <h6><i class="fas fa-user"></i> ${customer.name || 'Customer'}</h6>
+                            ${customer.house_photo ? `<div class="mb-2"><img src="/img/customer-houses/${customer.house_photo}" alt="Foto Rumah ${customer.name || ''}" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;"></div>` : ''}
+                            <p><strong>Phone:</strong> ${customer.phone || 'N/A'}</p>
+                            <p><strong>Email:</strong> ${customer.email || 'N/A'}</p>
+                            <p><strong>PPPoE:</strong> ${customer.pppoe_username || customer.username || 'N/A'}</p>
+                            <p><strong>Package:</strong> ${customer.package_name || customer.package_id || 'N/A'}</p>
+                            <p><strong>ODP:</strong> ${customer.odp_name || 'N/A'}</p>
+                            ${customer.odp_photo ? `<div class="mb-2"><img src="/img/odp/${customer.odp_photo}" alt="Foto ODP ${customer.odp_name || ''}" style="width:100%;max-height:110px;object-fit:cover;border-radius:8px;"></div>` : ''}
+                            <p><strong>Status Device:</strong> <span class="badge bg-${customer.deviceStatus === 'Online' ? 'success' : 'danger'}">${customer.deviceStatus || 'Offline'}</span></p>
+                            <p><strong>Status Layanan:</strong> <span class="badge bg-${customer.serviceStatus === 'active' ? 'success' : customer.serviceStatus === 'suspended' ? 'warning' : 'danger'}">${customer.serviceStatus === 'active' ? 'Aktif' : customer.serviceStatus === 'suspended' ? 'Suspend' : customer.serviceStatus || 'N/A'}</span></p>
+                            <p><strong>Last Inform:</strong> ${customer.lastInformFormatted || 'N/A'}</p>
+                            <p><strong>Address:</strong> ${customer.address || 'N/A'}</p>
+                            <p><strong>Coordinates:</strong> ${customer.latitude}, ${customer.longitude}</p>
+                        </div>
+                    `);
+
+                    customerLayer.addLayer(marker);
+                }
+            });
+        }
+
+    // Render Cable Routes dari technicianCableNetwork
+if (networkData.cables && networkData.cables.length > 0) {
+    console.log('📡 cable routes:', networkData.cables);
+
+    networkData.cables.forEach((cable) => {
+        const startLat = cable.odp_latitude;
+        const startLng = cable.odp_longitude;
+        const endLat = cable.customer_latitude;
+        const endLng = cable.customer_longitude;
+
+        if (startLat && startLng && endLat && endLng) {
+            const cableStatus = String(cable.status || 'connected').toLowerCase();
+
+            const polyline = L.polyline([
+                [parseFloat(startLat), parseFloat(startLng)],
+                [parseFloat(endLat), parseFloat(endLng)]
+            ], {
+                color: cableStatus === 'connected' ? '#28a745' : '#dc3545',
+                weight: cableStatus === 'connected' ? 4 : 3,
+                opacity: 0.9,
+                className: cableStatus === 'connected'
+                    ? 'cable-line-connected'
+                    : 'cable-line-disconnected'
+            }).bindPopup(`
+                <div class="cable-popup">
+                    <h6><i class="bx bx-cable me-1"></i>${cable.name || 'Cable Route'}</h6>
+                    <p class="mb-1"><strong>ODP:</strong> ${cable.odp_name || 'N/A'}</p>
+                    <p class="mb-1"><strong>Customer:</strong> ${cable.customer_name || 'N/A'}</p>
+                    <p class="mb-1"><strong>Phone:</strong> ${cable.customer_phone || 'N/A'}</p>
+                    <p class="mb-1"><strong>Status:</strong> 
+                        <span class="badge bg-${cableStatus === 'connected' ? 'success' : 'danger'}">
+                            ${cable.status || 'N/A'}
+                        </span>
+                    </p>
+                    <p class="mb-1"><strong>Panjang Kabel:</strong> ${cable.cable_length || cable.length || 'N/A'} m</p>
+                    <p class="mb-0"><strong>ID Cable:</strong> ${cable.id || 'N/A'}</p>
+                </div>
+            `);
+
+            cableLayer.addLayer(polyline);
+        }
+    });
+}
+
+        // Render Backbone dari networkSegments
+if (networkData.backbone && networkData.backbone.length > 0) {
+    networkData.backbone.forEach((segment) => {
+        const startLat = segment.start_latitude;
+        const startLng = segment.start_longitude;
+        const endLat = segment.end_latitude;
+        const endLng = segment.end_longitude;
+
+        if (startLat && startLng && endLat && endLng) {
+            const segmentStatus = String(segment.status || 'active').toLowerCase();
+
+            const polyline = L.polyline([
+                [parseFloat(startLat), parseFloat(startLng)],
+                [parseFloat(endLat), parseFloat(endLng)]
+            ], {
+                color: segmentStatus === 'active' ? '#007bff' : '#6c757d',
+                weight: segmentStatus === 'active' ? 5 : 3,
+                opacity: 0.9,
+                className: segmentStatus === 'active'
+                    ? 'backbone-line-active'
+                    : 'backbone-line-inactive'
+            }).bindPopup(`
+                <div class="backbone-popup">
+                    <h6><i class="bx bx-network-chart me-1"></i>${segment.name || 'Backbone Connection'}</h6>
+                    <p class="mb-1"><strong>Dari:</strong> ${segment.start_odp_name || 'N/A'}</p>
+                    <p class="mb-1"><strong>Ke:</strong> ${segment.end_odp_name || 'N/A'}</p>
+                    <p class="mb-1"><strong>Status:</strong> <span class="badge bg-${segmentStatus === 'active' ? 'success' : 'secondary'}">${segment.status || 'N/A'}</span></p>
+                    <p class="mb-1"><strong>Tipe:</strong> ${segment.connection_type || 'N/A'}</p>
+                    <p class="mb-1"><strong>Catatan:</strong> ${segment.notes || 'N/A'}</p>
+                    <p class="mb-0"><strong>ID Koneksi:</strong> ${segment.id || 'N/A'}</p>
+                </div>
+            `);
+
+            backboneLayer.addLayer(polyline);
+        }
+    });
+}
+
+        fitToBounds();
+
+        setTimeout(() => {
+            addDataFlowAnimations();
+        }, 1000);
+    }
+
+    function fitToBounds() {
+        if (!map) return;
+
+        const bounds = L.latLngBounds();
+        let hasData = false;
+
+        if (networkData.odps) {
+            networkData.odps.forEach(odp => {
+                if (odp.latitude && odp.longitude) {
+                    bounds.extend([parseFloat(odp.latitude), parseFloat(odp.longitude)]);
+                    hasData = true;
+                }
+            });
+        }
+
+        if (networkData.customers) {
+            networkData.customers.forEach(customer => {
+                if (customer.latitude && customer.longitude) {
+                    bounds.extend([parseFloat(customer.latitude), parseFloat(customer.longitude)]);
+                    hasData = true;
+                }
+            });
+        }
+
+        if (hasData) {
+            map.fitBounds(bounds, { padding: [20, 20] });
+        } else {
+            map.setView([-7.1599, 108.0612], 13);
+        }
+    }
+
+    function addDataFlowAnimations() {
+        if (cableLayer) {
+            cableLayer.eachLayer(function(layer) {
+                if (layer instanceof L.Polyline) {
+                    createDataFlowAnimation(layer, 'cable');
+                }
+            });
+        }
+
+        if (backboneLayer) {
+            backboneLayer.eachLayer(function(layer) {
+                if (layer instanceof L.Polyline) {
+                    createDataFlowAnimation(layer, 'backbone');
+                }
+            });
+        }
+    }
+
+    function createDataFlowAnimation(polyline, type) {
+        const latlngs = polyline.getLatLngs();
+        if (!latlngs || latlngs.length < 2) return;
+
+        const startLatLng = latlngs[0];
+        const endLatLng = latlngs[latlngs.length - 1];
+        const numMarkers = Math.min(3, Math.floor(latlngs.length / 2));
+        const animatedMarkers = [];
+
+        for (let i = 0; i < numMarkers; i++) {
+            const index = Math.floor((i + 1) * latlngs.length / (numMarkers + 1));
+            const point = latlngs[index];
+
+            if (point) {
+                const animatedMarker = L.marker(point, {
+                    icon: L.divIcon({
+                        className: `data-flow-marker ${type}-flow`,
+                        html: `
+                            <div class="data-flow-container">
+                                <div class="data-flow-dot"></div>
+                                <div class="data-flow-trail"></div>
+                            </div>
+                        `,
+                        iconSize: [12, 12],
+                        iconAnchor: [6, 6]
+                    })
+                });
+
+                if (type === 'cable') {
+                    cableLayer.addLayer(animatedMarker);
+                } else {
+                    backboneLayer.addLayer(animatedMarker);
+                }
+
+                animatedMarkers.push(animatedMarker);
+            }
+        }
+
+        animatedMarkers.forEach((animatedMarker, index) => {
+            let progress = 0;
+            const animationSpeed = type === 'backbone' ? 0.003 : 0.005;
+            const delay = index * 200;
+
+            setTimeout(() => {
+                function animate() {
+                    progress += animationSpeed;
+
+                    if (progress <= 1) {
+                        const currentLat = startLatLng.lat + (endLatLng.lat - startLatLng.lat) * progress;
+                        const currentLng = startLatLng.lng + (endLatLng.lng - startLatLng.lng) * progress;
+
+                        animatedMarker.setLatLng([currentLat, currentLng]);
+                        requestAnimationFrame(animate);
+                    } else {
+                        progress = 0;
+                        animatedMarker.setLatLng(startLatLng);
+                        setTimeout(() => requestAnimationFrame(animate), 1000);
+                    }
+                }
+
+                requestAnimationFrame(animate);
+            }, delay);
+        });
+    }
+
+    function updateStatistics() {
+        document.getElementById('odpCount').textContent = networkData.odps ? networkData.odps.length : 0;
+        document.getElementById('customerCount').textContent = networkData.customers ? networkData.customers.length : 0;
+        document.getElementById('cableCount').textContent = networkData.cables ? networkData.cables.length : 0;
+        document.getElementById('backboneCount').textContent = networkData.backbone ? networkData.backbone.length : 0;
+    }
+
+    function showLoading() {
+        document.getElementById('loading').style.display = 'flex';
+    }
+
+    function hideLoading() {
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    function showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger position-fixed';
+        errorDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 400px;';
+        errorDiv.innerHTML = `
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+        `;
+        document.body.appendChild(errorDiv);
+
+        setTimeout(() => {
+            if (errorDiv.parentElement) {
+                errorDiv.remove();
+            }
+        }, 5000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initMap();
+
+        const odpLayerCheckbox = document.getElementById('odpLayer');
+        const customerLayerCheckbox = document.getElementById('customerLayer');
+        const cableLayerCheckbox = document.getElementById('cableLayer');
+        const backboneLayerCheckbox = document.getElementById('backboneLayer');
+        const baseMapSelect = document.getElementById('baseMapSelect');
+
+        if (odpLayerCheckbox) {
+            odpLayerCheckbox.addEventListener('change', function() {
+                if (this.checked) map.addLayer(odpLayer);
+                else map.removeLayer(odpLayer);
+            });
+        }
+
+        if (customerLayerCheckbox) {
+            customerLayerCheckbox.addEventListener('change', function() {
+                if (this.checked) map.addLayer(customerLayer);
+                else map.removeLayer(customerLayer);
+            });
+        }
+
+        if (cableLayerCheckbox) {
+            cableLayerCheckbox.addEventListener('change', function() {
+                if (this.checked) map.addLayer(cableLayer);
+                else map.removeLayer(cableLayer);
+            });
+        }
+
+        if (backboneLayerCheckbox) {
+            backboneLayerCheckbox.addEventListener('change', function() {
+                if (this.checked) map.addLayer(backboneLayer);
+                else map.removeLayer(backboneLayer);
+            });
+        }
+
+        if (baseMapSelect) {
+            baseMapSelect.addEventListener('change', function() {
+                map.eachLayer(function(layer) {
+                    if (layer instanceof L.TileLayer) {
+                        map.removeLayer(layer);
+                    }
+                });
+
+                switch (this.value) {
+                    case 'light':
+                        lightTheme.addTo(map);
+                        break;
+                    case 'dark':
+                        darkTheme.addTo(map);
+                        break;
+                    case 'satellite':
+                    default:
+                        satelliteTheme.addTo(map);
+                        break;
+                }
+            });
+        }
+
+        const mobileToggle = document.getElementById('mobileToggle');
+        if (mobileToggle) {
+            mobileToggle.addEventListener('click', function() {
+                const controlPanel = document.querySelector('.control-panel');
+                const statsPanel = document.querySelector('.stats-panel');
+
+                if (controlPanel && statsPanel) {
+                    if (controlPanel.classList.contains('show')) {
+                        controlPanel.classList.remove('show');
+                        statsPanel.classList.add('show');
+                    } else {
+                        controlPanel.classList.add('show');
+                        statsPanel.classList.remove('show');
+                    }
+                }
+            });
+        }
+
+        const mobileLayerToggle = document.getElementById('mobileLayerToggle');
+        if (mobileLayerToggle) {
+            mobileLayerToggle.addEventListener('click', function() {
+                const layerControl = document.querySelector('.leaflet-control-layers');
+                if (layerControl) {
+                    layerControl.classList.toggle('show');
+                }
+            });
+        }
+    });
+</script>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
